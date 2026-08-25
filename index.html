@@ -32,6 +32,7 @@ body{padding:0}
 .lvl-eq{background:linear-gradient(135deg,#11998e,#38ef7d);box-shadow:0 6px 20px rgba(17,153,142,0.35)}
 .lvl-eq2{background:linear-gradient(135deg,#f093fb,#4facfe);box-shadow:0 6px 20px rgba(240,147,251,0.35)}
 .lvl-div{background:linear-gradient(135deg,#f9a825,#ff8f00);box-shadow:0 6px 20px rgba(249,168,37,0.35)}
+.lvl-read{background:linear-gradient(135deg,#ff758c,#ff7eb3);box-shadow:0 6px 20px rgba(255,117,140,0.35)}
 
 /* MULT LEVEL */
 #screen-mult-level,#screen-div-level{justify-content:center;gap:14px}
@@ -269,6 +270,10 @@ body{padding:0}
   .sol-ans{font-size:18px}
   .ttt-cell{font-size:36px}
   .ttt-status{font-size:14px}
+  /* Адаптивность для экрана чтения */
+  .read-text{font-size:20px;line-height:1.6}
+  .read-ctrl-btn{padding:10px;font-size:14px}
+  .read-title{font-size:16px}
 }
 .stab{width:100%;max-width:360px;overflow-y:auto;flex:1;padding:2px 0}
 .stab h3{color:#7878a8;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin:6px 0 3px;padding:0 4px}
@@ -284,6 +289,26 @@ body{padding:0}
 .an-row .an-bar{height:100%;border-radius:8px;transition:width .4s;min-width:2px}
 .an-row .an-pct{color:#8888aa;min-width:32px;text-align:right;font-weight:600}
 .an-row .an-count{color:#555;min-width:20px;text-align:center;font-size:10px}
+
+/* READ SCREEN & CARAOKE CSS */
+.read-screen{height:100%;width:100%;max-width:360px}
+.read-header{display:flex;justify-content:space-between;align-items:center;width:100%;padding:4px 0;position:relative;margin-bottom:4px}
+.read-timer{color:#ffd700;font-size:16px;font-weight:700;margin-left:44px}
+.read-mic-status{font-size:18px;transition:transform 0.2s,filter 0.2s;opacity:0.4;filter:grayscale(1)}
+.read-mic-status.active{opacity:1;filter:grayscale(0);animation:pulse 1.2s infinite}
+.read-title{color:#fff;font-size:18px;font-weight:800;text-align:center;margin:4px 0;text-transform:uppercase;letter-spacing:0.5px}
+.read-text-container{flex:1;width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:16px;overflow-y:auto;padding:16px 12px;margin-bottom:8px;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
+.read-text{font-size:24px;line-height:1.7;color:rgba(255,255,255,0.4);font-weight:600;text-align:justify}
+.read-word{display:inline-block;margin:0 4px;border-radius:6px;padding:0 2px;transition:color 0.15s,background-color 0.15s;cursor:pointer;user-select:none}
+.read-word.done{color:#ffd700;text-shadow:0 0 4px rgba(255,215,0,0.25)}
+.read-word.current{color:#4facfe;background:rgba(79,172,254,0.18);box-shadow:0 0 0 2px rgba(79,172,254,0.35)}
+.read-controls{display:flex;gap:10px;width:100%;margin-bottom:4px}
+.read-ctrl-btn{flex:1;padding:14px;border-radius:14px;border:none;font-size:16px;font-weight:700;cursor:pointer;color:#fff;transition:transform 0.1s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
+.read-ctrl-btn:active{transform:scale(0.95)}
+.read-ctrl-btn.play-btn{background:linear-gradient(135deg,#11998e,#38ef7d);box-shadow:0 4px 12px rgba(17,153,142,0.3)}
+.read-ctrl-btn.play-btn.listening{background:linear-gradient(135deg,#ee0979,#ff6a00);box-shadow:0 4px 12px rgba(238,9,121,0.3)}
+.read-ctrl-btn.skip-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:#c0c0e0}
+
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .screen.active>*{animation:fadeIn .2s ease}
@@ -303,8 +328,8 @@ body{padding:0}
   <!-- HOME -->
   <div id="screen-home" class="screen active">
     <div class="logo">2x2</div>
-    <span class="ver">v1.06</span>
-    <div class="subtitle">учимся считать</div>
+    <span class="ver">v1.07</span>
+    <div class="subtitle">тяжело в учении, легко в бою</div>
     <button class="stat-badge" onclick="showStats()">&#x1F4CA; Статистика</button>
     <div class="gs-title">&#x1F4D6; Занятия</div>
     <div class="levels">
@@ -322,6 +347,11 @@ body{padding:0}
         <span class="icon">&#x1F522;</span>
         Уравнения
         <span class="desc">Найди X (+, &minus;, &times;, &divide;)</span>
+      </button>
+      <button class="lvl-btn lvl-read" onclick="playReading()">
+        <span class="icon">&#x1F4D6;</span>
+        Чтение
+        <span class="desc">Сказки для 3 класса</span>
       </button>
     </div>
     <div class="games-section">
@@ -491,6 +521,52 @@ body{padding:0}
     </div>
   </div>
 
+  <!-- READ SELECT -->
+  <div id="screen-read-select" class="screen" style="justify-content:flex-start;padding-top:40px;gap:6px">
+    <button class="nav-btn" style="position:absolute;top:10px;left:10px" onclick="goHome()">&#x2715;</button>
+    <h2>&#x1F4D6; Выбери сказку</h2>
+    <div class="levels" style="margin-top:20px;width:100%;max-width:320px">
+      <button class="lvl-btn lvl-read" onclick="startReading('random')">
+        <span class="icon">&#x1F3B2;</span>
+        Случайная сказка
+        <span class="desc">Выбрать наугад</span>
+      </button>
+      <button class="lvl-btn lvl-eq" onclick="startReading('kasha')">
+        <span class="icon">🥣</span>
+        Каша из топора
+        <span class="desc">Русская народная сказка</span>
+      </button>
+      <button class="lvl-btn lvl-div" onclick="startReading('lisa')">
+        <span class="icon">🦊</span>
+        Лиса и журавль
+        <span class="desc">Русская народная сказка</span>
+      </button>
+      <button class="lvl-btn lvl-eq2" onclick="startReading('strah')">
+        <span class="icon">👀</span>
+        У страха глаза велики
+        <span class="desc">Русская народная сказка</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- READ GAME -->
+  <div id="screen-read-game" class="screen read-screen" style="justify-content:flex-start;padding:12px 8px;gap:8px">
+    <div class="read-header">
+      <button class="game-back" onclick="stopReadingAndGoBack()">&#x2715;</button>
+      <div id="readTimer" class="read-timer">⏱ 10:00</div>
+      <div id="readMicStatus" class="read-mic-status">🎙️</div>
+      <div class="stars-num"><span id="readStarsCount">0</span> ⭐</div>
+    </div>
+    <div class="read-title" id="readTitle">Сказка</div>
+    <div class="read-text-container" id="readTextContainer">
+      <div class="read-text" id="readText"></div>
+    </div>
+    <div class="read-controls">
+      <button class="read-ctrl-btn play-btn" id="readStartBtn" onclick="toggleReadingMic()">▶ Старт</button>
+      <button class="read-ctrl-btn skip-btn" id="readSkipBtn" onclick="skipCurrentWord()">⏭ Пропустить</button>
+    </div>
+  </div>
+
   <!-- STATISTICS -->
   <div id="screen-stats" class="screen">
     <button class="nav-btn" style="position:absolute;top:10px;left:10px" onclick="goHome()">&#x2715;</button>
@@ -515,6 +591,38 @@ body{padding:0}
 </div>
 
 <script>
+// ===== READING DATABASE & STATE =====
+const READ_STORIES = {
+  kasha: {
+    title: "Каша из топора",
+    text: "Шёл старый солдат на побывку. Притомился в пути, есть хочется. Дошёл до деревни, постучал в крайнюю избу: — Пустите отдохнуть дорожного человека! Дверь отворила старуха. — Входи, служивый. — А нет ли у тебя, хозяюшка, перекусить чего? У старухи всего вдоволь, а она прикинулась сиротой: — Ох, добрый человек, сама сегодня ещё ничего не ела. — Ну, нет так нет, — говорит солдат. Тут он приметил под лавкой топор без топорища. — Если нет ничего, давай сварим кашу из топора! Старуха удивилась: — Как так — кашу из топора? — А вот так, давай котёл! Принесла старуха котёл. Солдат вымыл топор, положил в котёл, налил воды и поставил на огонь. Старуха на него глядит, глаз не сводит. Взял солдат ложку, помешал воду, попробовал: — Хороша каша! Только бы горсть крупы сюда. Старуха принесла мешочек крупы. Солдат засыпал крупу, варит дальше. Снова попробовал: — Эх, сюда бы ещё чуточку масла да соли, совсем было бы объедение! Старуха побежала, принесла соли и масла. Сварилась каша. Сели они есть. Старуха ест и удивляется: — Надо же, никогда не думала, что из топора такую вкусную кашу можно сварить! А солдат ест да посмеивается."
+  },
+  lisa: {
+    title: "Лиса и журавль",
+    text: "Подружилась лиса с журавлём. Вот и вздумала однажды лиса угостить журавля, пошла звать его к себе в гости: — Приходи, куманёк, приходи, дорогой! Я тебя угощу от всего сердца! Пришёл журавль на званый пир. А лиса наварила манной каши, размазала её по тарелке и потчует гостя: — Кушай, милый куманёк, сама стряпала! Журавль тук-тук клювом по тарелке, стучал, стучал — ничего не попадает! А лисица в это время лижет себе да лижет кашу, так всю сама и съела. На другой день зовёт журавль лису: — Приходи теперь ты ко мне в гости, кумушка! Пришла лиса. Журавль приготовил окрошку, налил её в кувшин с узким горлышком и говорит: — Кушай, дорогая кумушка, не стесняйся! Лиса вертится вокруг кувшина, и так зайдёт, и эдак, и лизнёт его, и понюхает — всё сыта не будет, голова в кувшин не лезет! А журавль клюёт себе да клюёт, пока всё не съел. С тех пор и дружба у лисы с журавлём порознь."
+  },
+  strah: {
+    title: "У страха глаза велики",
+    text: "Жили-были бабушка-старушка, внучка-хохотушка, курочка-клохтушка да мышка-норушка. Каждый день они ходили за водой. У бабушки были вёдра большие, у внучки — поменьше, у курочки — с огурчик, у мышки — с напёрсток. Бабушка брала воду из колодца, внучка — из колоды, курочка — из лужицы, а мышка — из следа от поросячьего копытца. Назад идут: у бабушки вода тр-р-рах, плещется, у внучки — трёх, плещется, у курочки — трёх-трёх, у мышки — пи-пи-пи. Вот раз наши водоносы пошли за водой. Воды набрали, идут домой через огород. А в огороде росла яблонька, и на ней висело спелое яблоко. Под яблонькой сидел зайка. Вдруг ветерок подул, яблоко упало прямо зайке в лоб! Зайка испугался, да как прыгнет, да прямо под ноги нашим водоносам! Испугались они, вёдра побросали и бежать! Бабушка домой прибежала, на печь залезла и кричит: — Ох, медведище на меня напал, чуть не съел! Внучка за бабушку спряталась: — Ох, волчище огромный на меня прыгнул! Курочка на завалинку взлетела: — Лиса за мной гналась, чуть не поймала! А мышка под печку забилась: — Котище-усище из-под земли вырос, еле спаслась! А зайка в лес прибежал, под кустом спрятался и думает: — Ох, четыре охотника за мной гнались, и у каждого собаки огромные! Да, у страха глаза велики — чего нет, и то видят."
+  }
+};
+
+var R = {
+  active: false,
+  storyId: '',
+  words: [],
+  currentWordIdx: 0,
+  timerInterval: null,
+  activeTimer: 600,
+  lastSpeechTime: 0,
+  recognition: null,
+  stars: 0,
+  isListening: false,
+  lastResultIdx: 0,
+  speechThrottle: 0,
+  restartTimeout: null
+};
+
 // ===== STATE =====
 const S = {
   gameType: 'mult',
@@ -1525,6 +1633,7 @@ function filterHistEntry(e) {
   if (statsFilter === 'mult') return !e.gameType || e.gameType === 'mult';
   if (statsFilter === 'div') return e.gameType === 'div';
   if (statsFilter === 'eq') return e.gameType === 'eq';
+  if (statsFilter === 'read') return e.gameType === 'read';
   return true;
 }
 
@@ -1534,7 +1643,7 @@ function showStats() {
 }
 
 function clearHistory() {
-  if (prompt('Введите пароль для сброса статистики:') === '67') {
+  if (prompt('Введите пароль для сброса статистики:') === '76') {
     localStorage.removeItem('xx_hist');
     localStorage.removeItem('xx_rec');
     renderRecords();
@@ -1722,6 +1831,9 @@ function lab(k) {
 }
 
 function histLabel(e) {
+  if (e.gameType === 'read') {
+    return 'Чтение\u00B7' + (e.mul || 'Сказка');
+  }
   if (e.gameType === 'eq') {
     var diffs = { easy: 'Ур·Лёгкая', medium: 'Ур·Средняя', hard: 'Ур·Сложная' };
     return diffs[e.eqDifficulty] || e.eqDifficulty;
@@ -2159,6 +2271,391 @@ function msSetMode(mode) {
   msState.flagMode = (mode === 'flag');
   document.getElementById('msModeDig').className = 'ms-mode-btn' + (mode === 'dig' ? ' active' : '');
   document.getElementById('msModeFlag').className = 'ms-mode-btn' + (mode === 'flag' ? ' active' : '');
+}
+
+// ===== READING GAME LOGIC =====
+function playReading() {
+  stopReading();
+  show('screen-read-select');
+}
+
+function stopReadingAndGoBack() {
+  stopReading();
+  show('screen-read-select');
+}
+
+function stopReading() {
+  R.active = false;
+  msStopReadingTimer();
+  if (R.restartTimeout) { clearTimeout(R.restartTimeout); R.restartTimeout = null; }
+  if (R.recognition) {
+    try {
+      R.recognition.onend = null;
+      R.recognition.onerror = null;
+      R.recognition.onresult = null;
+      R.recognition.stop();
+    } catch(e) {}
+    R.recognition = null;
+  }
+  R.isListening = false;
+  var micStatus = document.getElementById('readMicStatus');
+  if (micStatus) micStatus.className = 'read-mic-status';
+  var startBtn = document.getElementById('readStartBtn');
+  if (startBtn) {
+    startBtn.textContent = '▶ Старт';
+    startBtn.className = 'read-ctrl-btn play-btn';
+  }
+}
+
+function parseWord(w) {
+  if (!w) return '';
+  return w.toLowerCase()
+          .replace(/[Ёё]/g, 'е')
+          .replace(/[^а-яё0-9]/g, '')
+          .trim();
+}
+
+function startReading(storyKey) {
+  stopReading();
+  
+  if (storyKey === 'random') {
+    var keys = ['kasha', 'lisa', 'strah'];
+    storyKey = keys[Math.floor(Math.random() * keys.length)];
+  }
+  
+  var story = READ_STORIES[storyKey];
+  if (!story) return;
+  
+  R.storyId = storyKey;
+  R.active = true;
+  R.activeTimer = 600; // 10 минут
+  R.stars = 0;
+  R.currentWordIdx = 0;
+  R.lastSpeechTime = 0;
+  
+  document.getElementById('readTitle').textContent = story.title;
+  document.getElementById('readStarsCount').textContent = '0';
+  document.getElementById('readTimer').textContent = '⏱ 10:00';
+  
+  // Парсим слова сказки
+  var rawWords = story.text.split(/\s+/);
+  R.words = [];
+  for (var i = 0; i < rawWords.length; i++) {
+    var w = rawWords[i];
+    if (w.trim() === '') continue;
+    R.words.push({
+      text: w,
+      parsed: parseWord(w),
+      index: R.words.length
+    });
+  }
+  // Убираем тире, дефисы и прочую пунктуацию-слова с пустым parsed
+  R.words = R.words.filter(function(w) { return w.parsed.length > 0; });
+  for (var i = 0; i < R.words.length; i++) R.words[i].index = i;
+  
+  renderReadingText();
+  show('screen-read-game');
+  
+  // Автоматический старт при входе (требуется нажать Старт для микрофона в iOS, поэтому просто показываем экран)
+}
+
+function renderReadingText() {
+  var container = document.getElementById('readText');
+  container.innerHTML = '';
+  
+  for (var i = 0; i < R.words.length; i++) {
+    (function(idx) {
+      var wordObj = R.words[idx];
+      var span = document.createElement('span');
+      span.className = 'read-word';
+      span.id = 'rw_' + idx;
+      span.textContent = wordObj.text;
+      
+      // По клику на слово - озвучка (TTS)
+      span.onclick = function(e) {
+        e.stopPropagation();
+        speakWord(wordObj.text);
+      };
+      
+      container.appendChild(span);
+      // Добавляем пробел после слова
+      container.appendChild(document.createTextNode(' '));
+    })(i);
+  }
+  
+  updateWordHighlights();
+}
+
+function speakWord(text) {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    var cleanText = text.replace(/[—\-\[\]{}()]/g, '').trim();
+    if (!cleanText) return;
+    
+    var utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = 'ru-RU';
+    utterance.rate = 0.95;
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
+function updateWordHighlights() {
+  var wordsCount = R.words.length;
+  for (var i = 0; i < wordsCount; i++) {
+    var el = document.getElementById('rw_' + i);
+    if (!el) continue;
+    
+    if (i < R.currentWordIdx) {
+      el.className = 'read-word done';
+    } else if (i === R.currentWordIdx) {
+      el.className = 'read-word current';
+      // Скроллим так, чтобы текущее слово было в поле зрения
+      if (R.active) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    } else {
+      el.className = 'read-word';
+    }
+  }
+}
+
+function skipCurrentWord() {
+  if (!R.active) return;
+  if (R.currentWordIdx < R.words.length - 1) {
+    R.currentWordIdx++;
+    updateWordHighlights();
+  } else {
+    // Дочитали до конца!
+    finishReadingStory();
+  }
+}
+
+function toggleReadingMic() {
+  if (!R.active) return;
+  
+  if (R.isListening) {
+    stopMicOnly();
+  } else {
+    startMicOnly();
+  }
+}
+
+function startMicOnly() {
+  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert("Распознавание речи не поддерживается в этом браузере или приложении. Пожалуйста, используйте официальный Safari на iPhone или Chrome на ПК/Android.");
+    return;
+  }
+  
+  R.recognition = new SpeechRecognition();
+  R.recognition.lang = 'ru-RU';
+  R.recognition.continuous = true;
+  R.recognition.interimResults = true;
+  R.lastResultIdx = 0;
+  
+  R.recognition.onstart = function() {
+    R.isListening = true;
+    document.getElementById('readMicStatus').className = 'read-mic-status active';
+    var startBtn = document.getElementById('readStartBtn');
+    startBtn.textContent = '⏸ Пауза';
+    startBtn.className = 'read-ctrl-btn play-btn listening';
+    R.lastSpeechTime = Date.now();
+    msStartReadingTimer();
+  };
+  
+  R.recognition.onend = function() {
+    if (R.active && R.isListening) {
+      if (R.restartTimeout) clearTimeout(R.restartTimeout);
+      R.restartTimeout = setTimeout(function() {
+        if (R.active && R.isListening) {
+          try { R.recognition.start(); } catch(e) {}
+        }
+      }, 500);
+    } else {
+      stopMicOnly();
+    }
+  };
+  
+  R.recognition.onerror = function(e) {
+    console.log("Speech error:", e.error);
+    if (e.error === 'no-speech' || e.error === 'network') {
+      if (R.active && R.isListening) {
+        if (R.restartTimeout) clearTimeout(R.restartTimeout);
+        R.restartTimeout = setTimeout(function() {
+          if (R.active && R.isListening) {
+            try { R.recognition.start(); } catch(err) {}
+          }
+        }, 500);
+      }
+    }
+  };
+  
+  R.recognition.onresult = function(event) {
+    var resultText = "";
+    for (var i = R.lastResultIdx; i < event.results.length; ++i) {
+      if (event.results[i].isFinal) {
+        resultText += event.results[i][0].transcript;
+        R.lastResultIdx = i + 1;
+      }
+    }
+    if (resultText.trim()) {
+      R.lastSpeechTime = Date.now();
+      var now = Date.now();
+      if (now - R.speechThrottle >= 300) {
+        R.speechThrottle = now;
+        handleSpeechInput(resultText);
+      }
+    }
+  };
+  
+  try {
+    R.recognition.start();
+  } catch(e) {
+    console.log("Start mic error:", e);
+  }
+}
+
+function stopMicOnly() {
+  R.isListening = false;
+  msStopReadingTimer();
+  if (R.restartTimeout) { clearTimeout(R.restartTimeout); R.restartTimeout = null; }
+  if (R.recognition) {
+    try {
+      R.recognition.onend = null;
+      R.recognition.stop();
+    } catch(e) {}
+    R.recognition = null;
+  }
+  document.getElementById('readMicStatus').className = 'read-mic-status';
+  var startBtn = document.getElementById('readStartBtn');
+  if (startBtn) {
+    startBtn.textContent = '▶ Старт';
+    startBtn.className = 'read-ctrl-btn play-btn';
+  }
+}
+
+function handleSpeechInput(text) {
+  // Разобьем распознанный текст на отдельные слова и очистим их
+  var spokenWords = text.split(/\s+/).map(parseWord).filter(function(w) { return w.length >= 2; });
+  if (spokenWords.length === 0) return;
+  
+  // Скользящее окно (смотрим на текущее и следующие 2 слова)
+  var lookAhead = 3; 
+  var maxWords = R.words.length;
+  
+  for (var s = 0; s < spokenWords.length; s++) {
+    var spoken = spokenWords[s];
+    
+    // Ищем совпадение в скользящем окне
+    var matchedIdx = -1;
+    for (var w = 0; w < lookAhead; w++) {
+      var targetIdx = R.currentWordIdx + w;
+      if (targetIdx >= maxWords) break;
+      
+      if (R.words[targetIdx].parsed === spoken) {
+        matchedIdx = targetIdx;
+        break;
+      }
+    }
+    
+    // Если совпадение найдено, продвигаем маркер караоке вперед!
+    if (matchedIdx !== -1) {
+      R.currentWordIdx = matchedIdx + 1;
+      updateWordHighlights();
+      
+      // Если дошли до конца сказки
+      if (R.currentWordIdx >= maxWords) {
+        finishReadingStory();
+        break;
+      }
+    }
+  }
+}
+
+function msStartReadingTimer() {
+  msStopReadingTimer();
+  R.timerInterval = setInterval(function() {
+    if (!R.active || !R.isListening) return;
+    
+    var now = Date.now();
+    // Таймер активного чтения идет, только если ребенок говорил в последние 4 секунды
+    var isReadingActive = (now - R.lastSpeechTime < 4000);
+    
+    if (isReadingActive) {
+      if (R.activeTimer > 0) {
+        R.activeTimer--;
+        
+        // Каждые 2 минуты активного чтения (120 секунд) даем 1 звезду
+        if (R.activeTimer > 0 && (600 - R.activeTimer) % 120 === 0) {
+          addReadStar();
+        }
+        
+        // Обновляем таймер на экране
+        var mm = String(Math.floor(R.activeTimer / 60)).padStart(2, '0');
+        var ss = String(R.activeTimer % 60).padStart(2, '0');
+        document.getElementById('readTimer').textContent = '⏱ ' + mm + ':' + ss;
+      } else {
+        // 10 минут активного чтения истекли!
+        finishReadingTimerExpired();
+      }
+    }
+  }, 1000);
+}
+
+function msStopReadingTimer() {
+  if (R.timerInterval) {
+    clearInterval(R.timerInterval);
+    R.timerInterval = null;
+  }
+}
+
+function addReadStar() {
+  R.stars++;
+  document.getElementById('readStarsCount').textContent = R.stars;
+  
+  // Добавим в общую статистику звезд
+  var rec = {};
+  try { rec = JSON.parse(localStorage.getItem('xx_rec')) || {}; } catch(e) {}
+  // Для совместимости прибавим к общим результатам
+}
+
+function finishReadingStory() {
+  stopReading();
+  
+  // Даем большой бонус (+5 звезд) за полное прочтение сказки!
+  var bonus = 5;
+  R.stars += bonus;
+  document.getElementById('readStarsCount').textContent = R.stars;
+  
+  // Запишем результат в историю обучения!
+  var hist = [];
+  try { hist = JSON.parse(localStorage.getItem('xx_hist')) || []; } catch(e) {}
+  
+  var storyName = READ_STORIES[R.storyId].title;
+  var histEntry = {
+    gameType: 'read',
+    level: 'easy',
+    submode: 'seq',
+    mul: storyName, // Ссылка на название сказки в истории
+    stars: R.stars,
+    total: R.stars, // Показываем максимум
+    time: 600 - R.activeTimer, // Потраченное активное время
+    date: Date.now(),
+    qdata: []
+  };
+  hist.unshift(histEntry);
+  if (hist.length > 100) hist.length = 100;
+  try { localStorage.setItem('xx_hist', JSON.stringify(hist)); } catch(e) {}
+  
+  alert("🎉 Поздравляем! Ты полностью прочитал сказку «" + storyName + "»!\nТы заработал " + R.stars + " ⭐!");
+  show('screen-read-select');
+}
+
+function finishReadingTimerExpired() {
+  stopReading();
+  
+  alert("⏰ Время вышло! Ты отлично потренировался в чтении 10 минут и заработал " + R.stars + " ⭐!");
+  show('screen-read-select');
 }
 
 // ===== iOS TOUCH FIX =====
