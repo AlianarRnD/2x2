@@ -329,7 +329,7 @@ body{padding:0}
   <!-- HOME -->
   <div id="screen-home" class="screen active">
     <div class="logo">2x2</div>
-    <span class="ver">v1.08</span>
+    <span class="ver">v1.09</span>
     <div class="subtitle">тяжело в учении, легко в бою</div>
     <button class="stat-badge" onclick="showStats()">&#x1F4CA; Статистика</button>
     <div class="gs-title">&#x1F4D6; Занятия</div>
@@ -2466,12 +2466,13 @@ function startMicOnly() {
   
   R.recognition.onend = function() {
     if (R.active && R.isListening) {
-      if (R.restartTimeout) clearTimeout(R.restartTimeout);
+      if (R.restartTimeout) return;
       R.restartTimeout = setTimeout(function() {
+        R.restartTimeout = null;
         if (R.active && R.isListening) {
           try { R.recognition.start(); } catch(e) {}
         }
-      }, 500);
+      }, 1500);
     } else {
       stopMicOnly();
     }
@@ -2491,7 +2492,7 @@ function startMicOnly() {
       alert('Микрофон заблокирован. Разрешите доступ к микрофону в настройках браузера и нажмите «Старт» снова.');
       return;
     }
-    if (e.error === 'no-speech' || e.error === 'network') {
+    if (e.error === 'no-speech' || e.error === 'network' || e.error === 'aborted') {
       if (R.active && R.isListening) {
         if (R.restartTimeout) clearTimeout(R.restartTimeout);
         R.restartTimeout = setTimeout(function() {
@@ -2506,15 +2507,15 @@ function startMicOnly() {
   R.recognition.onresult = function(event) {
     var resultText = "";
     for (var i = R.lastResultIdx; i < event.results.length; ++i) {
+      resultText += event.results[i][0].transcript;
       if (event.results[i].isFinal) {
-        resultText += event.results[i][0].transcript;
         R.lastResultIdx = i + 1;
       }
     }
     if (resultText.trim()) {
       R.lastSpeechTime = Date.now();
       var now = Date.now();
-      if (now - R.speechThrottle >= 300) {
+      if (now - R.speechThrottle >= 150) {
         R.speechThrottle = now;
         handleSpeechInput(resultText);
       }
