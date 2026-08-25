@@ -329,7 +329,7 @@ body{padding:0}
   <!-- HOME -->
   <div id="screen-home" class="screen active">
     <div class="logo">2x2</div>
-    <span class="ver">v1.09</span>
+    <span class="ver">v1.10</span>
     <div class="subtitle">тяжело в учении, легко в бою</div>
     <button class="stat-badge" onclick="showStats()">&#x1F4CA; Статистика</button>
     <div class="gs-title">&#x1F4D6; Занятия</div>
@@ -2441,20 +2441,14 @@ function toggleReadingMic() {
   }
 }
 
-function startMicOnly() {
+function createRecognition() {
   var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    alert("Распознавание речи не поддерживается в этом браузере или приложении. Пожалуйста, используйте официальный Safari на iPhone или Chrome на ПК/Android.");
-    return;
-  }
-  
-  R.recognition = new SpeechRecognition();
-  R.recognition.lang = 'ru-RU';
-  R.recognition.continuous = true;
-  R.recognition.interimResults = true;
-  R.lastResultIdx = 0;
-  
-  R.recognition.onstart = function() {
+  var rec = new SpeechRecognition();
+  rec.lang = 'ru-RU';
+  rec.continuous = true;
+  rec.interimResults = true;
+
+  rec.onstart = function() {
     R.isListening = true;
     document.getElementById('readMicStatus').className = 'read-mic-status active';
     var startBtn = document.getElementById('readStartBtn');
@@ -2463,22 +2457,19 @@ function startMicOnly() {
     R.lastSpeechTime = Date.now();
     msStartReadingTimer();
   };
-  
-  R.recognition.onend = function() {
-    if (R.active && R.isListening) {
-      if (R.restartTimeout) return;
-      R.restartTimeout = setTimeout(function() {
-        R.restartTimeout = null;
-        if (R.active && R.isListening) {
-          try { R.recognition.start(); } catch(e) {}
-        }
-      }, 1500);
-    } else {
-      stopMicOnly();
+
+  rec.onend = function() {
+    R.isListening = false;
+    msStopReadingTimer();
+    document.getElementById('readMicStatus').className = 'read-mic-status';
+    var startBtn = document.getElementById('readStartBtn');
+    if (startBtn) {
+      startBtn.textContent = '▶ Старт';
+      startBtn.className = 'read-ctrl-btn play-btn';
     }
   };
-  
-  R.recognition.onerror = function(e) {
+
+  rec.onerror = function(e) {
     console.log("Speech error:", e.error);
     if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
       R.isListening = false;
@@ -2494,17 +2485,21 @@ function startMicOnly() {
     }
     if (e.error === 'no-speech' || e.error === 'network' || e.error === 'aborted') {
       if (R.active && R.isListening) {
-        if (R.restartTimeout) clearTimeout(R.restartTimeout);
+        if (R.restartTimeout) return;
         R.restartTimeout = setTimeout(function() {
+          R.restartTimeout = null;
           if (R.active && R.isListening) {
-            try { R.recognition.start(); } catch(err) {}
+            try {
+              R.recognition = createRecognition();
+              R.recognition.start();
+            } catch(err) {}
           }
         }, 500);
       }
     }
   };
-  
-  R.recognition.onresult = function(event) {
+
+  rec.onresult = function(event) {
     var resultText = "";
     for (var i = R.lastResultIdx; i < event.results.length; ++i) {
       resultText += event.results[i][0].transcript;
@@ -2521,6 +2516,18 @@ function startMicOnly() {
       }
     }
   };
+
+  return rec;
+}
+
+function startMicOnly() {
+  if (!(window.SpeechRecognition || window.webkitSpeechRecognition)) {
+    alert("Распознавание речи не поддерживается в этом браузере. Используйте Safari на iPhone или Chrome на Android.");
+    return;
+  }
+  
+  R.recognition = createRecognition();
+  R.lastResultIdx = 0;
   
   try {
     R.recognition.start();
