@@ -202,6 +202,7 @@ body{padding:0}
 /* MINESWEEPER */
 .ms-screen{justify-content:flex-start;padding-top:40px;gap:6px}
 .ms-screen h2{color:#fff;font-size:22px;font-weight:700;margin-bottom:2px}
+#screen-read-select h2{color:#fff;font-size:22px;font-weight:700}
 .ms-header{display:flex;align-items:center;justify-content:center;gap:14px;width:100%;max-width:300px;padding:2px 0}
 .ms-mine-count{color:#f5576c;font-size:18px;font-weight:700}
 .ms-timer{color:#8888aa;font-size:16px;font-weight:600;min-width:70px;text-align:center}
@@ -328,7 +329,7 @@ body{padding:0}
   <!-- HOME -->
   <div id="screen-home" class="screen active">
     <div class="logo">2x2</div>
-    <span class="ver">v1.07</span>
+    <span class="ver">v1.08</span>
     <div class="subtitle">тяжело в учении, легко в бою</div>
     <button class="stat-badge" onclick="showStats()">&#x1F4CA; Статистика</button>
     <div class="gs-title">&#x1F4D6; Занятия</div>
@@ -2478,6 +2479,18 @@ function startMicOnly() {
   
   R.recognition.onerror = function(e) {
     console.log("Speech error:", e.error);
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+      R.isListening = false;
+      msStopReadingTimer();
+      document.getElementById('readMicStatus').className = 'read-mic-status';
+      var startBtn = document.getElementById('readStartBtn');
+      if (startBtn) {
+        startBtn.textContent = '▶ Старт';
+        startBtn.className = 'read-ctrl-btn play-btn';
+      }
+      alert('Микрофон заблокирован. Разрешите доступ к микрофону в настройках браузера и нажмите «Старт» снова.');
+      return;
+    }
     if (e.error === 'no-speech' || e.error === 'network') {
       if (R.active && R.isListening) {
         if (R.restartTimeout) clearTimeout(R.restartTimeout);
