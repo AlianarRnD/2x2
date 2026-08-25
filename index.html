@@ -300,9 +300,11 @@ body{padding:0}
 .read-title{color:#fff;font-size:18px;font-weight:800;text-align:center;margin:4px 0;text-transform:uppercase;letter-spacing:0.5px}
 .read-text-container{flex:1;width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:16px;overflow-y:auto;padding:16px 12px;margin-bottom:8px;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
 .read-text{font-size:24px;line-height:1.7;color:rgba(255,255,255,0.4);font-weight:600;text-align:justify}
-.read-word{display:inline-block;margin:0 4px;border-radius:6px;padding:0 2px;transition:color 0.15s,background-color 0.15s;cursor:pointer;user-select:none}
+.read-word{display:inline-block;margin:0 4px;border-radius:6px;padding:2px 6px;transition:color 0.15s,background-color 0.15s;cursor:pointer;user-select:none}
 .read-word.done{color:#ffd700;text-shadow:0 0 4px rgba(255,215,0,0.25)}
 .read-word.current{color:#4facfe;background:rgba(79,172,254,0.18);box-shadow:0 0 0 2px rgba(79,172,254,0.35)}
+.read-word.tap-current{color:#38ef7d;background:rgba(56,239,125,0.15);box-shadow:0 0 0 2px rgba(56,239,125,0.4);animation:tapPulse 1.5s ease-in-out infinite}
+@keyframes tapPulse{0%,100%{box-shadow:0 0 0 2px rgba(56,239,125,0.4)}50%{box-shadow:0 0 0 4px rgba(56,239,125,0.15)}}
 .read-controls{display:flex;gap:10px;width:100%;margin-bottom:4px}
 .read-ctrl-btn{flex:1;padding:14px;border-radius:14px;border:none;font-size:16px;font-weight:700;cursor:pointer;color:#fff;transition:transform 0.1s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
 .read-ctrl-btn:active{transform:scale(0.95)}
@@ -329,7 +331,7 @@ body{padding:0}
   <!-- HOME -->
   <div id="screen-home" class="screen active">
     <div class="logo">2x2</div>
-    <span class="ver">v1.10</span>
+    <span class="ver">v1.11</span>
     <div class="subtitle">тяжело в учении, легко в бою</div>
     <button class="stat-badge" onclick="showStats()">&#x1F4CA; Статистика</button>
     <div class="gs-title">&#x1F4D6; Занятия</div>
@@ -616,12 +618,14 @@ var R = {
   timerInterval: null,
   activeTimer: 600,
   lastSpeechTime: 0,
+  lastResultTime: 0,
   recognition: null,
   stars: 0,
   isListening: false,
   lastResultIdx: 0,
   speechThrottle: 0,
-  restartTimeout: null
+  restartTimeout: null,
+  watchdog: null
 };
 
 // ===== STATE =====
@@ -2287,6 +2291,7 @@ function stopReadingAndGoBack() {
 
 function stopReading() {
   R.active = false;
+  stopWatchdog();
   msStopReadingTimer();
   if (R.restartTimeout) { clearTimeout(R.restartTimeout); R.restartTimeout = null; }
   if (R.recognition) {
@@ -2372,14 +2377,19 @@ function renderReadingText() {
       span.id = 'rw_' + idx;
       span.textContent = wordObj.text;
       
-      // По клику на слово - озвучка (TTS)
       span.onclick = function(e) {
         e.stopPropagation();
         speakWord(wordObj.text);
+        if (idx >= R.currentWordIdx) {
+          R.currentWordIdx = idx + 1;
+          updateWordHighlights();
+          if (R.currentWordIdx >= R.words.length) {
+            finishReadingStory();
+          }
+        }
       };
       
       container.appendChild(span);
-      // Добавляем пробел после слова
       container.appendChild(document.createTextNode(' '));
     })(i);
   }
@@ -2402,6 +2412,7 @@ function speakWord(text) {
 
 function updateWordHighlights() {
   var wordsCount = R.words.length;
+  var micActive = R.isListening;
   for (var i = 0; i < wordsCount; i++) {
     var el = document.getElementById('rw_' + i);
     if (!el) continue;
@@ -2409,8 +2420,7 @@ function updateWordHighlights() {
     if (i < R.currentWordIdx) {
       el.className = 'read-word done';
     } else if (i === R.currentWordIdx) {
-      el.className = 'read-word current';
-      // Скроллим так, чтобы текущее слово было в поле зрения
+      el.className = micActive ? 'read-word current' : 'read-word tap-current';
       if (R.active) {
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
@@ -2441,6 +2451,30 @@ function toggleReadingMic() {
   }
 }
 
+function startWatchdog() {
+  stopWatchdog();
+  R.watchdog = setInterval(function() {
+    if (!R.active || !R.isListening) { stopWatchdog(); return; }
+    if (Date.now() - R.lastResultTime > 6000) {
+      console.log("Watchdog: zombie detected, restarting mic");
+      try {
+        if (R.recognition) {
+          R.recognition.onend = null;
+          R.recognition.onerror = null;
+          R.recognition.onresult = null;
+          R.recognition.abort();
+        }
+      } catch(e) {}
+      R.recognition = createRecognition();
+      try { R.recognition.start(); } catch(e) {}
+    }
+  }, 2000);
+}
+
+function stopWatchdog() {
+  if (R.watchdog) { clearInterval(R.watchdog); R.watchdog = null; }
+}
+
 function createRecognition() {
   var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   var rec = new SpeechRecognition();
@@ -2450,16 +2484,20 @@ function createRecognition() {
 
   rec.onstart = function() {
     R.isListening = true;
+    R.lastResultTime = Date.now();
     document.getElementById('readMicStatus').className = 'read-mic-status active';
     var startBtn = document.getElementById('readStartBtn');
     startBtn.textContent = '⏸ Пауза';
     startBtn.className = 'read-ctrl-btn play-btn listening';
     R.lastSpeechTime = Date.now();
     msStartReadingTimer();
+    startWatchdog();
+    updateWordHighlights();
   };
 
   rec.onend = function() {
     R.isListening = false;
+    stopWatchdog();
     msStopReadingTimer();
     document.getElementById('readMicStatus').className = 'read-mic-status';
     var startBtn = document.getElementById('readStartBtn');
@@ -2467,12 +2505,14 @@ function createRecognition() {
       startBtn.textContent = '▶ Старт';
       startBtn.className = 'read-ctrl-btn play-btn';
     }
+    updateWordHighlights();
   };
 
   rec.onerror = function(e) {
     console.log("Speech error:", e.error);
     if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
       R.isListening = false;
+      stopWatchdog();
       msStopReadingTimer();
       document.getElementById('readMicStatus').className = 'read-mic-status';
       var startBtn = document.getElementById('readStartBtn');
@@ -2508,6 +2548,7 @@ function createRecognition() {
       }
     }
     if (resultText.trim()) {
+      R.lastResultTime = Date.now();
       R.lastSpeechTime = Date.now();
       var now = Date.now();
       if (now - R.speechThrottle >= 150) {
@@ -2538,6 +2579,7 @@ function startMicOnly() {
 
 function stopMicOnly() {
   R.isListening = false;
+  stopWatchdog();
   msStopReadingTimer();
   if (R.restartTimeout) { clearTimeout(R.restartTimeout); R.restartTimeout = null; }
   if (R.recognition) {
@@ -2553,6 +2595,7 @@ function stopMicOnly() {
     startBtn.textContent = '▶ Старт';
     startBtn.className = 'read-ctrl-btn play-btn';
   }
+  updateWordHighlights();
 }
 
 function handleSpeechInput(text) {
