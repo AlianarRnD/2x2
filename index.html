@@ -37,6 +37,7 @@ body{padding:0}
 .lvl-eq2{background:linear-gradient(135deg,#f093fb,#4facfe);box-shadow:0 6px 20px rgba(240,147,251,0.35)}
 .lvl-div{background:linear-gradient(135deg,#f9a825,#ff8f00);box-shadow:0 6px 20px rgba(249,168,37,0.35)}
 .lvl-read{background:linear-gradient(135deg,#ff758c,#ff7eb3);box-shadow:0 6px 20px rgba(255,117,140,0.35)}
+.lvl-train{background:linear-gradient(135deg,#667eea,#764ba2);box-shadow:0 6px 20px rgba(102,126,234,0.35)}
 
 /* MULT LEVEL */
 #screen-mult-level,#screen-div-level{justify-content:center;gap:14px}
@@ -226,7 +227,9 @@ body{padding:0}
 .ms-minesel button{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:#c0c0e0;font-size:14px;font-weight:700;cursor:pointer;transition:.1s;font-family:inherit;padding:0;display:flex;align-items:center;justify-content:center}
 .ms-minesel button:active{transform:scale(0.9)}
 .ms-minesel button.sel{border-color:#f5576c;background:rgba(245,87,108,0.2);color:#fff}
-.ms-cell{aspect-ratio:1;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.08);color:#fff;font-size:18px;font-weight:700;cursor:pointer;transition:.06s;display:flex;align-items:center;justify-content:center;font-family:inherit;padding:0}
+.ms-cell{aspect-ratio:1;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.08);color:#fff;font-size:18px;font-weight:700;cursor:pointer;transition:.06s;display:flex;align-items:center;justify-content:center;font-family:inherit;padding:0;position:relative;overflow:hidden}
+.ms-cell.longpress{animation:lpRing .5s ease-out forwards}
+@keyframes lpRing{0%{box-shadow:inset 0 0 0 0 rgba(255,215,0,0.6)}100%{box-shadow:inset 0 0 0 4px rgba(255,215,0,0.8);background:rgba(255,215,0,0.15)}}
 .ms-cell:active{transform:scale(0.92)}
 .ms-cell.revealed{background:rgba(255,255,255,0.02);border-color:rgba(255,255,255,0.03)}
 .ms-cell.flag{color:#ff6a00}
@@ -324,6 +327,7 @@ body{padding:0}
 .read-mode-btn:active{transform:scale(0.96)}
 .rm-karaoke{background:linear-gradient(135deg,#667eea,#764ba2)}
 .rm-ebook{background:linear-gradient(135deg,#11998e,#38ef7d)}
+.rm-listen{background:linear-gradient(135deg,#f5576c,#ff758c)}
 .rm-technique{background:linear-gradient(135deg,#f9a825,#ff8f00)}
 .quarter-btn{width:100%;max-width:280px;padding:16px;border-radius:16px;border:none;font-size:16px;font-weight:600;cursor:pointer;color:#fff;transition:.12s;box-shadow:0 4px 12px rgba(0,0,0,0.3);font-family:inherit}
 .quarter-btn:active{transform:scale(0.96)}
@@ -374,6 +378,21 @@ body{padding:0}
 .ach-name{color:#fff;font-size:14px;font-weight:700}
 .ach-desc{color:#8888aa;font-size:11px;margin-top:1px}
 #screen-achievements h2,#screen-sprint-select h2,#screen-sprint-result h2{color:#fff;font-size:22px;font-weight:700;margin-top:16px}
+
+/* GAME RULES */
+.lvl-btn{position:relative}
+.game-info-btn{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,255,255,0.25);background:rgba(0,0,0,0.25);color:#fff;font-size:14px;font-weight:700;font-style:italic;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;transition:.15s;font-family:inherit}
+.game-info-btn:active{transform:scale(0.9);background:rgba(0,0,0,0.45)}
+.rules-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:100;display:none;justify-content:center;align-items:center;padding:20px}
+.rules-overlay.open{display:flex}
+.rules-modal{background:linear-gradient(135deg,#1a153a,#302b63);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:24px 20px;max-width:340px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,0.7)}
+.rules-modal::-webkit-scrollbar{display:none}
+.rules-modal h3{color:#fff;font-size:20px;font-weight:700;margin-bottom:12px;text-align:center}
+.rules-modal p{color:#c0c0e0;font-size:13px;line-height:1.6;margin-bottom:8px}
+.rules-modal ul{color:#c0c0e0;font-size:13px;line-height:1.7;padding-left:18px;margin-bottom:8px}
+.rules-modal li{margin-bottom:4px}
+.rules-modal .rules-close{width:100%;padding:12px;border-radius:12px;border:none;font-size:15px;font-weight:600;cursor:pointer;color:#fff;background:linear-gradient(135deg,#667eea,#764ba2);margin-top:12px;font-family:inherit;transition:.12s}
+.rules-modal .rules-close:active{transform:scale(0.96)}
 </style>
 </head>
 <body ontouchstart>
@@ -383,7 +402,7 @@ body{padding:0}
   <!-- HOME -->
   <div id="screen-home" class="screen active">
     <div class="logo">2x2</div>
-    <span class="ver">v1.14</span>
+    <span class="ver">v1.15</span>
     <div class="subtitle">тяжело в учении, легко в бою</div>
     <button class="stat-badge" onclick="showStats()">&#x1F4CA; Статистика</button>
     <div class="stat-badge" id="streakBadge" style="display:none"></div>
@@ -406,6 +425,11 @@ body{padding:0}
         Уравнения
         <span class="desc">Найди X (+, &minus;, &times;, &divide;)</span>
       </button>
+      <button class="lvl-btn lvl-train" onclick="startTraining()" id="trainBtn">
+        <span class="icon">&#x1F3AF;</span>
+        Тренировка
+        <span class="desc" id="trainDesc">Повтори сложные примеры</span>
+      </button>
       <button class="lvl-btn lvl-read" onclick="playReading()">
         <span class="icon">&#x1F4D6;</span>
         Чтение
@@ -416,16 +440,19 @@ body{padding:0}
       <div class="gs-title">&#x1F3AE; Игры</div>
       <div class="levels" style="margin-top:0">
         <button class="lvl-btn lvl-eq2" onclick="playTtt()">
+          <span class="game-info-btn" onclick="event.stopPropagation();showGameRules('ttt')">i</span>
           <span class="icon">&#x2B55;</span>
           Крестики-нолики
           <span class="desc">X и O на поле 3&times;3</span>
         </button>
         <button class="lvl-btn lvl-div" onclick="playMinesweeper()">
+          <span class="game-info-btn" onclick="event.stopPropagation();showGameRules('ms')">i</span>
           <span class="icon">&#x1F4A3;</span>
           Сапёр
           <span class="desc">Найди все мины 10&times;10</span>
         </button>
         <button class="lvl-btn lvl-eq" onclick="pickSprintMode()">
+          <span class="game-info-btn" onclick="event.stopPropagation();showGameRules('sprint')">i</span>
           <span class="icon">&#x26A1;</span>
           За минуту
           <span class="desc">Сколько успеешь за 60 секунд</span>
@@ -531,6 +558,7 @@ body{padding:0}
     <div class="r-rec" id="rRec"></div>
     <div class="r-rec-info" id="rRecInfo"></div>
     <div class="r-msg" id="rMsg"></div>
+    <div id="rTip" style="color:#7878a8;font-size:12px;margin-top:4px;text-align:center;min-height:16px"></div>
     <div class="r-btns">
       <button class="r-btn p" onclick="playAgain()">&#x1F504; Ещё раз</button>
       <button class="r-btn s" onclick="goHome()">&#x1F3E0; На главную</button>
@@ -590,6 +618,7 @@ body{padding:0}
     <h2>&#x1F4D6; Режим чтения</h2>
     <button class="read-mode-btn rm-karaoke" onclick="selectReadMode('karaoke')">&#x1F3A4; Караоке</button>
     <button class="read-mode-btn rm-ebook" onclick="selectReadMode('ebook')">&#x1F4DA; Читать как книгу</button>
+    <button class="read-mode-btn rm-listen" onclick="selectReadMode('listen')">&#x1F50A; Слушать вслух</button>
     <button class="read-mode-btn rm-technique" onclick="selectReadMode('technique')">&#x23F1; Техника чтения</button>
   </div>
 
@@ -729,7 +758,6 @@ body{padding:0}
     <div class="stab" id="recList"></div>
     <div class="stab" id="histList" style="display:none"></div>
     <div class="stab" id="analyticsList" style="display:none"></div>
-    <button class="stat-clear-btn" style="color:#4facfe;background:rgba(79,172,254,0.1)" onclick="exportStats()">&#x1F4E4; Экспорт данных</button>
     <button class="stat-clear-btn" id="clearHistBtn" onclick="clearHistory()">&#x1F5D1; Сбросить всю статистику</button>
   </div>
 
@@ -782,6 +810,14 @@ body{padding:0}
 
 </div>
 
+<div class="rules-overlay" id="rulesOverlay" onclick="closeGameRules()">
+  <div class="rules-modal" onclick="event.stopPropagation()">
+    <h3 id="rulesTitle"></h3>
+    <div id="rulesBody"></div>
+    <button class="rules-close" onclick="closeGameRules()">Понял!</button>
+  </div>
+</div>
+
 <script>
 // ===== READING DATABASE & STATE =====
 const READ_STORIES = {
@@ -824,6 +860,26 @@ const READ_STORIES = {
   flower: {
     title: "Цветик-семицветик",
     text: "Купила Женя бабушке цветик-семицветик. У цветика семь лепестков — красный, оранжевый, жёлтый, зелёный, голубой, синий и фиолетовый. Каждый лепесток выполняет одно желание. Женя сорвала красный лепесток и закричала: — Лети, лети, лепесток! Через лес, через поле, через речку быструю. В Африку, в Африку, к обезьянам! Привези мне обезьяну! Ветер сорвал лепесток и унёс его. Через минуту перед Женей стояла настоящая обезьяна. Она горой села на пол и стала грызть карандаш. Женя испугалась. Сорвала оранжевый лепесток и закричала: — Лети, лепесток, обратно! Обезьяна исчезла. Шла Женя через парк и увидела, как мальчик Серёжа плачет. — Почему ты плачешь? — спросила Женя. — Я клюнулся и сломал очки, — ответил Серёжа. Сорвала Женя жёлтый лепесток: — Лети, лепесток, через парк, к речке быстрой, к мальчику Серёже! Сделай ему новые очки! И вот Серёже дали новые очки. Потом Женя помогала ещё многим людям. Она сказала маме: — Мы с цветиком-семицветиком будем всегда помогать людям!"
+  },
+  geese: {
+    title: "Гуси-лебеди",
+    text: "Жила-была девочка Маша и братишка Петя. Вот пошла Маша в лес за ягодами и заблудилась. Увидела печку и говорит: — Печка, печка, испеки мне пирожка! Печка ответила: — Сядь на мою задницу, съешь пирожок. Маша села, съела пирожок и пошла дальше. Встретила яблоню: — Яблоня, яблоня, дай мне яблочка! Яблоня сказала: — Сядь на мою задницу, съешь яблочко. Маша села, съела яблочко и пошла дальше. Встретила речку: — Речка, речка, пронеси меня на другую сторону! Речка сказала: — Сядь на мою задницу, пронесу. Маша переправилась и пришла к избушке Бабы-Яги. А там сидит Петя и плачет. Баба-Яга хочет его съесть. Маша говорит: — Баба-Яга, отпусти братика! Баба-Яга согласилась, только если Маша принесёт ей золотые волосы с царевны. Маша пошла к царевне и попросила волосы. Царевна дала ей ком золотых волос и велела бежать, а сама погналась за ней. Маша позвала печку — та спрятала. Потом яблоню — тоже. Потом речку — та перевезла Машу на другой берег. Баба-Яга и царевна утонули в речке. Маша и Петя вернулись домой и больше никогда не заблудятся."
+  },
+  kolobok: {
+    title: "Колобок",
+    text: "Заварила бабуля кашу, да не dotянула. Взяла она муки, да испекла колобок. Положила колобок на окно остывать. А он покатился — с окна на лавку, с лавки на пол, с пола на порог, с порога на улицу. Катится колобок по дороге, а навстречу ему заяц. — Колобок, Колобок! Я тебя съем! — Не ешь меня, заяц! Я тебе лучше песенку спою! И запел колобок: — Я колобок, Колобок! Я от бабушки ушёл, Я от дедушки ушёл, И от тебя не уйду ли! И покатился дальше. Встретил волка. Волк тоже хотел его съесть, но колобок спел песенку и укатился. Встретил медведя. Медведь загородил дорогу, но колобок спел песенку и снова укатился. А навстречу ему лиса. — Ой, какая песенка хорошая! Спой ещё раз, Колобок, только ближе! Колобок подкатился поближе, запел, а лиса — хвать! И съела колобка. Вот и конец, кто слушал — молодец!"
+  },
+  teremok: {
+    title: "Теремок",
+    text: "Стоит в поле теремок. Бежала мышка-норушка и увидела теремок. — Теремок, теремок! Кто в теремочке живёт? Никто не отвечает. Значит, буду жить я! Сидит мышка в теремочке. Бежит лягушка-квакушка: — Ква-ква! Кто в теремочке живёт? — Я, мышка-норушка! А ты кто? — Я лягушка-квакушка! — Давай жить вместе! Сидят они вдвоём. Бежит зайчик-побегайчик: — Ой-ой! Кто в теремочке живёт? — Мы, мышка и лягушка! А ты кто? — Я зайчик-побегайчик! — Давай жить вместе! Сидят втроём. Бежит лисичка-сестричка: — Ты-ты-ты! Кто в теремочке живёт? — Мы, мышка, лягушка и зайчик! А ты кто? — Я лисичка-сестричка! — Давай жить вместе! Сидят вчетвером. А потом пришёл серый волчок. Все испугались и побежали. Только волк остался в теремке. А потом пришёл медведь и выгнал волка. Стали они жить в теремке все вместе и дружно."
+  },
+  masha: {
+    title: "Маша и медведь",
+    text: "В некотором царстве, в некотором государстве жила-была девочка Маша. Вот пошла она в лес за ягодами для бабушки. Набирала Маша ягоды, да и забралась далеко-далеко в чащобу. Увидала избушку и постучала: — Отвори, дверца, отвори! Никто не отвечает. Маша вошла внутрь, а там — баня. Маша раздвинула печку, села на каменку и начала топить. А в это время шёл по лесу медведь и принёс в избушку кастрюлю с кашей. Медведь увидал Машу и закричал: — А-а-а! Кто это топит мою баню и занимает мою избушку? — Я, Маша! Девочка не испугалась. Медведь говорит: — Ну, раз ты такая смелая, живи у меня! Будешь мне готовить и кашу варить. Маша согласилась, только чтобы потом домой отпустил. Медведь обещал. Дня два-три Маша кормила медведя, а потом подумала, как бы убежать. Сварила Маша густую кашу, намазала её на липкую липучку и повесила на стену. Медведь потянулся за кашей и прилип. А Маша побежала домой. Медведь вырвался и погнал за ней. Маша позвала на помощь зайцев. Зайцы спрятали Машу под шляпой. Медведь обошёл весь лес, но девочку не нашёл и вернулся домой. А Маша благополучно пришла к бабушке."
+  },
+  repka: {
+    title: "Репка",
+    text: "Посадил дед репку. Выросла репка большая-пребольшая. Стал дед тянуть репку — тянет-потянет, вытянуть не может. Позвал дед бабку: — Бабка, бабка, тяни репку! Бабка за дедку, дедка за репку — тянут-потянут, вытянуть не могут. Позвала бабка внучку: — Внучка, внучка, тяни репку! Внучка за бабку, бабка за дедку, дедка за репку — тянут-потянут, вытянуть не могут. Позвала внучка Жучку: — Жучка, Жучка, тяни репку! Жучка за внучку, внучка за бабку, бабка за дедку, дедка за репку — тянут-потянут, вытянуть не могут. Позвала Жучка кошку: — Кошка, кошка, тяни репку! Кошка за Жучку, Жучка за внучку, внучка за бабку, бабка за дедку, дедка за репку — тянут-потянут, вытянуть не могут. Позвала кошка мышку: — Мышка, мышка, тяни репку! Мышка за кошку, кошка за Жучку, Жучка за внучку, внучка за бабку, бабка за дедку, дедка за репку — тянут-потянут — и вытянули репку! Вот и сказке конец, а кто слушал — молодец!"
   }
 };
 
@@ -884,6 +940,31 @@ const READ_QUIZZES = {
     { q: 'Кому Женя купила цветик?', a: ['Маме', 'Бабушке', 'Подруге', 'Учителю'], c: 1 },
     { q: 'Сколько лепестков у цветика?', a: ['Пять', 'Шесть', 'Семь', 'Десять'], c: 2 },
     { q: 'Кого Женя привезла из Африки?', a: ['Слона', 'Льва', 'Обезьяну', 'Попугая'], c: 2 }
+  ],
+  geese: [
+    { q: 'Как звали девочку?', a: ['Маша', 'Алёнушка', 'Варвара', 'Настя'], c: 0 },
+    { q: 'Кто помог Маше переправиться через речку?', a: ['Бабка', 'Речка', 'Печка', 'Яблоня'], c: 1 },
+    { q: 'Кто хотел съесть Петю?', a: ['Волк', 'Баба-Яга', 'Лиса', 'Медведь'], c: 1 }
+  ],
+  kolobok: [
+    { q: 'Из чего испекли колобок?', a: ['Из хлеба', 'Из муки', 'Из теста', 'Из каши'], c: 1 },
+    { q: 'Кто первый встретил колобок?', a: ['Волк', 'Заяц', 'Медведь', 'Лиса'], c: 1 },
+    { q: 'Кто съел колобка?', a: ['Медведь', 'Волк', 'Лиса', 'Заяц'], c: 2 }
+  ],
+  teremok: [
+    { q: 'Кто第一个 нашёл теремок?', a: ['Лягушка', 'Заяц', 'Мышка', 'Лиса'], c: 2 },
+    { q: 'Сколько зверей жило в теремке?', a: ['Два', 'Три', 'Четыре', 'Пять'], c: 2 },
+    { q: 'Кто выгнал волка из теремка?', a: ['Мышка', 'Лягушка', 'Медведь', 'Заяц'], c: 2 }
+  ],
+  masha: [
+    { q: 'Куда пошла Маша?', a: ['В школу', 'В лес', 'В магазин', 'К реке'], c: 1 },
+    { q: 'Чем Маша приклеила медведя к стене?', a: ['Клей', 'Кашей', 'Мёдом', 'Сиропом'], c: 1 },
+    { q: 'Кто спрятал Машу от медведя?', a: ['Птицы', 'Зайцы', 'Белки', 'Рыбки'], c: 1 }
+  ],
+  repka: [
+    { q: 'Кто первый потянул репку?', a: ['Бабка', 'Дед', 'Внучка', 'Жучка'], c: 1 },
+    { q: 'Кто последний помог тянуть репку?', a: ['Кошка', 'Мышка', 'Жучка', 'Внучка'], c: 1 },
+    { q: 'Сколько персонажей тянули репку?', a: ['Четыре', 'Пять', 'Шесть', 'Семь'], c: 2 }
   ]
 };
 
@@ -929,7 +1010,9 @@ const S = {
   eqStage: '',   // 'expr' or 'val'
   eqCurrQ: null, // current equation object
   eqFirstTry: true,
-  gameActive: false
+  gameActive: false,
+  isTraining: false,
+  consecCorrect: 0
 };
 
 const NUMS = [2,3,4,5,6,7,8,9];
@@ -943,7 +1026,24 @@ const ACHIEVEMENTS = {
   streak_7: { name: 'Неделя без пропусков', icon: '🔥' },
   minesweeper_win: { name: 'Сапёр-профи', icon: '💣' },
   eq_master: { name: 'Мастер уравнений', icon: '🧮' },
-  div_master: { name: 'Мастер деления', icon: '➗' }
+  div_master: { name: 'Мастер деления', icon: '➗' },
+  streak_14: { name: 'Две недели!', icon: '🌟' },
+  streak_30: { name: 'Месяц дисциплины!', icon: '👑' },
+  perfect_div: { name: 'Деление без ошибок', icon: '✨' },
+  perfect_eq: { name: 'Уравнения на магистра', icon: '🎓' },
+  sprint_15: { name: 'Спринтер-15', icon: '🏃' },
+  sprint_25: { name: 'Спринтер-25', icon: '🚀' },
+  hundred_games: { name: 'Сотая игра', icon: '🎯' },
+  two_hundred: { name: 'Двести игр', icon: '🏆' },
+  thousand_correct: { name: '1000 правильных!', icon: '🧠' },
+  night_owl: { name: 'Сова', icon: '🦉' },
+  early_bird: { name: 'Ранняя пташка', icon: '🐦' },
+  training_done: { name: 'Тренажёр', icon: '💪' },
+  all_stories: { name: 'Все сказки прочитаны', icon: '📖' },
+  five_row: { name: 'Пять подряд', icon: '🎸' },
+  ten_row: { name: 'Десять подряд', icon: '💎' },
+  explorer: { name: 'Исследователь', icon: '🗺' },
+  turtle: { name: 'Черепашка', icon: '🐢' }
 };
 
 // ===== HELPERS =====
@@ -1258,15 +1358,23 @@ function show(id) {
 }
 
 function goHome() {
+  var hasGame = (S.gameActive && S.idx > 0) || (tttState && !tttState.gameOver) || (msState && !msState.gameOver);
+  if (hasGame) {
+    if (!confirm('Прервать игру и вернуться на главную?')) return;
+  }
   S.gameActive = false;
   clearSInterval();
   resetGame();
   show('screen-home');
   renderStreak();
   renderDailyGoal();
+  updateTrainDesc();
 }
 
 function cancelGame() {
+  if (S.gameActive && S.idx > 0) {
+    if (!confirm('Прервать игру и вернуться на главную?')) return;
+  }
   goHome();
 }
 
@@ -1380,6 +1488,103 @@ document.addEventListener('click', function(e) {
   }
 });
 
+// ===== TRAINING MODE =====
+function analyzeWeakFacts() {
+  var hist = lsGet('xx_hist', []);
+  var agg = {};
+  for (var i = 0; i < hist.length; i++) {
+    var e = hist[i];
+    if (e.gameType === 'eq' || e.gameType === 'sprint' || e.gameType === 'read') continue;
+    var qd = e.qdata;
+    if (!qd) continue;
+    for (var j = 0; j < qd.length; j++) {
+      var q = qd[j];
+      var a, b;
+      if (e.gameType === 'div') {
+        a = q.a; b = q.b;
+      } else {
+        a = q.a; b = q.b;
+      }
+      var min = a < b ? a : b;
+      var max = a > b ? a : b;
+      var key = min + 'x' + max;
+      if (!agg[key]) agg[key] = { a: min, b: max, ok: 0, total: 0 };
+      agg[key].total++;
+      if (q.ok) agg[key].ok++;
+    }
+  }
+  var weak = [];
+  var keys = Object.keys(agg);
+  for (var i = 0; i < keys.length; i++) {
+    var d = agg[keys[i]];
+    if (d.total >= 2) {
+      var pct = d.ok / d.total;
+      if (pct < 0.8) weak.push({ a: d.a, b: d.b, pct: pct });
+    }
+  }
+  weak.sort(function(x, y) { return x.pct - y.pct; });
+  return weak;
+}
+
+function updateTrainDesc() {
+  var weak = analyzeWeakFacts();
+  var el = document.getElementById('trainDesc');
+  if (!el) return;
+  if (weak.length === 0) {
+    el.textContent = 'Пока нет данных — поиграйте в умножение!';
+  } else {
+    el.textContent = weak.length + ' сложных пример' + (weak.length < 5 ? 'а' : 'ов') + ' для тренировки';
+  }
+}
+
+function startTraining() {
+  var weak = analyzeWeakFacts();
+  if (weak.length === 0) {
+    alert('Сначала поиграйте в умножение или деление, чтобы я узнал какие примеры вам сложны!');
+    return;
+  }
+  S.gameType = 'mult';
+  S.level = 'easy';
+  S.submode = 'rand';
+  S.mul = 0;
+  S.isTraining = true;
+
+  S.qs = [];
+  var u = {};
+  var pool = [];
+  for (var i = 0; i < weak.length; i++) {
+    pool.push(weak[i]);
+  }
+  while (pool.length < 10) {
+    var rw = weak[Math.floor(Math.random() * weak.length)];
+    pool.push(rw);
+  }
+  shuffle(pool);
+  for (var i = 0; i < 10; i++) {
+    var w = pool[i];
+    var a = w.a, b = w.b;
+    var key = a + 'x' + b;
+    if (u[key]) continue;
+    u[key] = true;
+    S.qs.push({ a: a, b: b, v: a * b });
+  }
+  if (S.qs.length < 10) {
+    var extra = NUMS.slice();
+    while (S.qs.length < 10) {
+      var ea = extra[Math.floor(Math.random() * extra.length)];
+      var eb = extra[Math.floor(Math.random() * extra.length)];
+      var emin = ea < eb ? ea : eb;
+      var emax = ea > eb ? ea : eb;
+      var ek = emin + 'x' + emax;
+      if (u[ek]) continue;
+      u[ek] = true;
+      S.qs.push({ a: emin, b: emax, v: emin * emax });
+    }
+  }
+  S.total = S.qs.length;
+  startGame();
+}
+
 // ===== QUESTIONS =====
 function generateQuestions() {
   var lvl = S.level;
@@ -1451,7 +1656,9 @@ function startGame() {
   S.gameActive = true;
 
   var label = document.getElementById('gameModeLabel');
-  if (S.gameType === 'eq') {
+  if (S.isTraining) {
+    label.innerHTML = '\uD83C\uDFAF Тренировка слабых мест';
+  } else if (S.gameType === 'eq') {
     var diffNames = { easy: '\u{1F33F} Лёгкая', medium: '\u{1F31F} Средняя', hard: '\u{1F525} Сложная' };
     label.innerHTML = '\u{1F522} Уравнения &middot; <span>' + (diffNames[S.eqDifficulty] || S.eqDifficulty) + '</span>';
   } else if (S.gameType === 'div') {
@@ -1697,16 +1904,22 @@ function onChoice(btn, val, correct) {
     S.qdata.push({ a: q.a, b: q.b, ok: 1 });
     fb.textContent = '\u2705 Правильно!';
     fb.className = 'fb good';
+    S.consecCorrect++;
+    haptic(30);
+    if (S.consecCorrect >= 5) unlockAchievement('five_row');
+    if (S.consecCorrect >= 10) unlockAchievement('ten_row');
   } else {
     sfxWrong();
     btn.classList.add('bad');
     S.stars.push(0);
     S.qdata.push({ a: q.a, b: q.b, ok: 0 });
+    S.consecCorrect = 0;
     for (var i = 0; i < allBtns.length; i++) {
       if (parseInt(allBtns[i].dataset.v) === correct) allBtns[i].classList.add('ok');
     }
     fb.textContent = '\u2717 Правильный: ' + correct;
     fb.className = 'fb bad';
+    haptic(100);
   }
 
   var dly = ok ? 600 : 1200;
@@ -1901,6 +2114,9 @@ function endGame() {
   var el = document.getElementById('rRec');
   if (newRec) {
     el.innerHTML = '<span class="r-rec new">\u{1F3AF} \u041D\u041E\u0412\u042B\u0419 \u0420\u0415\u041A\u041E\u0420\u0414!</span>';
+    sfxNewRecord();
+    haptic(200);
+    showConfetti();
   } else if (rec.st) {
     el.innerHTML = '<span class="r-rec old">\u{1F3C6} \u041B\u0443\u0447\u0448\u0438\u0439: ' + rec.st + ' \u2B50</span>';
   } else {
@@ -1918,9 +2134,40 @@ function endGame() {
 
   incDailyGoal();
   unlockAchievement('first_game');
-  if (t === S.total) unlockAchievement('perfect_mult');
+  if (t === S.total) { unlockAchievement('perfect_mult'); sfxFanfare(); showConfetti(); }
+  if (t === S.total && S.gameType === 'div') unlockAchievement('perfect_div');
+  if (t === S.total && S.gameType === 'eq') unlockAchievement('perfect_eq');
   if (S.gameType === 'eq') unlockAchievement('eq_master');
   if (S.gameType === 'div') unlockAchievement('div_master');
+  if (S.isTraining) unlockAchievement('training_done');
+  if (S.totalTime > 300) unlockAchievement('turtle');
+  var hour = new Date().getHours();
+  if (hour >= 22 || hour < 5) unlockAchievement('night_owl');
+  if (hour >= 5 && hour < 7) unlockAchievement('early_bird');
+  var hist = lsGet('xx_hist', []);
+  if (hist.length >= 100) unlockAchievement('hundred_games');
+  if (hist.length >= 200) unlockAchievement('two_hundred');
+  var totalCorrect = 0;
+  for (var i = 0; i < hist.length; i++) { if (hist[i].qdata) for (var j = 0; j < hist[i].qdata.length; j++) totalCorrect += hist[i].qdata[j].ok || 0; }
+  if (totalCorrect >= 1000) unlockAchievement('thousand_correct');
+  var playedModes = {};
+  for (var i = 0; i < hist.length; i++) playedModes[hist[i].gameType] = true;
+  if (Object.keys(playedModes).length >= 5) unlockAchievement('explorer');
+
+  // Auto-difficulty tip
+  var tipEl = document.getElementById('rTip');
+  if (tipEl && S.gameType !== 'eq') {
+    var last5 = hist.slice(0, 5);
+    var allPerfect = last5.length >= 3 && last5.every(function(h) { return h.stars === h.total; });
+    var allWeak = last5.length >= 3 && last5.every(function(h) { return (h.stars / h.total) < 0.5; });
+    if (allPerfect) {
+      tipEl.textContent = '\u{1F680} Тебе легко! Попробуй более сложный уровень!';
+    } else if (allWeak) {
+      tipEl.textContent = '\u{1F4AA} Может, стоит повторить основы? Попробуй тренировку!';
+    } else {
+      tipEl.textContent = '';
+    }
+  }
 }
 
 function playAgain() {
@@ -1946,6 +2193,7 @@ function resetGame() {
   S.qs = [];
   S.mul = 0;
   S.totalTime = 0;
+  S.isTraining = false;
 }
 
 // ===== STATISTICS =====
@@ -1971,6 +2219,8 @@ function updateStreak() {
   st.lastDate = today;
   lsSet('xx_streak', st);
   if (st.count >= 7) unlockAchievement('streak_7');
+  if (st.count >= 14) unlockAchievement('streak_14');
+  if (st.count >= 30) unlockAchievement('streak_30');
   return st;
 }
 function pluralDays(n) {
@@ -2007,6 +2257,7 @@ function unlockAchievement(id) {
 function showAchievementPopup(id) {
   var ach = ACHIEVEMENTS[id];
   if (!ach) return;
+  sfxAchievement();
   var popup = document.createElement('div');
   popup.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;justify-content:center;padding-top:20px;pointer-events:none';
   var inner = document.createElement('div');
@@ -2058,27 +2309,6 @@ function renderDailyGoal() {
   el.innerHTML = '\uD83D\uDCCB ' + g.done + '/' + total + ' сегодня';
   if (g.done >= total) el.style.color = '#43e97b';
   else el.style.color = '';
-}
-
-// --- Export ---
-function exportStats() {
-  var data = {
-    records: lsGet('xx_rec', {}),
-    history: lsGet('xx_hist', []),
-    tttScore: lsGet('ttt_score', {}),
-    msRecords: lsGet('xx_ms_rec', {}),
-    streak: getStreak(),
-    achievements: getAchievements(),
-    dailyGoal: getDailyGoal(),
-    exportDate: new Date().toISOString()
-  };
-  var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = '2x2_stats_' + new Date().toISOString().slice(0,10) + '.json';
-  a.click();
-  URL.revokeObjectURL(url);
 }
 
 // --- Sprint Mode ---
@@ -2219,6 +2449,8 @@ function endSprint() {
 
   incDailyGoal();
   updateStreak();
+  if (sprintState.correct >= 15) unlockAchievement('sprint_15');
+  if (sprintState.correct >= 25) unlockAchievement('sprint_25');
 
   var pct = sprintState.total > 0 ? Math.round(sprintState.correct / sprintState.total * 100) : 0;
   var msgs = [
@@ -2280,6 +2512,7 @@ function showStats() {
 }
 
 function clearHistory() {
+  if (!confirm('Удалить всю статистику? Это действие необратимо.')) return;
   if (prompt('Введите пароль для сброса статистики:') === '67') {
     localStorage.removeItem('xx_hist');
     localStorage.removeItem('xx_rec');
@@ -2626,6 +2859,7 @@ function tttReset() {
 }
 
 function tttClearScore() {
+  if (!confirm('Сбросить счёт крестики-нолики?')) return;
   localStorage.removeItem('ttt_score');
   loadTttScore();
 }
@@ -2676,6 +2910,7 @@ function msSaveRec(won, secs) {
 }
 
 function msClearRec() {
+  if (!confirm('Сбросить рекорды сапёра?')) return;
   localStorage.removeItem('xx_ms_rec');
   msShowRec();
 }
@@ -2822,14 +3057,18 @@ function msRender() {
         cell.ontouchstart = function(ev) {
           ev.preventDefault();
           msLongPressTriggered = false;
+          cell.classList.add('longpress');
           msLongPressTimer = setTimeout(function() {
+            cell.classList.remove('longpress');
             if (msState.gameOver || msState.won || msState.revealed[rr][cc]) return;
             msState.flags[rr][cc] = !msState.flags[rr][cc];
+            sfxFlag();
             msLongPressTriggered = true;
             msRender();
           }, 500);
         };
         cell.ontouchend = function(ev) {
+          cell.classList.remove('longpress');
           if (msLongPressTimer) { clearTimeout(msLongPressTimer); msLongPressTimer = null; }
           if (msLongPressTriggered) {
             ev.preventDefault();
@@ -2953,6 +3192,7 @@ function stopReading() {
   R.active = false;
   stopWatchdog();
   msStopReadingTimer();
+  try { speechSynthesis && speechSynthesis.cancel(); } catch(e) {}
   if (R.ebookTimerInterval) { clearInterval(R.ebookTimerInterval); R.ebookTimerInterval = null; }
   if (R.restartTimeout) { clearTimeout(R.restartTimeout); R.restartTimeout = null; }
   if (R.recognition) {
@@ -3048,7 +3288,30 @@ function startReading(storyKey) {
     }, 1000);
     return;
   }
-  
+
+  if (R.mode === 'listen') {
+    show('screen-read-game');
+    renderEbookText();
+    document.getElementById('readStarsWrap').style.display = 'none';
+    document.getElementById('readStartBtn').style.display = 'none';
+    document.getElementById('readSkipBtn').style.display = 'none';
+    document.getElementById('readDoneBtn').style.display = 'none';
+    document.getElementById('readMicStatus').style.display = 'none';
+    document.getElementById('readTimer').style.display = '';
+    document.getElementById('readTimer').textContent = '\u{1F50A} \u0427\u0438\u0442\u0430\u0435\u043C...';
+    var u = speechSynthesis;
+    u.cancel();
+    var utt = new SpeechSynthesisUtterance(story.text);
+    utt.lang = 'ru-RU';
+    utt.rate = 0.9;
+    utt.onend = function() {
+      document.getElementById('readTimer').textContent = '\u2705 \u041A\u043E\u043D\u0435\u0446!';
+      sfxFanfare();
+    };
+    u.speak(utt);
+    return;
+  }
+
   document.getElementById('readStarsWrap').style.display = '';
   document.getElementById('readStartBtn').style.display = '';
   document.getElementById('readSkipBtn').style.display = '';
@@ -3599,6 +3862,41 @@ function showMicError(msg) {
   }
 }
 
+// ===== CONFETTI =====
+function showConfetti() {
+  var canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;pointer-events:none';
+  document.body.appendChild(canvas);
+  var ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  var colors = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#f093fb','#ff8e53'];
+  var pieces = [];
+  for (var i = 0; i < 80; i++) {
+    pieces.push({ x: Math.random() * canvas.width, y: -20 - Math.random() * 200, w: 6 + Math.random() * 6, h: 4 + Math.random() * 4, color: colors[Math.floor(Math.random() * colors.length)], vx: (Math.random() - 0.5) * 4, vy: 2 + Math.random() * 4, rot: Math.random() * 360, vr: (Math.random() - 0.5) * 10, life: 1 });
+  }
+  var start = Date.now();
+  function frame() {
+    var elapsed = Date.now() - start;
+    if (elapsed > 3000) { canvas.remove(); return; }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (var i = 0; i < pieces.length; i++) {
+      var p = pieces[i];
+      p.x += p.vx; p.y += p.vy; p.vy += 0.08; p.rot += p.vr;
+      if (elapsed > 2000) p.life -= 0.02;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot * Math.PI / 180);
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    }
+    requestAnimationFrame(frame);
+  }
+  frame();
+}
+
 // ===== SOUND EFFECTS =====
 var _audioCtx = null;
 function getAudioCtx() {
@@ -3623,6 +3921,10 @@ function playSound(freq, dur, type, vol) {
 function sfxCorrect() { playSound(880, 0.15, 'sine', 0.2); }
 function sfxWrong() { playSound(150, 0.25, 'square', 0.15); }
 function sfxNewRecord() { playSound(523, 0.12, 'sine', 0.25); setTimeout(function(){ playSound(659, 0.12, 'sine', 0.25); }, 120); setTimeout(function(){ playSound(784, 0.2, 'sine', 0.25); }, 240); }
+function sfxAchievement() { playSound(523, 0.1, 'sine', 0.3); setTimeout(function(){ playSound(659, 0.1, 'sine', 0.3); }, 100); setTimeout(function(){ playSound(784, 0.1, 'sine', 0.3); }, 200); setTimeout(function(){ playSound(1047, 0.25, 'sine', 0.3); }, 300); }
+function sfxFanfare() { playSound(523, 0.15, 'sine', 0.25); setTimeout(function(){ playSound(659, 0.15, 'sine', 0.25); }, 150); setTimeout(function(){ playSound(784, 0.15, 'sine', 0.25); }, 300); setTimeout(function(){ playSound(1047, 0.3, 'sine', 0.3); }, 450); }
+function sfxFlag() { playSound(440, 0.08, 'triangle', 0.15); }
+function haptic(ms) { try { navigator.vibrate && navigator.vibrate(ms); } catch(e) {} }
 
 // ===== iOS TOUCH FIX =====
 document.addEventListener('touchstart', function(){}, {passive: true});
@@ -3642,9 +3944,36 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+// ===== GAME RULES =====
+var RULES = {
+  ttt: {
+    title: '\u2B55 \u041A\u0440\u0435\u0441\u0442\u0438\u043A\u0438-\u043D\u043E\u043B\u0438\u043A\u0438',
+    body: '<p>\u0418\u0433\u0440\u0430\u044E\u0442 \u0434\u0432\u0430 \u0438\u0433\u0440\u043E\u043A\u0430: X \u0438 O.</p><ul><li>X \u0445\u043E\u0434\u0438\u0442 \u043F\u0435\u0440\u0432\u044B\u043C</li><li>\u041D\u0430\u0436\u043C\u0438 \u043D\u0430 \u043F\u0443\u0441\u0442\u0443\u044E \u043A\u043B\u0435\u0442\u043A\u0443 \u0447\u0442\u043E\u0431\u044B \u043F\u043E\u0441\u0442\u0430\u0432\u0438\u0442\u044C \u0441\u0432\u043E\u0439 \u0437\u043D\u0430\u043A</li><li>\u0426\u0435\u043B\u044C \u2014 \u0441\u043E\u0431\u0440\u0430\u0442\u044C \u0442\u0440\u0438 \u0432 \u0440\u044F\u0434 (\u043F\u043E \u0433\u043E\u0440\u0438\u0437\u043E\u043D\u0442\u0430\u043B\u0438, \u0432\u0435\u0440\u0442\u0438\u043A\u0430\u043B\u0438 \u0438\u043B\u0438 \u0434\u0438\u0430\u0433\u043E\u043D\u0430\u043B\u0438)</li><li>\u0415\u0441\u043B\u0438 \u043F\u043E\u043B\u0435 \u0437\u0430\u043F\u043E\u043B\u043D\u0435\u043D\u043E \u0438 \u043D\u0438\u043A\u0442\u043E \u043D\u0435 \u0432\u044B\u0438\u0433\u0440\u0430\u043B \u2014 \u043D\u0438\u0447\u044C\u044F</li></ul><p>\u041C\u043E\u0436\u043D\u043E \u0438\u0433\u0440\u0430\u0442\u044C \u043F\u0440\u043E\u0442\u0438\u0432 \u043A\u043E\u043C\u043F\u044C\u044E\u0442\u0435\u0440\u0430 \u0438\u043B\u0438 \u0434\u0432\u0443\u043C\u044F.</p>'
+  },
+  ms: {
+    title: '\uD83D\uDCA3 \u0421\u0430\u043F\u0451\u0440',
+    body: '<p>\u041F\u043E\u043B\u0435 10\u00D710 \u0441 \u043C\u0438\u043D\u0430\u043C\u0438.</p><ul><li>\u041D\u0430\u0436\u043C\u0438 \u043D\u0430 \u043A\u043B\u0435\u0442\u043A\u0443 \u0447\u0442\u043E\u0431\u044B \u043E\u0442\u043A\u0440\u044B\u0442\u044C \u0435\u0451</li><li>\u0427\u0438\u0441\u043B\u043E = \u0441\u043A\u043E\u043B\u044C\u043A\u043E \u043C\u0438\u043D \u0440\u044F\u0434\u043E\u043C</li><li>\u0414\u043E\u043B\u0433\u043E\u0435 \u043D\u0430\u0436\u0430\u0442\u0438\u0435 \u2014 \u043F\u043E\u0441\u0442\u0430\u0432\u0438\u0442\u044C \u0444\u043B\u0430\u0433 \u2691</li><li>\u0426\u0435\u043B\u044C: \u043E\u0442\u043A\u0440\u044B\u0442\u044C \u0432\u0441\u0435 \u0431\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u044B\u0435 \u043A\u043B\u0435\u0442\u043A\u0438 \u0434\u043E \u043A\u043E\u043D\u0446\u0430 \u0438\u0433\u0440\u044B</li></ul><p>\u041F\u0435\u0440\u0432\u044B\u0439 \u043A\u043B\u0438\u043A \u0432\u0441\u0435\u0433\u0434\u0430 \u0431\u0435\u0437\u043E\u043F\u0430\u0441\u0435\u043D.</p>'
+  },
+  sprint: {
+    title: '\u26A1 \u0417\u0430 \u043C\u0438\u043D\u0443\u0442\u0443',
+    body: '<p>60 \u0441\u0435\u043A\u0443\u043D\u0434 \u043D\u0430 \u043C\u0430\u043A\u0441\u0438\u043C\u0443\u043C \u043F\u0440\u0430\u0432\u0438\u043B\u044C\u043D\u044B\u0445 \u043E\u0442\u0432\u0435\u0442\u043E\u0432.</p><ul><li>\u0412\u044B\u0431\u0435\u0440\u0438 \u0443\u043C\u043D\u043E\u0436\u0435\u043D\u0438\u0435 \u0438\u043B\u0438 \u0434\u0435\u043B\u0435\u043D\u0438\u0435</li><li>\u041E\u0442\u0432\u0435\u0442\u044C \u0438\u0437 4 \u0432\u0430\u0440\u0438\u0430\u043D\u0442\u043E\u0432</li><li>\u0427\u0435\u043C \u0431\u043E\u043B\u044C\u0448\u0435 \u043F\u0440\u0430\u0432\u0438\u043B\u044C\u043D\u044B\u0445 \u2014 \u0442\u0435\u043C \u043B\u0443\u0447\u0448\u0435!</li></ul><p>\u0412\u0440\u0435\u043C\u044F \u0438\u0434\u0451\u0442 \u043D\u0430 \u043F\u043E\u043B\u043E\u0441\u043D\u0435. \u0423\u0441\u043F\u0435\u0435\u0448\u044C!</p>'
+  }
+};
+function showGameRules(game) {
+  var r = RULES[game];
+  if (!r) return;
+  document.getElementById('rulesTitle').textContent = r.title;
+  document.getElementById('rulesBody').innerHTML = r.body;
+  document.getElementById('rulesOverlay').classList.add('open');
+}
+function closeGameRules() {
+  document.getElementById('rulesOverlay').classList.remove('open');
+}
+
 // ===== INITIAL GAMIFICATION RENDER =====
 renderStreak();
 renderDailyGoal();
+updateTrainDesc();
 </script>
 </body>
 </html>
