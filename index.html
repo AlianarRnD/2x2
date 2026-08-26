@@ -15,7 +15,7 @@ body{padding:0}
 #app{width:100%;max-width:600px;height:100%;display:flex;flex-direction:column;padding:8px;margin:0 auto}
 .screen{display:none;flex-direction:column;align-items:center;width:100%;flex:1;padding:16px 8px;gap:8px;position:relative;overflow-y:auto;-ms-overflow-style:none;scrollbar-width:none}
 .screen::-webkit-scrollbar{display:none}
-.screen.active{display:flex;min-height:0}
+.screen.active{display:flex;min-height:0;animation:fadeIn .15s ease}
 .screen:last-child{padding-bottom:24px}
 /* -webkit-overflow-scrolling removed (deprecated, causes iOS touch issues) */
 
@@ -361,13 +361,18 @@ body{padding:0}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 #screen-home.active>.logo,#screen-home.active>.subtitle,#screen-home.active>.stat-badge{animation:fadeIn .2s ease}
 .q-text,.c-btn,.fb,.an-bar,.read-ctrl-btn,.read-done-btn,.read-word{animation:none}
-#screen-home.active>.logo,#screen-home.active>.subtitle,#screen-home.active>.stat-badge{animation:fadeIn .2s ease}
 .ver{position:absolute;top:6px;right:8px;font-size:10px;color:#555;font-weight:600;pointer-events:none;user-select:none}
 .credit{color:#444;font-size:9px;text-align:center;margin-top:8px;width:100%;line-height:1.4;padding:4px 8px}
 @media(min-width:600px){
   #app{border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,0.5);max-height:90vh;min-height:0}
   body{padding:16px}
 }
+.ach-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06)}
+.ach-item.locked{opacity:.35}
+.ach-icon{font-size:28px;min-width:36px;text-align:center}
+.ach-info{flex:1}
+.ach-name{color:#fff;font-size:14px;font-weight:700}
+.ach-desc{color:#8888aa;font-size:11px;margin-top:1px}
 </style>
 </head>
 <body ontouchstart>
@@ -377,9 +382,12 @@ body{padding:0}
   <!-- HOME -->
   <div id="screen-home" class="screen active">
     <div class="logo">2x2</div>
-    <span class="ver">v1.13</span>
+    <span class="ver">v1.14</span>
     <div class="subtitle">тяжело в учении, легко в бою</div>
     <button class="stat-badge" onclick="showStats()">&#x1F4CA; Статистика</button>
+    <div class="stat-badge" id="streakBadge" style="display:none"></div>
+    <div class="stat-badge" id="dailyGoalBadge" style="display:none"></div>
+    <button class="stat-badge" onclick="showAchievements()">&#x1F3C6; Достижения</button>
     <div class="gs-title">&#x1F4D6; Занятия</div>
     <div class="levels">
       <button class="lvl-btn lvl-eq" onclick="pickMultLevel()">
@@ -415,6 +423,11 @@ body{padding:0}
           <span class="icon">&#x1F4A3;</span>
           Сапёр
           <span class="desc">Найди все мины 10&times;10</span>
+        </button>
+        <button class="lvl-btn lvl-eq" onclick="pickSprintMode()">
+          <span class="icon">&#x26A1;</span>
+          За минуту
+          <span class="desc">Сколько успеешь за 60 секунд</span>
         </button>
       </div>
     </div>
@@ -715,8 +728,57 @@ body{padding:0}
     <div class="stab" id="recList"></div>
     <div class="stab" id="histList" style="display:none"></div>
     <div class="stab" id="analyticsList" style="display:none"></div>
+    <button class="stat-clear-btn" style="color:#4facfe;background:rgba(79,172,254,0.1)" onclick="exportStats()">&#x1F4E4; Экспорт данных</button>
     <button class="stat-clear-btn" id="clearHistBtn" onclick="clearHistory()">&#x1F5D1; Сбросить всю статистику</button>
   </div>
+
+  <!-- ACHIEVEMENTS -->
+  <div id="screen-achievements" class="screen" style="justify-content:flex-start;padding-top:40px;gap:8px">
+    <button class="nav-btn" style="position:absolute;top:10px;left:10px" onclick="goHome()">&#x2715;</button>
+    <h2>&#x1F3C6; Достижения</h2>
+    <div id="achList" style="width:100%;max-width:320px;display:flex;flex-direction:column;gap:8px;padding:12px 0"></div>
+  </div>
+
+  <!-- SPRINT -->
+  <div id="screen-sprint" class="screen">
+    <button class="game-back" onclick="endSprint()">&#x2715;</button>
+    <div class="game-mode-label">&#x26A1; Режим &laquo;За минуту&raquo;</div>
+    <div class="pbar"><div class="pfill" id="sprintPFill" style="width:100%"></div></div>
+    <div class="game-header">
+      <span id="sprintProgress">0 вопросов</span>
+      <span><span class="stars-num" id="sprintStars">&#x2B50; 0</span></span>
+      <span class="timer" id="sprintTimer">1:00</span>
+    </div>
+    <div class="q-box">
+      <div class="q-label">Сколько будет?</div>
+      <div class="q-text" id="sprintQText">3 &times; 7</div>
+    </div>
+    <div class="choices" id="sprintChoicesWrap"></div>
+    <div class="fb" id="sprintFb"></div>
+  </div>
+
+  <!-- SPRINT SELECT -->
+  <div id="screen-sprint-select" class="screen" style="justify-content:center;gap:14px">
+    <button class="nav-btn" style="position:absolute;top:10px;left:10px" onclick="goHome()">&#x2715;</button>
+    <h2>&#x26A1; За минуту</h2>
+    <button class="diff-btn diff-e" onclick="startSprint('mult')">&#x1F4D0; Умножение</button>
+    <button class="diff-btn diff-h" onclick="startSprint('div')">&#x2797; Деление</button>
+  </div>
+
+  <!-- SPRINT RESULT -->
+  <div id="screen-sprint-result" class="screen" style="justify-content:center;gap:8px;text-align:center">
+    <h2>&#x26A1; Готово!</h2>
+    <div class="r-stars" id="sprintRStars"></div>
+    <div class="r-score" id="sprintRScore"></div>
+    <div class="r-time" id="sprintRTime"></div>
+    <div class="r-rec" id="sprintRRec"></div>
+    <div class="r-msg" id="sprintRMsg"></div>
+    <div class="r-btns">
+      <button class="r-btn p" onclick="pickSprintMode()">&#x1F504; Ещё раз</button>
+      <button class="r-btn s" onclick="goHome()">&#x1F3E0; На главную</button>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -865,13 +927,34 @@ const S = {
   selNum: null,
   eqStage: '',   // 'expr' or 'val'
   eqCurrQ: null, // current equation object
-  eqFirstTry: true
+  eqFirstTry: true,
+  gameActive: false
 };
 
 const NUMS = [2,3,4,5,6,7,8,9];
 const ALL = [1,2,3,4,5,6,7,8,9,10];
 
+const ACHIEVEMENTS = {
+  first_game: { name: 'Первая игра', icon: '🎮' },
+  perfect_mult: { name: 'Идеально!', icon: '💯' },
+  speed_reader: { name: 'Быстрый чтец', icon: '⚡' },
+  bookworm: { name: 'Книжный червь', icon: '📚' },
+  streak_7: { name: 'Неделя без пропусков', icon: '🔥' },
+  minesweeper_win: { name: 'Сапёр-профи', icon: '💣' },
+  eq_master: { name: 'Мастер уравнений', icon: '🧮' },
+  div_master: { name: 'Мастер деления', icon: '➗' }
+};
+
 // ===== HELPERS =====
+function lsGet(key, def) {
+  try { return JSON.parse(localStorage.getItem(key)) || def; } catch(e) { return def; }
+}
+function lsSet(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+}
+function clearSInterval() {
+  if (S.timer) { clearInterval(S.timer); S.timer = null; }
+}
 function lvlLabel(l) {
   return l === 'easy' ? 'Лёгкий' : 'Сложный';
 }
@@ -1174,15 +1257,16 @@ function show(id) {
 }
 
 function goHome() {
-  if (S.timer) clearInterval(S.timer);
+  S.gameActive = false;
+  clearSInterval();
   resetGame();
   show('screen-home');
+  renderStreak();
+  renderDailyGoal();
 }
 
 function cancelGame() {
-  if (S.timer) clearInterval(S.timer);
-  resetGame();
-  show('screen-home');
+  goHome();
 }
 
 function backToLevel() {
@@ -1224,11 +1308,7 @@ function pickSubMode(sm) {
   S.selNum = null;
   var grid = document.getElementById('selGrid');
   grid.innerHTML = '';
-  var recs = {};
-
-  try {
-    recs = JSON.parse(localStorage.getItem('xx_rec')) || {};
-  } catch(e) {}
+  var recs = lsGet('xx_rec', {});
 
   for (var ni = 0; ni < NUMS.length; ni++) {
     var n = NUMS[ni];
@@ -1291,11 +1371,6 @@ function toggleInfo() {
   }
 }
 
-function closeInfo() {
-  var popup = document.getElementById('infoPopup');
-  popup.classList.remove('open');
-}
-
 document.addEventListener('click', function(e) {
   var popup = document.getElementById('infoPopup');
   var btn = document.getElementById('infoBtn');
@@ -1337,7 +1412,7 @@ function generateQuestions() {
 
   // rand
   if (isDiv) {
-    var DIV_NUMS = [2,3,4,5,6,7,8,9];
+    var DIV_NUMS = lvl === 'easy' ? [2,3,4,5] : lvl === 'hard' ? [6,7,8,9] : [2,3,4,5,6,7,8,9];
     while (S.qs.length < 10) {
       var a = DIV_NUMS[Math.floor(Math.random() * DIV_NUMS.length)];
       var b = DIV_NUMS[Math.floor(Math.random() * DIV_NUMS.length)];
@@ -1372,6 +1447,7 @@ function startGame() {
   S.totalTime = 0;
   S.gStart = Date.now();
   S.histDate = null;
+  S.gameActive = true;
 
   var label = document.getElementById('gameModeLabel');
   if (S.gameType === 'eq') {
@@ -1386,7 +1462,8 @@ function startGame() {
   }
 
   show('screen-game');
-  if (S.timer) clearInterval(S.timer);
+  updateStreak();
+  clearSInterval();
   S.timer = setInterval(updateTimer, 100);
 
   saveHistEntry(true);
@@ -1394,8 +1471,7 @@ function startGame() {
 }
 
 function saveHistEntry(isStart) {
-  var hist = [];
-  try { hist = JSON.parse(localStorage.getItem('xx_hist')) || []; } catch(e) {}
+  var hist = lsGet('xx_hist', []);
   var elapsed = Math.floor((Date.now() - S.gStart) / 1000);
   var t = 0;
   for (var i = 0; i < S.stars.length; i++) t += S.stars[i];
@@ -1438,7 +1514,7 @@ function saveHistEntry(isStart) {
     }
   }
   if (hist.length > 100) hist.length = 100;
-  try { localStorage.setItem('xx_hist', JSON.stringify(hist)); } catch(e) {}
+  lsSet('xx_hist', hist);
 }
 
 function renderQ() {
@@ -1614,12 +1690,14 @@ function onChoice(btn, val, correct) {
   var fb = document.getElementById('fb');
 
   if (ok) {
+    sfxCorrect();
     btn.classList.add('ok');
     S.stars.push(1);
     S.qdata.push({ a: q.a, b: q.b, ok: 1 });
     fb.textContent = '\u2705 Правильно!';
     fb.className = 'fb good';
   } else {
+    sfxWrong();
     btn.classList.add('bad');
     S.stars.push(0);
     S.qdata.push({ a: q.a, b: q.b, ok: 0 });
@@ -1633,6 +1711,7 @@ function onChoice(btn, val, correct) {
   var dly = ok ? 600 : 1200;
   saveHistEntry(false);
   setTimeout(function() {
+    if (!S.gameActive) return;
     S.idx++;
     renderQ();
   }, dly);
@@ -1650,6 +1729,7 @@ function onEqChoice(btn, val, correct) {
   var fb = document.getElementById('fb');
 
   if (ok) {
+    sfxCorrect();
     btn.classList.add('ok');
     S.qdata.push({ a: q.a, op: q.op, x: q.x, c: q.c, stage: S.eqStage, ok: S.eqFirstTry ? 1 : 0 });
     if (S.eqFirstTry) {
@@ -1664,6 +1744,7 @@ function onEqChoice(btn, val, correct) {
     // advance
     if (S.eqStage === 'expr') {
       setTimeout(function() {
+        if (!S.gameActive) return;
         S.idx++;
         renderQ();
       }, 600);
@@ -1673,15 +1754,16 @@ function onEqChoice(btn, val, correct) {
       document.getElementById('nextWrap').style.display = 'flex';
     }
   } else {
+    sfxWrong();
     btn.classList.add('bad');
     fb.textContent = '\u2717 Попробуй еще!';
     fb.className = 'fb bad';
     if (S.eqFirstTry) {
-      S.stars.push(-1);
       S.eqFirstTry = false;
     }
     // unlock for retry
     setTimeout(function() {
+      if (!S.gameActive) return;
       S.locked = false;
       for (var i = 0; i < allBtns.length; i++) {
         allBtns[i].disabled = false;
@@ -1704,11 +1786,13 @@ function submitTyped() {
   var fb = document.getElementById('fb');
 
   if (ok) {
+    sfxCorrect();
     S.stars.push(1);
     S.qdata.push({ a: q.a, b: q.b, ok: 1 });
     fb.textContent = '\u2705 Правильно!';
     fb.className = 'fb good';
   } else {
+    sfxWrong();
     S.stars.push(0);
     S.qdata.push({ a: q.a, b: q.b, ok: 0 });
     fb.textContent = '\u2717 Правильный: ' + correctVal;
@@ -1717,6 +1801,7 @@ function submitTyped() {
   saveHistEntry(false);
 
   setTimeout(function() {
+    if (!S.gameActive) return;
     S.idx++;
     renderQ();
   }, 900);
@@ -1743,7 +1828,7 @@ function updateTimer() {
 
 // ===== END =====
 function endGame() {
-  if (S.timer) clearInterval(S.timer);
+  clearSInterval();
   S.totalTime = Math.floor((Date.now() - S.gStart) / 1000);
 
   show('screen-result');
@@ -1794,8 +1879,7 @@ function endGame() {
     else key = prefix + '_' + S.level + '_rand';
   }
 
-  var records = {};
-  try { records = JSON.parse(localStorage.getItem('xx_rec')) || {}; } catch(e) {}
+  var records = lsGet('xx_rec', {});
   var rec = records[key] || { st: 0, ti: 0, n: 0, date: 0 };
 
   var newRec = false;
@@ -1804,12 +1888,13 @@ function endGame() {
   if (!rec.st || t > rec.st || (t === rec.st && S.totalTime < rec.ti)) {
     records[key] = nr;
     newRec = true;
+    sfxNewRecord();
   } else {
     rec.n = (rec.n || 0) + 1;
     rec.date = Date.now();
     records[key] = rec;
   }
-  try { localStorage.setItem('xx_rec', JSON.stringify(records)); } catch(e) {}
+  lsSet('xx_rec', records);
 
   // display record
   var el = document.getElementById('rRec');
@@ -1829,6 +1914,12 @@ function endGame() {
   } else {
     ri.textContent = '';
   }
+
+  incDailyGoal();
+  unlockAchievement('first_game');
+  if (t === S.total) unlockAchievement('perfect_mult');
+  if (S.gameType === 'eq') unlockAchievement('eq_master');
+  if (S.gameType === 'div') unlockAchievement('div_master');
 }
 
 function playAgain() {
@@ -1846,7 +1937,7 @@ function playAgain() {
 }
 
 function resetGame() {
-  if (S.timer) clearInterval(S.timer);
+  clearSInterval();
   S.locked = false;
   S.idx = 0;
   S.stars = [];
@@ -1859,6 +1950,304 @@ function resetGame() {
 // ===== STATISTICS =====
 var statsFilter = 'all';
 var statsTab = 'records';
+
+// ===== GAMIFICATION =====
+
+// --- Daily Streak ---
+function getStreak() {
+  return lsGet('xx_streak', { lastDate: '', count: 0 });
+}
+function updateStreak() {
+  var st = getStreak();
+  var today = new Date().toISOString().slice(0, 10);
+  if (st.lastDate === today) return st;
+  var yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  if (st.lastDate === yesterday) {
+    st.count++;
+  } else if (st.lastDate !== today) {
+    st.count = 1;
+  }
+  st.lastDate = today;
+  lsSet('xx_streak', st);
+  if (st.count >= 7) unlockAchievement('streak_7');
+  return st;
+}
+function pluralDays(n) {
+  if (n >= 11 && n <= 19) return 'дней';
+  var last = n % 10;
+  if (last === 1) return 'день';
+  if (last >= 2 && last <= 4) return 'дня';
+  return 'дней';
+}
+function renderStreak() {
+  var st = getStreak();
+  var el = document.getElementById('streakBadge');
+  if (!el) return;
+  if (st.count > 0) {
+    el.style.display = 'flex';
+    el.textContent = '\uD83D\uDD25 ' + st.count + ' ' + pluralDays(st.count) + ' подряд!';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+// --- Achievements ---
+function getAchievements() {
+  return lsGet('xx_achievements', []);
+}
+function unlockAchievement(id) {
+  var list = getAchievements();
+  if (list.indexOf(id) !== -1) return false;
+  list.push(id);
+  lsSet('xx_achievements', list);
+  showAchievementPopup(id);
+  return true;
+}
+function showAchievementPopup(id) {
+  var ach = ACHIEVEMENTS[id];
+  if (!ach) return;
+  var popup = document.createElement('div');
+  popup.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;justify-content:center;padding-top:20px;pointer-events:none';
+  var inner = document.createElement('div');
+  inner.style.cssText = 'background:rgba(20,15,50,0.95);border:2px solid #ffd700;border-radius:16px;padding:14px 20px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,0.6);animation:fadeIn .3s ease';
+  inner.innerHTML = '<div style="font-size:11px;color:#ffd700;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">\uD83C\uDFC6 Достижение открыто!</div><div style="font-size:22px;margin:4px 0">' + ach.icon + '</div><div style="color:#fff;font-size:14px;font-weight:700">' + ach.name + '</div>';
+  popup.appendChild(inner);
+  document.body.appendChild(popup);
+  setTimeout(function() { popup.remove(); }, 3000);
+}
+function renderAchievements() {
+  var list = getAchievements();
+  var el = document.getElementById('achList');
+  if (!el) return;
+  el.innerHTML = '';
+  var ids = Object.keys(ACHIEVEMENTS);
+  for (var i = 0; i < ids.length; i++) {
+    var ach = ACHIEVEMENTS[ids[i]];
+    var unlocked = list.indexOf(ids[i]) !== -1;
+    var div = document.createElement('div');
+    div.className = 'ach-item' + (unlocked ? '' : ' locked');
+    div.innerHTML = '<div class="ach-icon">' + ach.icon + '</div><div class="ach-info"><div class="ach-name">' + ach.name + '</div><div class="ach-desc">' + (unlocked ? 'Открыто \u2713' : 'Не открыто') + '</div></div>';
+    el.appendChild(div);
+  }
+}
+function showAchievements() {
+  renderAchievements();
+  show('screen-achievements');
+}
+
+// --- Daily Goal ---
+function getDailyGoal() {
+  var g = lsGet('xx_dailyGoal', { date: '', done: 0 });
+  var today = new Date().toISOString().slice(0, 10);
+  if (g.date !== today) { g = { date: today, done: 0 }; lsSet('xx_dailyGoal', g); }
+  return g;
+}
+function incDailyGoal() {
+  var g = getDailyGoal();
+  g.done++;
+  lsSet('xx_dailyGoal', g);
+  renderDailyGoal();
+}
+function renderDailyGoal() {
+  var g = getDailyGoal();
+  var el = document.getElementById('dailyGoalBadge');
+  if (!el) return;
+  var total = 3;
+  el.style.display = 'flex';
+  el.innerHTML = '\uD83D\uDCCB ' + g.done + '/' + total + ' сегодня';
+  if (g.done >= total) el.style.color = '#43e97b';
+  else el.style.color = '';
+}
+
+// --- Export ---
+function exportStats() {
+  var data = {
+    records: lsGet('xx_rec', {}),
+    history: lsGet('xx_hist', []),
+    tttScore: lsGet('ttt_score', {}),
+    msRecords: lsGet('xx_ms_rec', {}),
+    streak: getStreak(),
+    achievements: getAchievements(),
+    dailyGoal: getDailyGoal(),
+    exportDate: new Date().toISOString()
+  };
+  var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = '2x2_stats_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// --- Sprint Mode ---
+var sprintState = { active: false, timer: null, elapsed: 0, correct: 0, total: 0, qs: [], idx: 0, locked: false, gameType: 'mult' };
+
+function pickSprintMode() {
+  show('screen-sprint-select');
+}
+
+function startSprint(type) {
+  sprintState = { active: true, timer: null, elapsed: 60, correct: 0, total: 0, qs: [], idx: 0, locked: false, gameType: type };
+  generateSprintQuestions();
+  show('screen-sprint');
+  renderSprintQ();
+  sprintTick();
+  sprintState.timer = setInterval(sprintTick, 1000);
+}
+
+function generateSprintQuestions() {
+  sprintState.qs = [];
+  var nums = [2,3,4,5,6,7,8,9];
+  for (var i = 0; i < 200; i++) {
+    var a = nums[Math.floor(Math.random() * nums.length)];
+    var b = nums[Math.floor(Math.random() * nums.length)];
+    if (sprintState.gameType === 'div') {
+      var product = a * b;
+      var correct = a;
+      var answers = [correct];
+      while (answers.length < 4) {
+        var fake = correct + randInt(-5, 5);
+        if (fake !== correct && fake > 0 && answers.indexOf(fake) === -1) answers.push(fake);
+      }
+      shuffle(answers);
+      sprintState.qs.push({ a: product, b: b, correct: correct, answers: answers, isDiv: true });
+    } else {
+      var correct = a * b;
+      var answers = [correct];
+      while (answers.length < 4) {
+        var fake = correct + randInt(-5, 5);
+        if (fake !== correct && fake > 0 && answers.indexOf(fake) === -1) answers.push(fake);
+      }
+      shuffle(answers);
+      sprintState.qs.push({ a: a, b: b, correct: correct, answers: answers, isDiv: false });
+    }
+  }
+}
+
+function renderSprintQ() {
+  if (sprintState.idx >= sprintState.qs.length) {
+    generateSprintQuestions();
+    sprintState.idx = 0;
+  }
+  var q = sprintState.qs[sprintState.idx];
+  document.getElementById('sprintQText').textContent = q.isDiv ? (q.a + ' \u00F7 ' + q.b) : (q.a + ' \u00D7 ' + q.b);
+  document.getElementById('sprintProgress').textContent = sprintState.total + ' вопросов';
+  document.getElementById('sprintStars').textContent = '\u2B50 ' + sprintState.correct;
+  var wrap = document.getElementById('sprintChoicesWrap');
+  wrap.innerHTML = '';
+  for (var i = 0; i < q.answers.length; i++) {
+    (function(val) {
+      var btn = document.createElement('button');
+      btn.className = 'c-btn';
+      btn.textContent = val;
+      btn.onclick = function() { onSprintChoice(btn, val, q.correct); };
+      wrap.appendChild(btn);
+    })(q.answers[i]);
+  }
+  document.getElementById('sprintFb').textContent = '';
+}
+
+function onSprintChoice(btn, val, correct) {
+  if (sprintState.locked) return;
+  sprintState.locked = true;
+  sprintState.total++;
+  var ok = (val === correct);
+  var fb = document.getElementById('sprintFb');
+  if (ok) {
+    sprintState.correct++;
+    btn.classList.add('ok');
+    fb.textContent = '\u2705 Правильно!';
+    fb.className = 'fb good';
+    sfxCorrect();
+  } else {
+    btn.classList.add('bad');
+    fb.textContent = '\u2717 ' + correct;
+    fb.className = 'fb bad';
+    sfxWrong();
+  }
+  document.getElementById('sprintStars').textContent = '\u2B50 ' + sprintState.correct;
+  document.getElementById('sprintProgress').textContent = sprintState.total + ' вопросов';
+  setTimeout(function() {
+    if (!sprintState.active) return;
+    sprintState.locked = false;
+    sprintState.idx++;
+    renderSprintQ();
+  }, ok ? 400 : 800);
+}
+
+function sprintTick() {
+  if (!sprintState.active) return;
+  sprintState.elapsed--;
+  var m = Math.floor(sprintState.elapsed / 60);
+  var s = sprintState.elapsed % 60;
+  document.getElementById('sprintTimer').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+  var pct = (sprintState.elapsed / 60) * 100;
+  document.getElementById('sprintPFill').style.width = pct + '%';
+  if (sprintState.elapsed <= 10) {
+    document.getElementById('sprintPFill').style.background = 'linear-gradient(90deg,#ff4757,#ff6a00)';
+  }
+  if (sprintState.elapsed <= 0) {
+    endSprint();
+  }
+}
+
+function endSprint() {
+  sprintState.active = false;
+  if (sprintState.timer) { clearInterval(sprintState.timer); sprintState.timer = null; }
+  var rec = lsGet('xx_sprint_rec', { best: 0, games: 0 });
+  rec.games++;
+  var newBest = false;
+  if (sprintState.correct > rec.best) {
+    rec.best = sprintState.correct;
+    newBest = true;
+  }
+  lsSet('xx_sprint_rec', rec);
+
+  var hist = lsGet('xx_hist', []);
+  hist.unshift({
+    gameType: 'sprint',
+    mul: sprintState.gameType,
+    stars: sprintState.correct,
+    total: sprintState.total,
+    time: 60,
+    date: Date.now()
+  });
+  if (hist.length > 100) hist.length = 100;
+  lsSet('xx_hist', hist);
+
+  incDailyGoal();
+  updateStreak();
+
+  var pct = sprintState.total > 0 ? Math.round(sprintState.correct / sprintState.total * 100) : 0;
+  var msgs = [
+    '\u{1F4AA} В следующий раз получится лучше!',
+    '\u{1F44C} Неплохо!',
+    '\u{1F44D} Хороший результат!',
+    '\u{1F389} Отлично!',
+    '\u{1F3C6} Гений!'
+  ];
+  var idx = pct < 30 ? 0 : pct < 50 ? 1 : pct < 70 ? 2 : pct < 90 ? 3 : 4;
+
+  var starsStr = '';
+  for (var i = 0; i < sprintState.correct; i++) starsStr += '\u2605';
+  for (var i = sprintState.correct; i < Math.min(sprintState.total, 20); i++) starsStr += '\u2606';
+
+  document.getElementById('sprintRStars').textContent = starsStr;
+  document.getElementById('sprintRScore').textContent = sprintState.correct + ' \u2B50 \u0438\u0437 ' + sprintState.total;
+  document.getElementById('sprintRTime').textContent = '\u23F1 1:00 \u00B7 ' + pct + '%';
+  document.getElementById('sprintRMsg').textContent = msgs[idx];
+  var recEl = document.getElementById('sprintRRec');
+  if (newBest) {
+    recEl.innerHTML = '<span class="r-rec new">\u{1F3AF} \u041D\u041E\u0412\u042B\u0419 \u0420\u0415\u041A\u041E\u0420\u0414!</span>';
+  } else if (rec.best > 0) {
+    recEl.innerHTML = '<span class="r-rec old">\u{1F3C6} \u041B\u0443\u0447\u0448\u0438\u0439: ' + rec.best + ' \u2B50</span>';
+  } else {
+    recEl.textContent = '';
+  }
+  show('screen-sprint-result');
+}
+}
 
 function setStatsFilter(f) {
   statsFilter = f;
@@ -1928,8 +2317,7 @@ function switchStatTab(tab) {
 }
 
 function renderRecords() {
-  var records = {};
-  try { records = JSON.parse(localStorage.getItem('xx_rec')) || {}; } catch(e) {}
+  var records = lsGet('xx_rec', {});
   var list = document.getElementById('recList');
   list.innerHTML = '';
 
@@ -1954,8 +2342,7 @@ function renderRecords() {
 }
 
 function renderHistory() {
-  var hist = [];
-  try { hist = JSON.parse(localStorage.getItem('xx_hist')) || []; } catch(e) {}
+  var hist = lsGet('xx_hist', []);
   hist = hist.filter(filterHistEntry);
   hist.sort(function(a, b) { return b.date - a.date; });
   var list = document.getElementById('histList');
@@ -1978,8 +2365,7 @@ function renderHistory() {
 }
 
 function renderAnalytics() {
-  var hist = [];
-  try { hist = JSON.parse(localStorage.getItem('xx_hist')) || []; } catch(e) {}
+  var hist = lsGet('xx_hist', []);
   hist = hist.filter(filterHistEntry);
   var list = document.getElementById('analyticsList');
   list.innerHTML = '';
@@ -2097,10 +2483,12 @@ function histLabel(e) {
 }
 
 // ===== TIC-TAC-TOE =====
+const TTT_WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
 var tttState = null; // board, turn, mode, score, gameOver
 
 function playTtt() {
   tttState = null;
+  updateStreak();
   document.getElementById('tttModeWrap').style.display = 'flex';
   document.getElementById('tttGameWrap').style.display = 'none';
   show('screen-ttt');
@@ -2176,27 +2564,17 @@ function tttPlaceMove(idx) {
 }
 
 function tttCheckWin(player) {
-  var wins = [
-    [0,1,2],[3,4,5],[6,7,8],
-    [0,3,6],[1,4,7],[2,5,8],
-    [0,4,8],[2,4,6]
-  ];
-  for (var i = 0; i < wins.length; i++) {
-    var a = wins[i][0], b = wins[i][1], c = wins[i][2];
+  for (var i = 0; i < TTT_WINS.length; i++) {
+    var a = TTT_WINS[i][0], b = TTT_WINS[i][1], c = TTT_WINS[i][2];
     if (tttState.board[a] === player && tttState.board[b] === player && tttState.board[c] === player) return true;
   }
   return false;
 }
 
 function tttHighlightWinners(player) {
-  var wins = [
-    [0,1,2],[3,4,5],[6,7,8],
-    [0,3,6],[1,4,7],[2,5,8],
-    [0,4,8],[2,4,6]
-  ];
   var cells = document.querySelectorAll('#tttGrid .ttt-cell');
-  for (var i = 0; i < wins.length; i++) {
-    var a = wins[i][0], b = wins[i][1], c = wins[i][2];
+  for (var i = 0; i < TTT_WINS.length; i++) {
+    var a = TTT_WINS[i][0], b = TTT_WINS[i][1], c = TTT_WINS[i][2];
     if (tttState.board[a] === player && tttState.board[b] === player && tttState.board[c] === player) {
       cells[a].classList.add('win');
       cells[b].classList.add('win');
@@ -2253,19 +2631,17 @@ function tttClearScore() {
 }
 
 function loadTttScore() {
-  var s = { X:0, O:0, draw:0 };
-  try { s = JSON.parse(localStorage.getItem('ttt_score')) || s; } catch(e) {}
+  var s = lsGet('ttt_score', { X:0, O:0, draw:0 });
   document.getElementById('tttScoreX').textContent = s.X || 0;
   document.getElementById('tttScoreO').textContent = s.O || 0;
   document.getElementById('tttScoreD').textContent = s.draw || 0;
 }
 
 function saveTttScore(winner) {
-  var s = { X:0, O:0, draw:0 };
-  try { s = JSON.parse(localStorage.getItem('ttt_score')) || s; } catch(e) {}
+  var s = lsGet('ttt_score', { X:0, O:0, draw:0 });
   if (winner === 'draw') s.draw = (s.draw || 0) + 1;
   else s[winner] = (s[winner] || 0) + 1;
-  try { localStorage.setItem('ttt_score', JSON.stringify(s)); } catch(e) {}
+  lsSet('ttt_score', s);
   loadTttScore();
 }
 
@@ -2279,11 +2655,11 @@ var MS_ROWS = 10, MS_COLS = 10;
 var msMines = 5;
 var msTimerInterval = null;
 var msTimerStart = 0;
+var msLongPressTimer = null;
+var msLongPressTriggered = false;
 
 function msLoadRec() {
-  var rec = {};
-  try { rec = JSON.parse(localStorage.getItem('xx_ms_rec')) || {}; } catch(e) {}
-  return rec;
+  return lsGet('xx_ms_rec', {});
 }
 
 function msSaveRec(won, secs) {
@@ -2294,8 +2670,9 @@ function msSaveRec(won, secs) {
   if (won) {
     rec[key].wins++;
     if (secs < rec[key].best) rec[key].best = secs;
+    unlockAchievement('minesweeper_win');
   }
-  try { localStorage.setItem('xx_ms_rec', JSON.stringify(rec)); } catch(e) {}
+  lsSet('xx_ms_rec', rec);
 }
 
 function msClearRec() {
@@ -2333,6 +2710,7 @@ function msStartTimer() {
 
 function playMinesweeper() {
   msState = null;
+  updateStreak();
   document.getElementById('msWrap').style.display = 'none';
   show('screen-ms');
   startMinesweeper();
@@ -2371,17 +2749,26 @@ function startMinesweeper() {
       flags[r][c] = false;
     }
   }
-  // place mines
+  msState = { board: board, revealed: revealed, flags: flags, gameOver: false, won: false, flagMode: false, firstClick: true };
+  document.getElementById('msWrap').style.display = 'flex';
+  document.getElementById('msSmiley').textContent = '\u{1F60A}';
+  document.getElementById('msTimer').textContent = '\u23F1 00:00';
+  renderMsMineSel();
+  msShowRec();
+  msRender();
+}
+
+function msPlaceMines(firstR, firstC) {
+  var board = msState.board;
   var placed = 0;
   while (placed < msMines) {
     var r = Math.floor(Math.random() * MS_ROWS);
     var c = Math.floor(Math.random() * MS_COLS);
-    if (board[r][c] !== -1) {
-      board[r][c] = -1;
-      placed++;
-    }
+    if (board[r][c] === -1) continue;
+    if (Math.abs(r - firstR) <= 1 && Math.abs(c - firstC) <= 1) continue;
+    board[r][c] = -1;
+    placed++;
   }
-  // calculate numbers
   for (var r = 0; r < MS_ROWS; r++) {
     for (var c = 0; c < MS_COLS; c++) {
       if (board[r][c] === -1) continue;
@@ -2396,14 +2783,7 @@ function startMinesweeper() {
       board[r][c] = n;
     }
   }
-  msState = { board: board, revealed: revealed, flags: flags, gameOver: false, won: false, flagMode: false };
-  document.getElementById('msWrap').style.display = 'flex';
-  document.getElementById('msSmiley').textContent = '\u{1F60A}';
-  document.getElementById('msTimer').textContent = '\u23F1 00:00';
-  renderMsMineSel();
-  msStartTimer();
-  msShowRec();
-  msRender();
+  msState.firstClick = false;
 }
 
 function msRender() {
@@ -2439,6 +2819,26 @@ function msRender() {
         }
         cell.disabled = isRevealed || msState.gameOver;
         cell.onclick = function() { msClick(rr, cc); };
+        cell.ontouchstart = function(ev) {
+          ev.preventDefault();
+          msLongPressTriggered = false;
+          msLongPressTimer = setTimeout(function() {
+            if (msState.gameOver || msState.won || msState.revealed[rr][cc]) return;
+            msState.flags[rr][cc] = !msState.flags[rr][cc];
+            msLongPressTriggered = true;
+            msRender();
+          }, 500);
+        };
+        cell.ontouchend = function(ev) {
+          if (msLongPressTimer) { clearTimeout(msLongPressTimer); msLongPressTimer = null; }
+          if (msLongPressTriggered) {
+            ev.preventDefault();
+            msLongPressTriggered = false;
+          }
+        };
+        cell.ontouchmove = function() {
+          if (msLongPressTimer) { clearTimeout(msLongPressTimer); msLongPressTimer = null; }
+        };
         grid.appendChild(cell);
       })(r, c);
     }
@@ -2448,6 +2848,7 @@ function msRender() {
 }
 
 function msClick(r, c) {
+  if (msLongPressTriggered) { msLongPressTriggered = false; return; }
   if (msState.gameOver || msState.won) return;
   if (msState.flagMode) {
     if (msState.revealed[r][c]) return;
@@ -2457,6 +2858,10 @@ function msClick(r, c) {
   }
   if (msState.flags[r][c]) return;
   if (msState.revealed[r][c]) return;
+  if (msState.firstClick) {
+    msPlaceMines(r, c);
+    msStartTimer();
+  }
   msReveal(r, c);
   msRender();
 }
@@ -2603,6 +3008,7 @@ function startReading(storyKey) {
   R.quizCorrect = 0;
   R.currentWordIdx = 0;
   R.lastSpeechTime = 0;
+  R.lastResultIdx = 0;
   
   document.getElementById('readTitle').textContent = story.title;
   document.getElementById('readStarsCount').textContent = '0';
@@ -2655,6 +3061,7 @@ function startReading(storyKey) {
 
 function selectReadMode(mode) {
   R.mode = mode;
+  updateStreak();
   startReading(R.storyId);
 }
 
@@ -2847,7 +3254,7 @@ function createRecognition() {
       if (R.mode === 'technique' && R.elapsedSeconds > 0) {
         finishReadingStory();
       } else {
-        alert('\u{1F399}\uFE0F \u041C\u0438\u043A\u0440\u043E\u0444\u043E\u043D \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D. \u0420\u0430\u0437\u0440\u0435\u0448\u0438\u0442\u0435 \u0434\u043E\u0441\u0442\u0443\u043F \u043A \u043C\u0438\u043A\u0440\u043E\u0444\u043E\u043D\u0443 \u0432 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430\u0445 \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0430 \u0438 \u043D\u0430\u0436\u043C\u0438\u0442\u0435 \u00AB\u0421\u0442\u0430\u0440\u0442\u00BB \u0441\u043D\u043E\u0432\u0430.');
+        showMicError('\u041C\u0438\u043A\u0440\u043E\u0444\u043E\u043D \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D. \u0420\u0430\u0437\u0440\u0435\u0448\u0438\u0442\u0435 \u0434\u043E\u0441\u0442\u0443\u043F \u043A \u043C\u0438\u043A\u0440\u043E\u0444\u043E\u043D\u0443 \u0432 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430\u0445 \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0430 \u0438 \u043D\u0430\u0436\u043C\u0438\u0442\u0435 \u00AB\u0421\u0442\u0430\u0440\u0442\u00BB \u0441\u043D\u043E\u0432\u0430.');
       }
       return;
     }
@@ -2891,7 +3298,7 @@ function createRecognition() {
 
 function startMicOnly() {
   if (!(window.SpeechRecognition || window.webkitSpeechRecognition)) {
-    alert("Распознавание речи не поддерживается в этом браузере. Используйте Safari на iPhone или Chrome на Android.");
+    showMicError("Распознавание речи не поддерживается в этом браузере. Используйте Safari на iPhone или Chrome на Android.");
     return;
   }
   
@@ -3006,16 +3413,6 @@ function msStopReadingTimer() {
   }
 }
 
-function addReadStar() {
-  R.stars++;
-  document.getElementById('readStarsCount').textContent = R.stars;
-  
-  // Добавим в общую статистику звезд
-  var rec = {};
-  try { rec = JSON.parse(localStorage.getItem('xx_rec')) || {}; } catch(e) {}
-  // Для совместимости прибавим к общим результатам
-}
-
 function finishReadingStory() {
   stopReading();
   
@@ -3028,16 +3425,12 @@ function finishReadingStory() {
   R.stars = timeStars + finishBonus;
   document.getElementById('readStarsCount').textContent = R.stars;
   
-  var rec = {};
-  try { rec = JSON.parse(localStorage.getItem('xx_rec')); } catch(e) {}
-  if (!rec) rec = {};
+  var rec = lsGet('xx_rec', {});
   var bk = 'read_' + R.storyId;
   rec[bk] = (rec[bk] || 0) + 1;
-  try { localStorage.setItem('xx_rec', JSON.stringify(rec)); } catch(e) {}
+  lsSet('xx_rec', rec);
   
-  var hist = [];
-  try { hist = JSON.parse(localStorage.getItem('xx_hist')); } catch(e) {}
-  if (!hist) hist = [];
+  var hist = lsGet('xx_hist', []);
   var histEntry = {
     gameType: 'read',
     mul: storyName,
@@ -3048,8 +3441,16 @@ function finishReadingStory() {
   };
   hist.unshift(histEntry);
   if (hist.length > 100) hist.length = 100;
-  try { localStorage.setItem('xx_hist', JSON.stringify(hist)); } catch(e) {}
+  lsSet('xx_hist', hist);
   
+  incDailyGoal();
+  var totalReads = 0;
+  for (var k in rec) { if (k.indexOf('read_') === 0) totalReads += rec[k]; }
+  if (totalReads >= 5) unlockAchievement('bookworm');
+  var wordsForWpm = R.wordsReadCount > 0 ? R.wordsReadCount : R.words.length;
+  var wpm = Math.round(wordsForWpm / Math.max(1, elapsed / 60));
+  if (wpm >= 60) unlockAchievement('speed_reader');
+
   if (R.mode === 'technique') {
     showReadResult(storyName);
   } else if (READ_QUIZZES && READ_QUIZZES[R.storyId]) {
@@ -3062,10 +3463,6 @@ function finishReadingStory() {
 function finishReadingDone() {
   R.mode = '';
   if (R.ebookTimerInterval) { clearInterval(R.ebookTimerInterval); R.ebookTimerInterval = null; }
-  finishReadingStory();
-}
-
-function finishReadingTimerExpired() {
   finishReadingStory();
 }
 
@@ -3170,8 +3567,7 @@ function formatReadTime(sec) {
 
 // ===== STORY BADGES =====
 function renderStoryBadges() {
-  var rec = {};
-  try { rec = JSON.parse(localStorage.getItem('xx_rec')); } catch(e) {}
+  var rec = lsGet('xx_rec', {});
   if (!rec) return;
   var ids = Object.keys(READ_STORIES);
   for (var i = 0; i < ids.length; i++) {
@@ -3184,6 +3580,49 @@ function renderStoryBadges() {
     else el.textContent = '';
   }
 }
+
+// ===== MIC ERROR DISPLAY =====
+function showMicError(msg) {
+  var el = document.getElementById('readMicStatus');
+  if (el) {
+    el.textContent = '\u26A0\uFE0F';
+    el.title = msg;
+    el.className = 'read-mic-status';
+  }
+  var container = document.getElementById('readText');
+  if (container) {
+    var div = document.createElement('div');
+    div.style.cssText = 'color:#ff4757;font-size:14px;text-align:center;padding:16px;margin-top:20px';
+    div.textContent = msg;
+    container.innerHTML = '';
+    container.appendChild(div);
+  }
+}
+
+// ===== SOUND EFFECTS =====
+var _audioCtx = null;
+function getAudioCtx() {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return _audioCtx;
+}
+function playSound(freq, dur, type, vol) {
+  try {
+    var ctx = getAudioCtx();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol || 0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + dur);
+  } catch(e) {}
+}
+function sfxCorrect() { playSound(880, 0.15, 'sine', 0.2); }
+function sfxWrong() { playSound(150, 0.25, 'square', 0.15); }
+function sfxNewRecord() { playSound(523, 0.12, 'sine', 0.25); setTimeout(function(){ playSound(659, 0.12, 'sine', 0.25); }, 120); setTimeout(function(){ playSound(784, 0.2, 'sine', 0.25); }, 240); }
 
 // ===== iOS TOUCH FIX =====
 document.addEventListener('touchstart', function(){}, {passive: true});
@@ -3202,6 +3641,10 @@ document.addEventListener('keydown', function(e) {
     }
   }
 });
+
+// ===== INITIAL GAMIFICATION RENDER =====
+renderStreak();
+renderDailyGoal();
 </script>
 </body>
 </html>
