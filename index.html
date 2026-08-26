@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>2x2 — Учимся считать</title>
+<title>2x2</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 *{cursor:pointer}
@@ -299,7 +299,7 @@ body{padding:0}
 /* READ SCREEN & CARAOKE CSS */
 .read-screen{height:100%;width:100%;max-width:360px}
 .read-header{display:flex;justify-content:space-between;align-items:center;width:100%;padding:4px 0;position:relative;margin-bottom:4px}
-.read-timer{color:#ffd700;font-size:16px;font-weight:700;margin-left:48px}
+.read-timer{color:#ffd700;font-size:14px;font-weight:700;margin-left:48px;white-space:nowrap}
 .read-mic-status{font-size:18px;transition:transform 0.2s,filter 0.2s;opacity:0.4;filter:grayscale(1)}
 .read-mic-status.active{opacity:1;filter:grayscale(0);animation:pulse 1.2s infinite}
 .read-title{color:#fff;font-size:18px;font-weight:800;text-align:center;margin:4px 0;text-transform:uppercase;letter-spacing:0.5px}
@@ -1891,7 +1891,7 @@ function showStats() {
 }
 
 function clearHistory() {
-  if (prompt('Введите пароль для сброса статистики:') === '76') {
+  if (prompt('Введите пароль для сброса статистики:') === '67') {
     localStorage.removeItem('xx_hist');
     localStorage.removeItem('xx_rec');
     renderRecords();
@@ -2660,6 +2660,9 @@ function selectReadMode(mode) {
 
 function selectQuarter(q) {
   R.quarter = q;
+  R.techniqueCountdown = 60;
+  R.wordsReadCount = 0;
+  R.elapsedSeconds = 0;
   show('screen-read-game');
   renderReadingText();
   document.getElementById('readStarsWrap').style.display = 'none';
@@ -2668,7 +2671,7 @@ function selectQuarter(q) {
   document.getElementById('readDoneBtn').style.display = 'none';
   document.getElementById('readMicStatus').style.display = '';
   document.getElementById('readTimer').style.display = '';
-  document.getElementById('readTimer').textContent = '\u23F1 00:00';
+  document.getElementById('readTimer').textContent = '\u23F1 1:00';
 }
 
 function renderEbookText() {
@@ -2754,6 +2757,7 @@ function skipCurrentWord() {
   if (!R.active) return;
   if (R.currentWordIdx < R.words.length - 1) {
     R.currentWordIdx++;
+    if (R.mode === 'technique') R.wordsReadCount = R.currentWordIdx;
     updateWordHighlights();
   } else {
     // Дочитали до конца!
@@ -2818,7 +2822,7 @@ function createRecognition() {
   rec.onend = function() {
     R.isListening = false;
     stopWatchdog();
-    msStopReadingTimer();
+    if (R.mode !== 'technique') msStopReadingTimer();
     document.getElementById('readMicStatus').className = 'read-mic-status';
     var startBtn = document.getElementById('readStartBtn');
     if (startBtn) {
@@ -2840,7 +2844,11 @@ function createRecognition() {
         startBtn.textContent = '▶ Старт';
         startBtn.className = 'read-ctrl-btn play-btn';
       }
-      alert('Микрофон заблокирован. Разрешите доступ к микрофону в настройках браузера и нажмите «Старт» снова.');
+      if (R.mode === 'technique' && R.elapsedSeconds > 0) {
+        finishReadingStory();
+      } else {
+        alert('\u{1F399}\uFE0F \u041C\u0438\u043A\u0440\u043E\u0444\u043E\u043D \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D. \u0420\u0430\u0437\u0440\u0435\u0448\u0438\u0442\u0435 \u0434\u043E\u0441\u0442\u0443\u043F \u043A \u043C\u0438\u043A\u0440\u043E\u0444\u043E\u043D\u0443 \u0432 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430\u0445 \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0430 \u0438 \u043D\u0430\u0436\u043C\u0438\u0442\u0435 \u00AB\u0421\u0442\u0430\u0440\u0442\u00BB \u0441\u043D\u043E\u0432\u0430.');
+      }
       return;
     }
     if (e.error === 'no-speech' || e.error === 'network' || e.error === 'aborted') {
@@ -2945,6 +2953,7 @@ function handleSpeechInput(text) {
     // Если совпадение найдено, продвигаем маркер караоке вперед!
     if (matchedIdx !== -1) {
       R.currentWordIdx = matchedIdx + 1;
+      if (R.mode === 'technique') R.wordsReadCount = R.currentWordIdx;
       updateWordHighlights();
       
       // Если дошли до конца сказки
@@ -2958,12 +2967,35 @@ function handleSpeechInput(text) {
 
 function msStartReadingTimer() {
   msStopReadingTimer();
+  if (R.mode === 'technique') {
+    msStartTechniqueTimer();
+    return;
+  }
   R.timerInterval = setInterval(function() {
     if (!R.active || !R.isListening) return;
     R.elapsedSeconds++;
     var mm = String(Math.floor(R.elapsedSeconds / 60)).padStart(2, '0');
     var ss = String(R.elapsedSeconds % 60).padStart(2, '0');
     document.getElementById('readTimer').textContent = '\u23F1 ' + mm + ':' + ss;
+  }, 1000);
+}
+
+function msStartTechniqueTimer() {
+  msStopReadingTimer();
+  R.timerInterval = setInterval(function() {
+    if (!R.active) return;
+    R.elapsedSeconds++;
+    R.techniqueCountdown--;
+    var rem = R.techniqueCountdown;
+    var mm = Math.floor(rem / 60);
+    var ss = rem % 60;
+    var wpm = R.elapsedSeconds > 0 ? Math.round(R.wordsReadCount / (R.elapsedSeconds / 60)) : 0;
+    document.getElementById('readTimer').textContent = '\u23F1 ' + mm + ':' + (ss < 10 ? '0' : '') + ss + ' \u00B7 \uD83D\uDCCA ' + wpm + ' \u0441\u043B/\u043C\u0438\u043D';
+    if (R.techniqueCountdown <= 0) {
+      clearInterval(R.timerInterval);
+      R.timerInterval = null;
+      finishReadingStory();
+    }
   }, 1000);
 }
 
@@ -3018,7 +3050,9 @@ function finishReadingStory() {
   if (hist.length > 100) hist.length = 100;
   try { localStorage.setItem('xx_hist', JSON.stringify(hist)); } catch(e) {}
   
-  if (READ_QUIZZES && READ_QUIZZES[R.storyId]) {
+  if (R.mode === 'technique') {
+    showReadResult(storyName);
+  } else if (READ_QUIZZES && READ_QUIZZES[R.storyId]) {
     showReadQuiz();
   } else {
     showReadResult(storyName);
@@ -3115,7 +3149,8 @@ function showReadResult(storyName) {
   lines.push('\u2B50 Звёзды: ' + R.stars);
   if (total > 0) lines.push('\u{1F4DD} Викторина: ' + correct + '/' + total + ' (' + pct + '%)');
   if (R.mode === 'technique' && R.quarter) {
-    var wpm = Math.round(R.words.length / Math.max(1, R.elapsedSeconds / 60));
+    var wordsForWpm = R.wordsReadCount > 0 ? R.wordsReadCount : R.words.length;
+    var wpm = Math.round(wordsForWpm / Math.max(1, R.elapsedSeconds / 60));
     var std = READ_TECHNIQUE[R.quarter];
     var passed = wpm >= std.wpm;
     lines.push('\u{1F3A4} Скорость: ' + wpm + ' слов/мин (норма: ' + std.wpm + ')');
