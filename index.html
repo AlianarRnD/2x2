@@ -599,66 +599,66 @@ body{padding:0}
     <button class="nav-btn" style="position:absolute;top:10px;left:10px" onclick="goHome()">&#x2715;</button>
     <h2>&#x1F4D6; Выбери сказку</h2>
     <div class="levels story-grid" style="margin-top:16px;width:100%;max-width:320px">
-      <button class="lvl-btn lvl-read" onclick="startReading('random')">
+      <button class="lvl-btn lvl-read" onclick="pickStory('random')">
         <span class="icon">&#x1F3B2;</span>
         Случайная сказка
         <span class="desc">Выбрать наугад</span>
       </button>
-      <button class="lvl-btn lvl-eq" onclick="startReading('kasha')">
+      <button class="lvl-btn lvl-eq" onclick="pickStory('kasha')">
         <span class="icon">🥣</span>
         Каша из топора
         <span class="desc">Русская народная сказка</span>
         <span class="story-badge" id="sb_kasha"></span>
       </button>
-      <button class="lvl-btn lvl-div" onclick="startReading('lisa')">
+      <button class="lvl-btn lvl-div" onclick="pickStory('lisa')">
         <span class="icon">🦊</span>
         Лиса и журавль
         <span class="desc">Русская народная сказка</span>
         <span class="story-badge" id="sb_lisa"></span>
       </button>
-      <button class="lvl-btn lvl-eq2" onclick="startReading('strah')">
+      <button class="lvl-btn lvl-eq2" onclick="pickStory('strah')">
         <span class="icon">👀</span>
         У страха глаза велики
         <span class="desc">Русская народная сказка</span>
         <span class="story-badge" id="sb_strah"></span>
       </button>
-      <button class="lvl-btn lvl-hard" onclick="startReading('redhood')">
+      <button class="lvl-btn lvl-hard" onclick="pickStory('redhood')">
         <span class="icon">🔥</span>
         Красная Шапочка
         <span class="desc">Сказка братьев Гримм</span>
         <span class="story-badge" id="sb_redhood"></span>
       </button>
-      <button class="lvl-btn lvl-eq" onclick="startReading('fisher')">
+      <button class="lvl-btn lvl-eq" onclick="pickStory('fisher')">
         <span class="icon">🐟</span>
         Рыбак и рыбка
         <span class="desc">А.С. Пушкин</span>
         <span class="story-badge" id="sb_fisher"></span>
       </button>
-      <button class="lvl-btn lvl-div" onclick="startReading('balda')">
+      <button class="lvl-btn lvl-div" onclick="pickStory('balda')">
         <span class="icon">🔨</span>
         Балда
         <span class="desc">А.С. Пушкин</span>
         <span class="story-badge" id="sb_balda"></span>
       </button>
-      <button class="lvl-btn lvl-eq2" onclick="startReading('sivka')">
+      <button class="lvl-btn lvl-eq2" onclick="pickStory('sivka')">
         <span class="icon">🐴</span>
         Сивка-Бурка
         <span class="desc">Русская народная сказка</span>
         <span class="story-badge" id="sb_sivka"></span>
       </button>
-      <button class="lvl-btn lvl-hard" onclick="startReading('catboots')">
+      <button class="lvl-btn lvl-hard" onclick="pickStory('catboots')">
         <span class="icon">🐱</span>
         Кот в сапогах
         <span class="desc">Шарль Перро</span>
         <span class="story-badge" id="sb_catboots"></span>
       </button>
-      <button class="lvl-btn lvl-eq" onclick="startReading('alenushka')">
+      <button class="lvl-btn lvl-eq" onclick="pickStory('alenushka')">
         <span class="icon">👧</span>
         Сестрица Аленушка
         <span class="desc">Русская народная сказка</span>
         <span class="story-badge" id="sb_alenushka"></span>
       </button>
-      <button class="lvl-btn lvl-div" onclick="startReading('flower')">
+      <button class="lvl-btn lvl-div" onclick="pickStory('flower')">
         <span class="icon">🌈</span>
         Цветик-семицветик
         <span class="desc">В. Катаев</span>
@@ -2489,6 +2489,7 @@ function msSetMode(mode) {
 // ===== READING GAME LOGIC =====
 function playReading() {
   stopReading();
+  R.mode = '';
   renderStoryBadges();
   show('screen-read-select');
 }
@@ -2498,7 +2499,7 @@ function stopReadingAndGoBack() {
   if (R.mode === 'technique') {
     show('screen-read-quarter');
   } else {
-    show('screen-read-select');
+    show('screen-read-mode');
   }
 }
 function stopReadingAndGoBack2() {
@@ -2538,9 +2539,17 @@ function parseWord(w) {
           .trim();
 }
 
+function pickStory(storyKey) {
+  if (storyKey === 'random') {
+    var keys = Object.keys(READ_STORIES);
+    storyKey = keys[Math.floor(Math.random() * keys.length)];
+  }
+  R.storyId = storyKey;
+  show('screen-read-mode');
+}
+
 function startReading(storyKey) {
   stopReading();
-  
   if (storyKey === 'random') {
     var keys = Object.keys(READ_STORIES);
     storyKey = keys[Math.floor(Math.random() * keys.length)];
@@ -2600,11 +2609,7 @@ function startReading(storyKey) {
 
 function selectReadMode(mode) {
   R.mode = mode;
-  if (mode === 'technique') {
-    show('screen-read-quarter');
-  } else {
-    show('screen-read-select');
-  }
+  startReading(R.storyId);
 }
 
 function selectQuarter(q) {
