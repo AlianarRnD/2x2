@@ -202,7 +202,7 @@ body{padding:0}
 /* MINESWEEPER */
 .ms-screen{justify-content:flex-start;padding-top:40px;gap:6px}
 .ms-screen h2{color:#fff;font-size:22px;font-weight:700;margin-bottom:2px}
-#screen-read-select h2{color:#fff;font-size:22px;font-weight:700}
+#screen-read-select h2{color:#fff;font-size:22px;font-weight:700;margin-top:16px}
 .ms-header{display:flex;align-items:center;justify-content:center;gap:14px;width:100%;max-width:300px;padding:2px 0}
 .ms-mine-count{color:#f5576c;font-size:18px;font-weight:700}
 .ms-timer{color:#8888aa;font-size:16px;font-weight:600;min-width:70px;text-align:center}
@@ -274,6 +274,7 @@ body{padding:0}
   /* Адаптивность для экрана чтения */
   .read-text{font-size:20px;line-height:1.6}
   .read-ctrl-btn{padding:10px;font-size:14px}
+  .read-ebook-text{font-size:15px}
   .read-title{font-size:16px}
 }
 .stab{width:100%;max-width:360px;overflow-y:auto;flex:1;padding:2px 0}
@@ -312,6 +313,42 @@ body{padding:0}
 .read-ctrl-btn.play-btn.listening{background:linear-gradient(135deg,#ee0979,#ff6a00);box-shadow:0 4px 12px rgba(238,9,121,0.3)}
 .read-ctrl-btn.skip-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:#c0c0e0}
 
+/* READ MODE SCREEN */
+#screen-read-mode h2,#screen-read-quarter h2{color:#fff;font-size:22px;font-weight:700;margin-top:16px}
+.read-mode-btn{width:100%;max-width:300px;padding:18px;border-radius:18px;border:none;font-size:17px;font-weight:600;cursor:pointer;color:#fff;transition:.12s;box-shadow:0 4px 15px rgba(0,0,0,0.3);font-family:inherit}
+.read-mode-btn:active{transform:scale(0.96)}
+.rm-karaoke{background:linear-gradient(135deg,#667eea,#764ba2)}
+.rm-ebook{background:linear-gradient(135deg,#11998e,#38ef7d)}
+.rm-technique{background:linear-gradient(135deg,#f9a825,#ff8f00)}
+.quarter-btn{width:100%;max-width:280px;padding:16px;border-radius:16px;border:none;font-size:16px;font-weight:600;cursor:pointer;color:#fff;transition:.12s;box-shadow:0 4px 12px rgba(0,0,0,0.3);font-family:inherit}
+.quarter-btn:active{transform:scale(0.96)}
+.qb-1{background:linear-gradient(135deg,#43e97b,#38f9d7)}
+.qb-2{background:linear-gradient(135deg,#667eea,#764ba2)}
+.qb-3{background:linear-gradient(135deg,#f093fb,#f5576c)}
+.qb-4{background:linear-gradient(135deg,#ee0979,#ff6a00)}
+/* QUIZ */
+.quiz-wrap{width:100%;max-width:360px;padding:8px 0}
+.quiz-q{color:#fff;font-size:18px;font-weight:700;text-align:center;margin-bottom:12px;line-height:1.3}
+.quiz-options{display:flex;flex-direction:column;gap:8px;width:100%}
+.quiz-opt{padding:14px 16px;border-radius:14px;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:#fff;font-size:15px;font-weight:500;cursor:pointer;transition:.1s;text-align:left;font-family:inherit}
+.quiz-opt:active{transform:scale(0.97)}
+.quiz-opt.correct{background:rgba(67,233,123,0.3);border-color:#43e97b}
+.quiz-opt.wrong{background:rgba(255,71,87,0.3);border-color:#ff4757}
+.quiz-opt.disabled{pointer-events:none;opacity:.7}
+.quiz-next{margin-top:12px}
+/* READ RESULT */
+.read-result-box{width:100%;max-width:320px;text-align:center;padding:16px;border-radius:18px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06)}
+.read-result-grade{font-size:48px;font-weight:900;margin:8px 0}
+.read-result-text{color:#c0c0e0;font-size:14px;line-height:1.6}
+/* STORY BADGES */
+.story-grid .lvl-btn{position:relative}
+.story-badge{position:absolute;top:6px;right:6px;font-size:11px;pointer-events:none}
+/* EBOOK */
+.read-ebook-text{font-size:18px;line-height:1.8;color:rgba(255,255,255,0.7);font-weight:500;text-align:justify;padding:12px 8px}
+/* TECHNIQUE DONE BTN */
+.read-done-btn{width:100%;max-width:280px;padding:14px;border-radius:14px;border:none;font-size:16px;font-weight:700;cursor:pointer;color:#fff;background:linear-gradient(135deg,#43e97b,#38f9d7);box-shadow:0 4px 12px rgba(67,233,123,0.3);transition:.12s;font-family:inherit}
+.read-done-btn:active{transform:scale(0.96)}
+
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .screen.active>*{animation:fadeIn .2s ease}
@@ -331,7 +368,7 @@ body{padding:0}
   <!-- HOME -->
   <div id="screen-home" class="screen active">
     <div class="logo">2x2</div>
-    <span class="ver">v1.11</span>
+    <span class="ver">v1.12</span>
     <div class="subtitle">тяжело в учении, легко в бою</div>
     <button class="stat-badge" onclick="showStats()">&#x1F4CA; Статистика</button>
     <div class="gs-title">&#x1F4D6; Занятия</div>
@@ -524,11 +561,44 @@ body{padding:0}
     </div>
   </div>
 
+  <!-- READ MODE SELECT -->
+  <div id="screen-read-mode" class="screen" style="justify-content:center;gap:14px">
+    <button class="nav-btn" style="position:absolute;top:10px;left:10px" onclick="stopReadingAndGoBack2()">&#x2715;</button>
+    <h2>&#x1F4D6; Режим чтения</h2>
+    <button class="read-mode-btn rm-karaoke" onclick="selectReadMode('karaoke')">&#x1F3A4; Караоке</button>
+    <button class="read-mode-btn rm-ebook" onclick="selectReadMode('ebook')">&#x1F4DA; Читать как книгу</button>
+    <button class="read-mode-btn rm-technique" onclick="selectReadMode('technique')">&#x23F1; Техника чтения</button>
+  </div>
+
+  <!-- READ QUARTER SELECT -->
+  <div id="screen-read-quarter" class="screen" style="justify-content:center;gap:14px">
+    <button class="nav-btn" style="position:absolute;top:10px;left:10px" onclick="stopReadingAndGoBack()">&#x2715;</button>
+    <h2>&#x1F4C5; Выбери четверть</h2>
+    <button class="quarter-btn qb-1" onclick="selectQuarter('q1')">I четверть (норма: 30 слов/мин)</button>
+    <button class="quarter-btn qb-2" onclick="selectQuarter('q2')">II четверть (норма: 45 слов/мин)</button>
+    <button class="quarter-btn qb-3" onclick="selectQuarter('q3')">III четверть (норма: 60 слов/мин)</button>
+    <button class="quarter-btn qb-4" onclick="selectQuarter('q4')">IV четверть (норма: 75 слов/мин)</button>
+  </div>
+
+  <!-- READ QUIZ -->
+  <div id="screen-read-quiz" class="screen" style="justify-content:flex-start;padding-top:60px;gap:8px">
+    <button class="nav-btn" style="position:absolute;top:10px;left:10px" onclick="stopReadingAndGoBack()">&#x2715;</button>
+    <h2>&#x1F4DD; Вопросы по сказке</h2>
+    <div class="quiz-wrap" id="quizWrap"></div>
+  </div>
+
+  <!-- READ RESULT -->
+  <div id="screen-read-result" class="screen" style="justify-content:center;gap:12px">
+    <h2>&#x1F3C6; Результат чтения</h2>
+    <div class="read-result-box" id="readResultBox"></div>
+    <button class="lvl-btn lvl-read" onclick="show('screen-read-select')" style="margin-top:8px">Назад к сказкам</button>
+  </div>
+
   <!-- READ SELECT -->
   <div id="screen-read-select" class="screen" style="justify-content:flex-start;padding-top:40px;gap:6px">
     <button class="nav-btn" style="position:absolute;top:10px;left:10px" onclick="goHome()">&#x2715;</button>
     <h2>&#x1F4D6; Выбери сказку</h2>
-    <div class="levels" style="margin-top:20px;width:100%;max-width:320px">
+    <div class="levels story-grid" style="margin-top:16px;width:100%;max-width:320px">
       <button class="lvl-btn lvl-read" onclick="startReading('random')">
         <span class="icon">&#x1F3B2;</span>
         Случайная сказка
@@ -538,16 +608,61 @@ body{padding:0}
         <span class="icon">🥣</span>
         Каша из топора
         <span class="desc">Русская народная сказка</span>
+        <span class="story-badge" id="sb_kasha"></span>
       </button>
       <button class="lvl-btn lvl-div" onclick="startReading('lisa')">
         <span class="icon">🦊</span>
         Лиса и журавль
         <span class="desc">Русская народная сказка</span>
+        <span class="story-badge" id="sb_lisa"></span>
       </button>
       <button class="lvl-btn lvl-eq2" onclick="startReading('strah')">
         <span class="icon">👀</span>
         У страха глаза велики
         <span class="desc">Русская народная сказка</span>
+        <span class="story-badge" id="sb_strah"></span>
+      </button>
+      <button class="lvl-btn lvl-hard" onclick="startReading('redhood')">
+        <span class="icon">🔥</span>
+        Красная Шапочка
+        <span class="desc">Сказка братьев Гримм</span>
+        <span class="story-badge" id="sb_redhood"></span>
+      </button>
+      <button class="lvl-btn lvl-eq" onclick="startReading('fisher')">
+        <span class="icon">🐟</span>
+        Рыбак и рыбка
+        <span class="desc">А.С. Пушкин</span>
+        <span class="story-badge" id="sb_fisher"></span>
+      </button>
+      <button class="lvl-btn lvl-div" onclick="startReading('balda')">
+        <span class="icon">🔨</span>
+        Балда
+        <span class="desc">А.С. Пушкин</span>
+        <span class="story-badge" id="sb_balda"></span>
+      </button>
+      <button class="lvl-btn lvl-eq2" onclick="startReading('sivka')">
+        <span class="icon">🐴</span>
+        Сивка-Бурка
+        <span class="desc">Русская народная сказка</span>
+        <span class="story-badge" id="sb_sivka"></span>
+      </button>
+      <button class="lvl-btn lvl-hard" onclick="startReading('catboots')">
+        <span class="icon">🐱</span>
+        Кот в сапогах
+        <span class="desc">Шарль Перро</span>
+        <span class="story-badge" id="sb_catboots"></span>
+      </button>
+      <button class="lvl-btn lvl-eq" onclick="startReading('alenushka')">
+        <span class="icon">👧</span>
+        Сестрица Аленушка
+        <span class="desc">Русская народная сказка</span>
+        <span class="story-badge" id="sb_alenushka"></span>
+      </button>
+      <button class="lvl-btn lvl-div" onclick="startReading('flower')">
+        <span class="icon">🌈</span>
+        Цветик-семицветик
+        <span class="desc">В. Катаев</span>
+        <span class="story-badge" id="sb_flower"></span>
       </button>
     </div>
   </div>
@@ -556,18 +671,19 @@ body{padding:0}
   <div id="screen-read-game" class="screen read-screen" style="justify-content:flex-start;padding:12px 8px;gap:8px">
     <div class="read-header">
       <button class="game-back" onclick="stopReadingAndGoBack()">&#x2715;</button>
-      <div id="readTimer" class="read-timer">⏱ 10:00</div>
+      <div id="readTimer" class="read-timer">⏱ 00:00</div>
       <div id="readMicStatus" class="read-mic-status">🎙️</div>
-      <div class="stars-num"><span id="readStarsCount">0</span> ⭐</div>
+      <div class="stars-num" id="readStarsWrap"><span id="readStarsCount">0</span> ⭐</div>
     </div>
     <div class="read-title" id="readTitle">Сказка</div>
     <div class="read-text-container" id="readTextContainer">
       <div class="read-text" id="readText"></div>
     </div>
     <div class="read-controls">
-      <button class="read-ctrl-btn play-btn" id="readStartBtn" onclick="toggleReadingMic()">▶ Старт</button>
-      <button class="read-ctrl-btn skip-btn" id="readSkipBtn" onclick="skipCurrentWord()">⏭ Пропустить</button>
+      <button class="read-ctrl-btn play-btn" id="readStartBtn" onclick="toggleReadingMic()">&#x25B6; Старт</button>
+      <button class="read-ctrl-btn skip-btn" id="readSkipBtn" onclick="skipCurrentWord()">&#x23ED; Пропустить</button>
     </div>
+    <button class="read-done-btn" id="readDoneBtn" style="display:none" onclick="finishReadingDone()">&#x2705; Я закончил читать</button>
   </div>
 
   <!-- STATISTICS -->
@@ -585,6 +701,7 @@ body{padding:0}
       <button class="stat-filter-btn" id="filtMult" onclick="setStatsFilter('mult')">Умножения</button>
       <button class="stat-filter-btn" id="filtDiv" onclick="setStatsFilter('div')">Деление</button>
       <button class="stat-filter-btn" id="filtEq" onclick="setStatsFilter('eq')">Уравнения</button>
+      <button class="stat-filter-btn" id="filtRead" onclick="setStatsFilter('read')">&#x1F4D6; Чтение</button>
     </div><br>
     <div class="stab" id="recList"></div>
     <div class="stab" id="histList" style="display:none"></div>
@@ -607,20 +724,111 @@ const READ_STORIES = {
   strah: {
     title: "У страха глаза велики",
     text: "Жили-были бабушка-старушка, внучка-хохотушка, курочка-клохтушка да мышка-норушка. Каждый день они ходили за водой. У бабушки были вёдра большие, у внучки — поменьше, у курочки — с огурчик, у мышки — с напёрсток. Бабушка брала воду из колодца, внучка — из колоды, курочка — из лужицы, а мышка — из следа от поросячьего копытца. Назад идут: у бабушки вода тр-р-рах, плещется, у внучки — трёх, плещется, у курочки — трёх-трёх, у мышки — пи-пи-пи. Вот раз наши водоносы пошли за водой. Воды набрали, идут домой через огород. А в огороде росла яблонька, и на ней висело спелое яблоко. Под яблонькой сидел зайка. Вдруг ветерок подул, яблоко упало прямо зайке в лоб! Зайка испугался, да как прыгнет, да прямо под ноги нашим водоносам! Испугались они, вёдра побросали и бежать! Бабушка домой прибежала, на печь залезла и кричит: — Ох, медведище на меня напал, чуть не съел! Внучка за бабушку спряталась: — Ох, волчище огромный на меня прыгнул! Курочка на завалинку взлетела: — Лиса за мной гналась, чуть не поймала! А мышка под печку забилась: — Котище-усище из-под земли вырос, еле спаслась! А зайка в лес прибежал, под кустом спрятался и думает: — Ох, четыре охотника за мной гнались, и у каждого собаки огромные! Да, у страха глаза велики — чего нет, и то видят."
+  },
+  redhood: {
+    title: "Красная Шапочка",
+    text: "Жила-была девочка. Все её звали Красная Шапочка, потому что шапочку носила алого цвета. Мама позвала её и сказала: — Сходи к бабушке, она занемогла. Отнеси ей пирог и бутылочку вина. Только иди прямо, не сворачивай с дороги. Красная Шапочка отправилась в лес. Шла она, шла и встретила Волка. — Куда ты идёшь, Красная Шапочка? — спросил Волк. — К бабушке несу пирог и вино, она занемогла. Волк подумал: «Съем я и бабушку и Красную Шапочку!» И побежал Волк наперёд к бабушкиной избушке. Красная Шапочка шла медленно, собирала цветы. А Волк уже был у бабушки. Он постучал в дверь: — Бабушка, отвори! Я тебе пирог несу. Бабушка испугалась и спряталась под одеяло. Волк прыгнул на кровать и сел на бабушкино место. Через некоторое время пришла Красная Шапочка и увидела Волка в бабушкиной постели. — Бабушка, почему у тебя такие большие уши? — Чтобы тебя лучше слышать! — А почему у тебя такие большие глаза? — Чтобы тебя лучше видеть! — А почему у тебя такой большой рот? — Чтобы тебя съесть! Волк прыгнул и схватил Красную Шапочку. Но тут мимо шёл охотник. Он услышал шум и заглянул в окно. Увидел Волка и разрезал ему живот. Выскочили бабушка и Красная Шапочка живые! Набил Волка камнями и зашил. Проснулся Волк, хотел пить, наклонился к колодцу — и упал туда и утонул. Бабушка и Красная Шапочка обрадовались. С тех пор девочка больше никогда не разговаривала с незнакомцами и всегда шла прямой дорогой."
+  },
+  fisher: {
+    title: "Рыбак и рыбка",
+    text: "Жил старик со старухой у самого синего моря. Бросил старик удочку в море. Дёрнул — улов жёсткий. Дёрнул ещё раз — вытащил рыбкузолотую. Заговорила рыбка: — Отпусти меня, старичок! Я тебе за это исполню любое желание. Удивился старик, поймал рыбку золотую и отпустил её в море. Пришёл домой и рассказал старухе. Закричала старуха: — Ты глупый старик! Попроси у неё новое корыто! Старик пошёл к морю и позвал рыбку. Попросил он новое корыто. Вернулся домой — стоит новое корыто. А старуха злится: — Зачем ты попросил корыто? Надо было новую избу! Снова старик пошёл к морю. Позвал рыбку — и она исполнила желание. Пришёл домой — стоит новая изба. Закричала старуха ещё громче: — Ты снова глупый! Надо было новую горницу с печкой! Старик пошёл к море. Позвал рыбку и попросил новую горницу. Вернулся — стоит горница. А старуха ещё злее: — Стань я волшебницей! Старик пошёл к морю. Позвал рыбку — и она сказала: — Хорошо, будет по-твоему. Пришёл домой — сидит старуха у новой горницы, а она уже царица. Старик кормит её, а она велит ему. Надоело всё это. Снова пошёл старик к морю. Позвал рыбку и сказал: — Ты видишь, она снова стала старухой и сидит у разбитого корыта."
+  },
+  balda: {
+    title: "Балда",
+    text: "Шёл по дороге парень Балда. Дешёвого ищу, говорит, да работаю не боюсь. Пришёл он к попу. — Здравствуй, батюшка! Возьми меня к себе в работники. Поп согласился. Балда работает за три копейки в день, а ест и пьёт за целый кол. Живёт у попа три года. Собрался Балда домой. Пришёл к попу: — Плати мне, батюшка, три года по три копейки. Сел Балда за стол. Положил три копейки на стол. Начал хлопать по копейкам рукой. Хлоп, хлоп, хлоп! — Куда делась копейка? Слёзы у попа. Вторую хлоп — и та пропала! Третью хлоп — все пропали! Поп заплакал: — Верни мои деньги! — Ну, батюшка, эти три копейки у меня в кармане, а те три года работай бесплатно. Поп согласился. Однажды к попу пришёл чёрт. — Давай, поп, отойдёшь от жены, а я тебя за три дня заберу в преисподнюю. Испугался поп и стал думать. Балда говорит: — Не бойся, батюшка! Я за тебя поделом. Пришли три черта. Балда вырыл яму и стал кидать в неё камни. Вырыли черти яму — а Балда всех в неё и закинул. Тут прилетел главный чёрт и закричал: — Кто это делает? — Это я, Балда! — крикнул Балда и запустил камнем, попал чёрту в лоб. Чёрт убежал и больше не приходил."
+  },
+  sivka: {
+    title: "Сивка-Бурка",
+    text: "Жили-были три брата. Старшие два хвастуны, а младший — дурак Иван. Однажды отец послал сыновей на ярмарку. Старшие уехали красиво, а Иван пошёл пешком. Пришёл он на луг и закричал: — Сивка-Бурка, веди Сивка-Бурка! Вихри щёточные, полы носят хвостовые! Вышла из моря Сивка-Бурка — конь говорящий. — Куда ехать? — На ярмарку! Сел Иван на Сивку-Бурку и улетел на ярмарку. Там он увидел прекрасную царевну и влюбился. А царевна сказала: — Тот меня получит, кто сидит на Сивке-Бурке. Приехали на ярмарку и старшие братья и сказали: — Да это же дурак, он на простой лошадке! Царевна посмотрела и сказала: — Нет, это не простой конь. Дайте мне этого молодца. Взял Иван царевну и полетел на Сивке-Бурке домой. Старшие братья остались на ярмарке. С тех пор Иван жил с царевной, и они были счастливы. А Сивка-Бурка улетел обратно в море."
+  },
+  catboots: {
+    title: "Кот в сапогах",
+    text: "Жил-был молодой мельник, и было у него три сына. Когда мельник умер, он оставил старшему сыну мельницу, среднему — ослов, а младшему — кота. Заплакал младший: как на чём жить-то? А кот сказал: — Не грусти, хозяин! Только дай мне мешок и пару сапог — и я тебе устрою удачу. Мельник не верил, но дал коту мешок и сапоги. Кот надел сапоги, взял мешок, пошёл в лес. Набил мешок репой и картошкой и сел в кусты. Пришла зайка — хлоп! Кот поймал её, положил в мешок. Отнёс кот зайца в замок и сказал стражникам: — Подарок от моего господина, маркиза де Карабаса! Царь обрадовался и велел передать благодарность. Каждый день кот приносил в замок то зайца, то курочку, то утку. Царь всё больше любил маркиза де Карабаса. Однажды кот узнал, что царь едет с царевной кататься по реке. Кот сказал хозяину: — Иди купаться в реку, а я всё устрою. Царь увидел молодца в воде и сказал: — Это маркиз де Карабас! Кот побежал вперёд и кричал крестьянам: — Если спросят, чьи поля — говорите, маркиза де Карабаса! Все крестьяне повторили: — Это поля маркиза! Царь был в восторге и женил царевну на молодом мельнике. С тех пор жили они дружно и богато."
+  },
+  alenushka: {
+    title: "Сестрица Аленушка",
+    text: "Пришла Аленушка в лес и потеряла дорогу. Долго бродила она по лесу и нашла маленькую избушку. Постучала в дверь — никто не отвечает. Она вошла и увидела, что в избушке живёт коза рогатая, баран бородатый и уточка серенькая. — Садись, Аленушка, — сказали они, — и живи с нами. Только не ходи в чулан! Стала Аленушка жить в избушке. Готовила, стирала, убирала. Животные были довольны. Но вот Аленушка не удержалась и открыла чулан. А там сидит старушка Кикимора и вяжет чулки. Кикимора рассердилась и закричала: — Ты нарушила мой запрет! Теперь я тебя съем! Закрыла Кикимора Аленушку в погреб и стала уговаривать волка съесть девочку. Но волк спросил: — А что за это будет? — Молочка дам! — сказала Кикимора. Пришёл волк в погреб, а Аленушка плачет. — Не бойся, — говорит волк. — Я тебя не съем. Только ты мне молочка дай, когда выйдешь отсюда. Аленушка согласилась. Открыл волк погреб, и Аленушка выбежала. Пришла домой и рассказала всё маме. Мама обняла дочку и больше никогда не отпускала её одну в лес."
+  },
+  flower: {
+    title: "Цветик-семицветик",
+    text: "Купила Женя бабушке цветик-семицветик. У цветика семь лепестков — красный, оранжевый, жёлтый, зелёный, голубой, синий и фиолетовый. Каждый лепесток выполняет одно желание. Женя сорвала красный лепесток и закричала: — Лети, лети, лепесток! Через лес, через поле, через речку быструю. В Африку, в Африку, к обезьянам! Привези мне обезьяну! Ветер сорвал лепесток и унёс его. Через минуту перед Женей стояла настоящая обезьяна. Она горой села на пол и стала грызть карандаш. Женя испугалась. Сорвала оранжевый лепесток и закричала: — Лети, лепесток, обратно! Обезьяна исчезла. Шла Женя через парк и увидела, как мальчик Серёжа плачет. — Почему ты плачешь? — спросила Женя. — Я клюнулся и сломал очки, — ответил Серёжа. Сорвала Женя жёлтый лепесток: — Лети, лепесток, через парк, к речке быстрой, к мальчику Серёже! Сделай ему новые очки! И вот Серёже дали новые очки. Потом Женя помогала ещё многим людям. Она сказала маме: — Мы с цветиком-семицветиком будем всегда помогать людям!"
   }
+};
+
+const READ_TECHNIQUE = {
+  q1: { wpm: 30 },
+  q2: { wpm: 45 },
+  q3: { wpm: 60 },
+  q4: { wpm: 75 }
+};
+
+const READ_QUIZZES = {
+  kasha: [
+    { q: 'Кто пришёл к старухе в избу?', a: ['Солдат', 'Купец', 'Поп', 'Мужик'], c: 0 },
+    { q: 'Что солдат положил в котёл?', a: ['Камень', 'Топор', 'Дрова', 'Ложку'], c: 1 },
+    { q: 'Что попросил солдат добавить в кашу?', a: ['Молоко', 'Сахар', 'Масло и соль', 'Муку'], c: 2 }
+  ],
+  lisa: [
+    { q: 'Чем лиса угостила журавля?', a: ['Манной кашей', 'Пирогом', 'Рыбой', 'Мёдом'], c: 0 },
+    { q: 'Во что журавль налил окрошку?', a: ['В тарелку', 'В блюдце', 'В кувшин', 'В миску'], c: 2 },
+    { q: 'Чем закончилась дружба?', a: ['Они помирились', 'Порознь', 'Вместе жили', 'Ссорой'], c: 1 }
+  ],
+  strah: [
+    { q: 'Кто ударил зайку по лбу?', a: ['Дед', 'Бабушка', 'Яблоко', 'Кот'], c: 2 },
+    { q: 'Куда побежали водоносы от зайки?', a: ['Домой', 'В лес', 'К колодцу', 'В баню'], c: 0 },
+    { q: 'Где спряталась мышка?', a: ['Под кроватью', 'Под печкой', 'На полке', 'В чулане'], c: 1 }
+  ],
+  redhood: [
+    { q: 'Почему девочку звали Красная Шапочка?', a: ['Она любила красный', 'Шапочка алого цвета', 'Её мама так сказала', 'Она из Красной Горки'], c: 1 },
+    { q: 'Что несла девочка бабушке?', a: ['Книгу', 'Пирог и вино', 'Конфеты', 'Цветы'], c: 1 },
+    { q: 'Кто спас девочку и бабушку?', a: ['Медведь', 'Охотник', 'Лесник', 'Волк сам'], c: 1 }
+  ],
+  fisher: [
+    { q: 'Какую рыбку поймал старик?', a: ['Серебряную', 'Обычную', 'Золотую', 'Большую'], c: 2 },
+    { q: 'Чего просила старуха?', a: ['Денег', 'Всё больше и больше', 'Корову', 'Дом'], c: 1 },
+    { q: 'Чем кончилась сказка?', a: ['Старуха стала царицей', 'Жили дружно', 'Старуха утонула', 'Корыто осталось'], c: 3 }
+  ],
+  balda: [
+    { q: 'Сколько копеек в день просил Балда?', a: ['Одну', 'Две', 'Три', 'Пять'], c: 2 },
+    { q: 'Как Балда наказал попа?', a: ['Побил', 'Накормил', 'Копейки втянул', 'Прогнал'], c: 2 },
+    { q: 'Кого Балда победил?', a: ['Волка', 'Медведя', 'Дьявола', 'Змея'], c: 2 }
+  ],
+  sivka: [
+    { q: 'Как звали говорящего коня?', a: ['Буря', 'Сивка-Бурка', 'Гром', 'Искра'], c: 1 },
+    { q: 'Кого полюбил Иван на ярмарке?', a: ['Барышню', 'Царевну', 'Купчиху', 'Красавицу'], c: 1 },
+    { q: 'Какой был Иван по сравнению с братьями?', a: ['Умнее', 'Дурак', 'Старше', 'Богаче'], c: 1 }
+  ],
+  catboots: [
+    { q: 'Как звали кота?', a: ['Матроскин', 'Маркиз де Карабас', 'Пушок', 'Бастиан'], c: 1 },
+    { q: 'Что кот наловил в лесу?', a: ['Рыбу', 'Зайцев и птиц', 'Грибы', 'Ягоды'], c: 1 },
+    { q: 'На ком женился молодой мельник?', a: ['На принцессе', 'На крестьянке', 'На купчихе', 'На царевне'], c: 3 }
+  ],
+  alenushka: [
+    { q: 'Кто жил в избушке в лесу?', a: ['Леший', 'Коза, баран и уточка', 'Мишка', 'Баба-Яга'], c: 1 },
+    { q: 'Что было запрещено открывать?', a: ['Дверь', 'Окно', 'Чулан', 'Пол'], c: 2 },
+    { q: 'Кто помог Аленушке убежать?', a: ['Лесник', 'Волк', 'Медведь', 'Заяц'], c: 1 }
+  ],
+  flower: [
+    { q: 'Кому Женя купила цветик?', a: ['Маме', 'Бабушке', 'Подруге', 'Учителю'], c: 1 },
+    { q: 'Сколько лепестков у цветика?', a: ['Пять', 'Шесть', 'Семь', 'Десять'], c: 2 },
+    { q: 'Кого Женя привезла из Африки?', a: ['Слона', 'Льва', 'Обезьяну', 'Попугая'], c: 2 }
+  ]
 };
 
 var R = {
   active: false,
+  mode: '',
   storyId: '',
+  quarter: '',
   words: [],
   currentWordIdx: 0,
   timerInterval: null,
-  activeTimer: 600,
+  elapsedSeconds: 0,
   lastSpeechTime: 0,
   lastResultTime: 0,
   recognition: null,
   stars: 0,
+  quizCorrect: 0,
   isListening: false,
   lastResultIdx: 0,
   speechThrottle: 0,
@@ -1619,7 +1827,7 @@ var statsTab = 'records';
 
 function setStatsFilter(f) {
   statsFilter = f;
-  var ids = { all: 'filtAll', mult: 'filtMult', div: 'filtDiv', eq: 'filtEq' };
+  var ids = { all: 'filtAll', mult: 'filtMult', div: 'filtDiv', eq: 'filtEq', read: 'filtRead' };
   for (var k in ids) document.getElementById(ids[k]).className = 'stat-filter-btn';
   document.getElementById(ids[f]).className = 'stat-filter-btn active';
   switchStatTab(statsTab);
@@ -1837,7 +2045,7 @@ function lab(k) {
 
 function histLabel(e) {
   if (e.gameType === 'read') {
-    return 'Чтение\u00B7' + (e.mul || 'Сказка');
+    return 'Чтение \u00B7 ' + (e.mul || 'Сказка');
   }
   if (e.gameType === 'eq') {
     var diffs = { easy: 'Ур·Лёгкая', medium: 'Ур·Средняя', hard: 'Ур·Сложная' };
@@ -2281,10 +2489,19 @@ function msSetMode(mode) {
 // ===== READING GAME LOGIC =====
 function playReading() {
   stopReading();
+  renderStoryBadges();
   show('screen-read-select');
 }
 
 function stopReadingAndGoBack() {
+  stopReading();
+  if (R.mode === 'technique') {
+    show('screen-read-quarter');
+  } else {
+    show('screen-read-select');
+  }
+}
+function stopReadingAndGoBack2() {
   stopReading();
   show('screen-read-select');
 }
@@ -2325,7 +2542,7 @@ function startReading(storyKey) {
   stopReading();
   
   if (storyKey === 'random') {
-    var keys = ['kasha', 'lisa', 'strah'];
+    var keys = Object.keys(READ_STORIES);
     storyKey = keys[Math.floor(Math.random() * keys.length)];
   }
   
@@ -2333,36 +2550,85 @@ function startReading(storyKey) {
   if (!story) return;
   
   R.storyId = storyKey;
-  R.active = true;
-  R.activeTimer = 600; // 10 минут
+  R.active = false;
+  R.elapsedSeconds = 0;
   R.stars = 0;
+  R.quizCorrect = 0;
   R.currentWordIdx = 0;
   R.lastSpeechTime = 0;
   
   document.getElementById('readTitle').textContent = story.title;
   document.getElementById('readStarsCount').textContent = '0';
-  document.getElementById('readTimer').textContent = '⏱ 10:00';
+  document.getElementById('readTimer').textContent = '\u23F1 00:00';
   
-  // Парсим слова сказки
   var rawWords = story.text.split(/\s+/);
   R.words = [];
   for (var i = 0; i < rawWords.length; i++) {
     var w = rawWords[i];
     if (w.trim() === '') continue;
-    R.words.push({
-      text: w,
-      parsed: parseWord(w),
-      index: R.words.length
-    });
+    R.words.push({text: w, parsed: parseWord(w), index: R.words.length});
   }
-  // Убираем тире, дефисы и прочую пунктуацию-слова с пустым parsed
   R.words = R.words.filter(function(w) { return w.parsed.length > 0; });
   for (var i = 0; i < R.words.length; i++) R.words[i].index = i;
   
+  if (R.mode === 'technique') {
+    show('screen-read-quarter');
+    return;
+  }
+  
+  if (R.mode === 'ebook') {
+    show('screen-read-game');
+    renderEbookText();
+    document.getElementById('readStarsWrap').style.display = 'none';
+    document.getElementById('readStartBtn').style.display = 'none';
+    document.getElementById('readSkipBtn').style.display = 'none';
+    document.getElementById('readDoneBtn').style.display = 'block';
+    document.getElementById('readMicStatus').style.display = 'none';
+    document.getElementById('readTimer').style.display = 'none';
+    return;
+  }
+  
+  document.getElementById('readStarsWrap').style.display = '';
+  document.getElementById('readStartBtn').style.display = '';
+  document.getElementById('readSkipBtn').style.display = '';
+  document.getElementById('readDoneBtn').style.display = 'none';
+  document.getElementById('readMicStatus').style.display = '';
+  document.getElementById('readTimer').style.display = '';
   renderReadingText();
   show('screen-read-game');
-  
-  // Автоматический старт при входе (требуется нажать Старт для микрофона в iOS, поэтому просто показываем экран)
+}
+
+function selectReadMode(mode) {
+  R.mode = mode;
+  if (mode === 'technique') {
+    show('screen-read-quarter');
+  } else {
+    show('screen-read-select');
+  }
+}
+
+function selectQuarter(q) {
+  R.quarter = q;
+  show('screen-read-game');
+  renderReadingText();
+  document.getElementById('readStarsWrap').style.display = 'none';
+  document.getElementById('readStartBtn').style.display = '';
+  document.getElementById('readSkipBtn').style.display = '';
+  document.getElementById('readDoneBtn').style.display = 'none';
+  document.getElementById('readMicStatus').style.display = '';
+  document.getElementById('readTimer').style.display = '';
+  document.getElementById('readTimer').textContent = '\u23F1 00:00';
+}
+
+function renderEbookText() {
+  var container = document.getElementById('readText');
+  container.innerHTML = '';
+  var story = READ_STORIES[R.storyId];
+  if (!story) return;
+  var div = document.createElement('div');
+  div.className = 'read-ebook-text';
+  div.textContent = story.text;
+  container.appendChild(div);
 }
 
 function renderReadingText() {
@@ -2379,7 +2645,6 @@ function renderReadingText() {
       
       span.onclick = function(e) {
         e.stopPropagation();
-        speakWord(wordObj.text);
         if (idx >= R.currentWordIdx) {
           R.currentWordIdx = idx + 1;
           updateWordHighlights();
@@ -2640,29 +2905,10 @@ function msStartReadingTimer() {
   msStopReadingTimer();
   R.timerInterval = setInterval(function() {
     if (!R.active || !R.isListening) return;
-    
-    var now = Date.now();
-    // Таймер активного чтения идет, только если ребенок говорил в последние 4 секунды
-    var isReadingActive = (now - R.lastSpeechTime < 4000);
-    
-    if (isReadingActive) {
-      if (R.activeTimer > 0) {
-        R.activeTimer--;
-        
-        // Каждые 2 минуты активного чтения (120 секунд) даем 1 звезду
-        if (R.activeTimer > 0 && (600 - R.activeTimer) % 120 === 0) {
-          addReadStar();
-        }
-        
-        // Обновляем таймер на экране
-        var mm = String(Math.floor(R.activeTimer / 60)).padStart(2, '0');
-        var ss = String(R.activeTimer % 60).padStart(2, '0');
-        document.getElementById('readTimer').textContent = '⏱ ' + mm + ':' + ss;
-      } else {
-        // 10 минут активного чтения истекли!
-        finishReadingTimerExpired();
-      }
-    }
+    R.elapsedSeconds++;
+    var mm = String(Math.floor(R.elapsedSeconds / 60)).padStart(2, '0');
+    var ss = String(R.elapsedSeconds % 60).padStart(2, '0');
+    document.getElementById('readTimer').textContent = '\u23F1 ' + mm + ':' + ss;
   }, 1000);
 }
 
@@ -2686,40 +2932,166 @@ function addReadStar() {
 function finishReadingStory() {
   stopReading();
   
-  // Даем большой бонус (+5 звезд) за полное прочтение сказки!
-  var bonus = 5;
-  R.stars += bonus;
+  var story = READ_STORIES[R.storyId];
+  var storyName = story ? story.title : '';
+  var elapsed = R.elapsedSeconds;
+  
+  var timeStars = Math.floor(elapsed / 60);
+  var finishBonus = 5;
+  R.stars = timeStars + finishBonus;
   document.getElementById('readStarsCount').textContent = R.stars;
   
-  // Запишем результат в историю обучения!
-  var hist = [];
-  try { hist = JSON.parse(localStorage.getItem('xx_hist')) || []; } catch(e) {}
+  var rec = {};
+  try { rec = JSON.parse(localStorage.getItem('xx_rec')); } catch(e) {}
+  if (!rec) rec = {};
+  var bk = 'read_' + R.storyId;
+  rec[bk] = (rec[bk] || 0) + 1;
+  try { localStorage.setItem('xx_rec', JSON.stringify(rec)); } catch(e) {}
   
-  var storyName = READ_STORIES[R.storyId].title;
+  var hist = [];
+  try { hist = JSON.parse(localStorage.getItem('xx_hist')); } catch(e) {}
+  if (!hist) hist = [];
   var histEntry = {
     gameType: 'read',
-    level: 'easy',
-    submode: 'seq',
-    mul: storyName, // Ссылка на название сказки в истории
+    mul: storyName,
     stars: R.stars,
-    total: R.stars, // Показываем максимум
-    time: 600 - R.activeTimer, // Потраченное активное время
-    date: Date.now(),
-    qdata: []
+    total: R.words.length,
+    time: elapsed,
+    date: Date.now()
   };
   hist.unshift(histEntry);
   if (hist.length > 100) hist.length = 100;
   try { localStorage.setItem('xx_hist', JSON.stringify(hist)); } catch(e) {}
   
-  alert("🎉 Поздравляем! Ты полностью прочитал сказку «" + storyName + "»!\nТы заработал " + R.stars + " ⭐!");
-  show('screen-read-select');
+  if (READ_QUIZZES && READ_QUIZZES[R.storyId]) {
+    showReadQuiz();
+  } else {
+    showReadResult(storyName);
+  }
+}
+
+function finishReadingDone() {
+  R.mode = '';
+  finishReadingStory();
 }
 
 function finishReadingTimerExpired() {
-  stopReading();
+  finishReadingStory();
+}
+
+// ===== READING QUIZ =====
+var quizState = { questions: [], idx: 0, correct: 0 };
+
+function showReadQuiz() {
+  quizState = { questions: READ_QUIZZES[R.storyId] || [], idx: 0, correct: 0 };
+  renderQuizQuestion();
+  show('screen-read-quiz');
+}
+
+function renderQuizQuestion() {
+  var wrap = document.getElementById('quizWrap');
+  wrap.innerHTML = '';
+  if (quizState.idx >= quizState.questions.length) {
+    showReadResult(READ_STORIES[R.storyId].title);
+    return;
+  }
+  var q = quizState.questions[quizState.idx];
+  var qdiv = document.createElement('div');
+  qdiv.className = 'quiz-q';
+  qdiv.textContent = (quizState.idx + 1) + '/' + quizState.questions.length + '. ' + q.q;
+  wrap.appendChild(qdiv);
   
-  alert("⏰ Время вышло! Ты отлично потренировался в чтении 10 минут и заработал " + R.stars + " ⭐!");
-  show('screen-read-select');
+  var odiv = document.createElement('div');
+  odiv.className = 'quiz-options';
+  for (var i = 0; i < q.a.length; i++) {
+    (function(optIdx) {
+      var btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.textContent = q.a[optIdx];
+      btn.onclick = function() { answerQuiz(optIdx); };
+      odiv.appendChild(btn);
+    })(i);
+  }
+  wrap.appendChild(odiv);
+}
+
+function answerQuiz(optIdx) {
+  var q = quizState.questions[quizState.idx];
+  var btns = document.querySelectorAll('#screen-read-quiz .quiz-opt');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].classList.add('disabled');
+    if (i === q.c) btns[i].classList.add('correct');
+    if (i === optIdx && optIdx !== q.c) btns[i].classList.add('wrong');
+  }
+  if (optIdx === q.c) quizState.correct++;
+  
+  var nextDiv = document.createElement('div');
+  nextDiv.className = 'quiz-next';
+  var nextBtn = document.createElement('button');
+  nextBtn.className = 'read-ctrl-btn play-btn';
+  nextBtn.textContent = quizState.idx < quizState.questions.length - 1 ? '\u27A1 Следующий вопрос' : '\u1F3C6 Результаты';
+  nextBtn.onclick = function() {
+    quizState.idx++;
+    renderQuizQuestion();
+  };
+  nextDiv.appendChild(nextBtn);
+  document.getElementById('quizWrap').appendChild(nextDiv);
+}
+
+function showReadResult(storyName) {
+  var total = quizState.questions.length;
+  var correct = quizState.correct;
+  var box = document.getElementById('readResultBox');
+  box.innerHTML = '';
+  
+  var pct = total > 0 ? Math.round(correct / total * 100) : 0;
+  var grade = pct >= 80 ? '\u{1F31F} Отлично!' : pct >= 50 ? '\u{1F44D} Хорошо!' : '\u{1F4AA} Нужно практиковаться';
+  var gradeEl = document.createElement('div');
+  gradeEl.className = 'read-result-grade';
+  gradeEl.textContent = grade;
+  box.appendChild(gradeEl);
+  
+  var details = document.createElement('div');
+  details.className = 'read-result-text';
+  var lines = [];
+  lines.push('\u{1F4D6} Сказка: ' + storyName);
+  lines.push('\u{1F3A4} Время чтения: ' + formatReadTime(R.elapsedSeconds));
+  lines.push('\u2B50 Звёзды: ' + R.stars);
+  if (total > 0) lines.push('\u{1F4DD} Викторина: ' + correct + '/' + total + ' (' + pct + '%)');
+  if (R.mode === 'technique' && R.quarter) {
+    var wpm = Math.round(R.words.length / Math.max(1, R.elapsedSeconds / 60));
+    var std = READ_TECHNIQUE[R.quarter];
+    var passed = wpm >= std.wpm;
+    lines.push('\u{1F3A4} Скорость: ' + wpm + ' слов/мин (норма: ' + std.wpm + ')');
+    lines.push(passed ? '\u2705 Норма выполнена!' : '\u274C Нужно быстрее');
+  }
+  details.innerHTML = lines.join('<br>');
+  box.appendChild(details);
+  
+  show('screen-read-result');
+}
+
+function formatReadTime(sec) {
+  var m = Math.floor(sec / 60);
+  var s = sec % 60;
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+// ===== STORY BADGES =====
+function renderStoryBadges() {
+  var rec = {};
+  try { rec = JSON.parse(localStorage.getItem('xx_rec')); } catch(e) {}
+  if (!rec) return;
+  var ids = Object.keys(READ_STORIES);
+  for (var i = 0; i < ids.length; i++) {
+    var el = document.getElementById('sb_' + ids[i]);
+    if (!el) continue;
+    var count = rec['read_' + ids[i]] || 0;
+    if (count >= 5) el.textContent = '\u{1F3C6}';
+    else if (count >= 3) el.textContent = '\u2B50';
+    else if (count >= 1) el.textContent = '\u2705';
+    else el.textContent = '';
+  }
 }
 
 // ===== iOS TOUCH FIX =====
