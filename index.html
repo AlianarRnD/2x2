@@ -489,7 +489,7 @@ body{padding:0}
   <!-- HOME -->
   <div id="screen-home" class="screen active">
     <div class="logo">2x2</div>
-    <span class="ver">v1.17.6</span>
+    <span class="ver">v1.17.7</span>
     <div class="subtitle">тяжело в учении, легко в бою</div>
     <button class="stat-badge" onclick="showStats()">&#x1F4CA; Статистика</button>
     <div class="stat-badge" id="streakBadge" style="display:none"></div>
@@ -1000,8 +1000,8 @@ body{padding:0}
       <button class="info-btn" onclick="showGameRules('guess')">i</button>
     </div>
     <div class="guess-wrap">
-      <div class="guess-hint" id="guessHint">Загадал число от 1 до 50!</div>
-      <input class="guess-input" id="guessInput" type="number" min="1" max="50" inputmode="numeric" onkeydown="if(event.key==='Enter'){guessSubmit();}">
+      <div class="guess-hint" id="guessHint">Загадал число от 1 до 100!</div>
+      <input class="guess-input" id="guessInput" type="number" min="1" max="100" inputmode="numeric" onkeydown="if(event.key==='Enter'){guessSubmit();}">
       <button class="guess-go" onclick="guessSubmit()">Проверить</button>
       <div class="g-progress" id="guessAttempts">Попытки: 0</div>
     </div>
@@ -2670,9 +2670,9 @@ function renderMemRec() {
 var guessState = null;
 function playGuess() {
   show('screen-guess');
-  guessState = { num: 1 + Math.floor(Math.random() * 50), attempts: 0, gameOver: false };
+  guessState = { num: 1 + Math.floor(Math.random() * 100), attempts: 0, gameOver: false };
   document.getElementById('guessResult').classList.remove('show');
-  document.getElementById('guessHint').textContent = 'Загадал число от 1 до 50!';
+  document.getElementById('guessHint').textContent = 'Загадал число от 1 до 100!';
   document.getElementById('guessAttempts').textContent = 'Попытки: 0';
   document.getElementById('guessInput').value = '';
   document.getElementById('guessInput').focus();
@@ -2683,8 +2683,8 @@ function guessSubmit() {
   if (!st || st.gameOver) return;
   var input = document.getElementById('guessInput');
   var v = parseInt(input.value, 10);
-  if (isNaN(v) || v < 1 || v > 50) {
-    document.getElementById('guessHint').textContent = 'Введи число от 1 до 50!';
+  if (isNaN(v) || v < 1 || v > 100) {
+    document.getElementById('guessHint').textContent = 'Введи число от 1 до 100!';
     return;
   }
   st.attempts++;
@@ -3587,10 +3587,11 @@ function setStatsFilter(f) {
 
 function filterKey(k) {
   if (statsFilter === 'all') return true;
-  if (statsFilter === 'mult') return k.indexOf('mult_') === 0 || (k.indexOf('div_') !== 0 && k.indexOf('eq_') !== 0);
+  if (statsFilter === 'mult') return k.indexOf('mult_') === 0 || (k.indexOf('div_') !== 0 && k.indexOf('eq_') !== 0 && k.indexOf('read_') !== 0);
   if (statsFilter === 'div') return k.indexOf('div_') === 0;
   if (statsFilter === 'eq') return k.indexOf('eq_') === 0;
-  return true;
+  if (statsFilter === 'read') return k.indexOf('read_') === 0;
+  return false;
 }
 
 function filterHistEntry(e) {
@@ -3612,6 +3613,7 @@ function clearHistory() {
   if (prompt('Введите пароль для сброса статистики:') === '67') {
     localStorage.removeItem('xx_hist');
     localStorage.removeItem('xx_rec');
+    localStorage.removeItem('xx_read_counts');
     renderRecords();
     renderHistory();
     renderAnalytics();
@@ -3654,10 +3656,33 @@ function switchStatTab(tab) {
 }
 
 function renderRecords() {
-  var records = lsGet('xx_rec', {});
   var list = document.getElementById('recList');
   list.innerHTML = '';
 
+  if (statsFilter === 'read') {
+    var readCounts = lsGet('xx_read_counts', {});
+    var stIds = Object.keys(readCounts);
+    if (stIds.length === 0) {
+      list.innerHTML = '<div class="re">\u041F\u043E\u043A\u0430 \u043D\u0435\u0442 \u043F\u0440\u043E\u0447\u0438\u0442\u0430\u043D\u043D\u044B\u0445 \u0441\u043A\u0430\u0437\u043E\u043A \uD83D\uDE43</div>';
+      return;
+    }
+    stIds.sort(function(a, b) { return (readCounts[b].date || 0) - (readCounts[a].date || 0); });
+    for (var si2 = 0; si2 < stIds.length; si2++) {
+      var sid = stIds[si2];
+      var rc = readCounts[sid] || { n: 0, date: 0 };
+      var story = READ_STORIES[sid];
+      var sname = story ? story.title : '\u0421\u043A\u0430\u0437\u043A\u0430';
+      var ndate = rc.date ? ' \u00B7 ' + fmtDate(rc.date) + ' ' + fmtClock(rc.date) : '';
+      var item = document.createElement('div');
+      item.className = 'sr';
+      item.innerHTML = '<span class="sr-l">\u0427\u0442\u0435\u043D\u0438\u0435 \u00B7 ' + sname + '</span>' +
+        '<span class="sr-r">\u041F\u0440\u043E\u0447\u0438\u0442\u0430\u043D\u043E: ' + (rc.n || 0) + (rc.n === 1 ? ' \u0440\u0430\u0437' : ' \u0440\u0430\u0437\u0430') + ndate + '</span>';
+      list.appendChild(item);
+    }
+    return;
+  }
+
+  var records = lsGet('xx_rec', {});
   var keys = Object.keys(records).filter(filterKey);
   if (keys.length === 0) {
     list.innerHTML = '<div class="re">\u041F\u043E\u043A\u0430 \u043D\u0435\u0442 \u0440\u0435\u043A\u043E\u0440\u0434\u043E\u0432 \uD83D\uDE43</div>';
@@ -4792,10 +4817,12 @@ function finishReadingStory() {
   R.stars = timeStars + finishBonus;
   document.getElementById('readStarsCount').textContent = R.stars;
   
-  var rec = lsGet('xx_rec', {});
-  var bk = 'read_' + R.storyId;
-  rec[bk] = (rec[bk] || 0) + 1;
-  lsSet('xx_rec', rec);
+  var readCounts = lsGet('xx_read_counts', {});
+  var rc = readCounts[R.storyId] || { n: 0, date: 0 };
+  rc.n++;
+  rc.date = Date.now();
+  readCounts[R.storyId] = rc;
+  lsSet('xx_read_counts', readCounts);
   
   var hist = lsGet('xx_hist', []);
   var histEntry = {
@@ -4814,9 +4841,9 @@ function finishReadingStory() {
   var totalReads = 0;
   var allStoriesRead = true;
   var storyIds = Object.keys(READ_STORIES);
-  for (var k in rec) { if (k.indexOf('read_') === 0) totalReads += rec[k]; }
+  for (var k in readCounts) { totalReads += readCounts[k].n || 0; }
   for (var si = 0; si < storyIds.length; si++) {
-    if (!rec['read_' + storyIds[si]]) { allStoriesRead = false; break; }
+    if (!((readCounts[storyIds[si]] || {}).n)) { allStoriesRead = false; break; }
   }
   if (totalReads >= 5) unlockAchievement('bookworm');
   if (allStoriesRead) unlockAchievement('all_stories');
@@ -4940,13 +4967,13 @@ function formatReadTime(sec) {
 
 // ===== STORY BADGES =====
 function renderStoryBadges() {
-  var rec = lsGet('xx_rec', {});
-  if (!rec) return;
+  var readCounts = lsGet('xx_read_counts', {});
+  if (!readCounts) return;
   var ids = Object.keys(READ_STORIES);
   for (var i = 0; i < ids.length; i++) {
     var el = document.getElementById('sb_' + ids[i]);
     if (!el) continue;
-    var count = rec['read_' + ids[i]] || 0;
+    var count = (readCounts[ids[i]] || { n: 0 }).n || 0;
     if (count >= 5) el.textContent = '\u{1F3C6}';
     else if (count >= 3) el.textContent = '\u2B50';
     else if (count >= 1) el.textContent = '\u2705';
@@ -5074,7 +5101,7 @@ var RULES = {
   },
   guess: {
     title: '🤔 Угадай число',
-    body: '<p>Компьютер загадал число от 1 до 50.</p><ul><li>Введи своё число и нажми «Проверить»</li><li>Если мимо — подсказка «больше» или «меньше»</li><li>Угадай за как можно меньше попыток!</li></ul><p>Лучший результат сохраняется.</p>'
+    body: '<p>Компьютер загадал число от 1 до 100.</p><ul><li>Введи своё число и нажми «Проверить»</li><li>Если мимо — подсказка «больше» или «меньше»</li><li>Угадай за как можно меньше попыток!</li></ul><p>Лучший результат сохраняется.</p>'
   },
   cmp: {
     title: '⚖️ Сравнивалка',
@@ -5108,7 +5135,31 @@ function closeGameRules() {
   document.getElementById('rulesOverlay').classList.remove('open');
 }
 
+// ===== MIGRATE LEGACY READING COUNTS =====
+function migrateReadCounts() {
+  var rec = lsGet('xx_rec', {});
+  if (!rec) return;
+  var changed = false;
+  var counts = lsGet('xx_read_counts', {});
+  for (var k in rec) {
+    if (k.indexOf('read_') === 0) {
+      var stId = k.slice(5);
+      var c = counts[stId] || { n: 0, date: 0 };
+      c.n += rec[k] || 0;
+      if (!c.date) c.date = 0;
+      counts[stId] = c;
+      delete rec[k];
+      changed = true;
+    }
+  }
+  if (changed) {
+    lsSet('xx_read_counts', counts);
+    lsSet('xx_rec', rec);
+  }
+}
+
 // ===== INITIAL GAMIFICATION RENDER =====
+migrateReadCounts();
 renderStreak();
 renderDailyGoal();
 updateTrainDesc();
