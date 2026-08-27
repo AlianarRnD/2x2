@@ -373,6 +373,7 @@ body{padding:0}
 }
 .ach-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06)}
 .ach-item.locked{opacity:.35}
+.ach-check{color:#43e97b;font-weight:700}
 .ach-icon{font-size:28px;min-width:36px;text-align:center}
 .ach-info{flex:1}
 .ach-name{color:#fff;font-size:14px;font-weight:700}
@@ -402,7 +403,7 @@ body{padding:0}
   <!-- HOME -->
   <div id="screen-home" class="screen active">
     <div class="logo">2x2</div>
-    <span class="ver">v1.15</span>
+    <span class="ver">v1.16</span>
     <div class="subtitle">тяжело в учении, легко в бою</div>
     <button class="stat-badge" onclick="showStats()">&#x1F4CA; Статистика</button>
     <div class="stat-badge" id="streakBadge" style="display:none"></div>
@@ -897,7 +898,7 @@ const READ_STORIES = {
   },
   kolobok: {
     title: "Колобок",
-    text: "Заварила бабуля кашу, да не dotянула. Взяла она муки, да испекла колобок. Положила колобок на окно остывать. А он покатился — с окна на лавку, с лавки на пол, с пола на порог, с порога на улицу. Катится колобок по дороге, а навстречу ему заяц. — Колобок, Колобок! Я тебя съем! — Не ешь меня, заяц! Я тебе лучше песенку спою! И запел колобок: — Я колобок, Колобок! Я от бабушки ушёл, Я от дедушки ушёл, И от тебя не уйду ли! И покатился дальше. Встретил волка. Волк тоже хотел его съесть, но колобок спел песенку и укатился. Встретил медведя. Медведь загородил дорогу, но колобок спел песенку и снова укатился. А навстречу ему лиса. — Ой, какая песенка хорошая! Спой ещё раз, Колобок, только ближе! Колобок подкатился поближе, запел, а лиса — хвать! И съела колобка. Вот и конец, кто слушал — молодец!"
+    text: "Заварила бабуля кашу, да не дотянула. Взяла она муки, да испекла колобок. Положила колобок на окно остывать. А он покатился — с окна на лавку, с лавки на пол, с пола на порог, с порога на улицу. Катится колобок по дороге, а навстречу ему заяц. — Колобок, Колобок! Я тебя съем! — Не ешь меня, заяц! Я тебе лучше песенку спою! И запел колобок: — Я колобок, Колобок! Я от бабушки ушёл, Я от дедушки ушёл, И от тебя не уйду ли! И покатился дальше. Встретил волка. Волк тоже хотел его съесть, но колобок спел песенку и укатился. Встретил медведя. Медведь загородил дорогу, но колобок спел песенку и снова укатился. А навстречу ему лиса. — Ой, какая песенка хорошая! Спой ещё раз, Колобок, только ближе! Колобок подкатился поближе, запел, а лиса — хвать! И съела колобка. Вот и конец, кто слушал — молодец!"
   },
   teremok: {
     title: "Теремок",
@@ -1049,31 +1050,31 @@ const NUMS = [2,3,4,5,6,7,8,9];
 const ALL = [1,2,3,4,5,6,7,8,9,10];
 
 const ACHIEVEMENTS = {
-  first_game: { name: 'Первая игра', icon: '🎮' },
-  perfect_mult: { name: 'Идеально!', icon: '💯' },
-  speed_reader: { name: 'Быстрый чтец', icon: '⚡' },
-  bookworm: { name: 'Книжный червь', icon: '📚' },
-  streak_7: { name: 'Неделя без пропусков', icon: '🔥' },
-  minesweeper_win: { name: 'Сапёр-профи', icon: '💣' },
-  eq_master: { name: 'Мастер уравнений', icon: '🧮' },
-  div_master: { name: 'Мастер деления', icon: '➗' },
-  streak_14: { name: 'Две недели!', icon: '🌟' },
-  streak_30: { name: 'Месяц дисциплины!', icon: '👑' },
-  perfect_div: { name: 'Деление без ошибок', icon: '✨' },
-  perfect_eq: { name: 'Уравнения на магистра', icon: '🎓' },
-  sprint_15: { name: 'Спринтер-15', icon: '🏃' },
-  sprint_25: { name: 'Спринтер-25', icon: '🚀' },
-  hundred_games: { name: 'Сотая игра', icon: '🎯' },
-  two_hundred: { name: 'Двести игр', icon: '🏆' },
-  thousand_correct: { name: '1000 правильных!', icon: '🧠' },
-  night_owl: { name: 'Сова', icon: '🦉' },
-  early_bird: { name: 'Ранняя пташка', icon: '🐦' },
-  training_done: { name: 'Тренажёр', icon: '💪' },
-  all_stories: { name: 'Все сказки прочитаны', icon: '📖' },
-  five_row: { name: 'Пять подряд', icon: '🎸' },
-  ten_row: { name: 'Десять подряд', icon: '💎' },
-  explorer: { name: 'Исследователь', icon: '🗺' },
-  turtle: { name: 'Черепашка', icon: '🐢' }
+  first_game: { name: 'Первая игра', icon: '🎮', desc: 'Пройди любую игру или тест' },
+  perfect_mult: { name: 'Идеально!', icon: '💯', desc: 'Реши все 10 примеров на умножение без ошибок' },
+  speed_reader: { name: 'Быстрый чтец', icon: '⚡', desc: 'Прочитай не меньше 60 слов в минуту' },
+  bookworm: { name: 'Книжный червь', icon: '📚', desc: 'Прочитай 5 сказок' },
+  streak_7: { name: 'Неделя без пропусков', icon: '🔥', desc: 'Занимайся 7 дней подряд' },
+  minesweeper_win: { name: 'Сапёр-профи', icon: '💣', desc: 'Выиграй партию в Сапёра' },
+  eq_master: { name: 'Мастер уравнений', icon: '🧮', desc: 'Пройди игру в уравнения' },
+  div_master: { name: 'Мастер деления', icon: '➗', desc: 'Пройди игру в деление' },
+  streak_14: { name: 'Две недели!', icon: '🌟', desc: 'Занимайся 14 дней подряд' },
+  streak_30: { name: 'Месяц дисциплины!', icon: '👑', desc: 'Занимайся 30 дней подряд' },
+  perfect_div: { name: 'Деление без ошибок', icon: '✨', desc: 'Реши все примеры на деление без ошибок' },
+  perfect_eq: { name: 'Уравнения на магистра', icon: '🎓', desc: 'Реши все уравнения без ошибок' },
+  sprint_15: { name: 'Спринтер-15', icon: '🏃', desc: 'Реши 15 примеров за минуту' },
+  sprint_25: { name: 'Спринтер-25', icon: '🚀', desc: 'Реши 25 примеров за минуту' },
+  hundred_games: { name: 'Сотая игра', icon: '🎯', desc: 'Сыграй 100 игр' },
+  two_hundred: { name: 'Двести игр', icon: '🏆', desc: 'Сыграй 200 игр' },
+  thousand_correct: { name: '1000 правильных!', icon: '🧠', desc: 'Дай 1000 правильных ответов' },
+  night_owl: { name: 'Сова', icon: '🦉', desc: 'Играй после 22:00 или до 5:00 утра' },
+  early_bird: { name: 'Ранняя пташка', icon: '🐦', desc: 'Играй между 5:00 и 7:00 утра' },
+  training_done: { name: 'Тренажёр', icon: '💪', desc: 'Пройди тренировку слабых мест' },
+  all_stories: { name: 'Все сказки прочитаны', icon: '📖', desc: 'Прочитай все 15 сказок' },
+  five_row: { name: 'Пять подряд', icon: '🎸', desc: 'Ответь правильно 5 раз подряд' },
+  ten_row: { name: 'Десять подряд', icon: '💎', desc: 'Ответь правильно 10 раз подряд' },
+  explorer: { name: 'Исследователь', icon: '🗺', desc: 'Играй в 5 разных режимах' },
+  turtle: { name: 'Черепашка', icon: '🐢', desc: 'Проведи игру дольше 5 минут' }
 };
 
 // ===== HELPERS =====
@@ -1388,11 +1389,16 @@ function show(id) {
 }
 
 function goHome() {
-  var hasGame = (S.gameActive && S.idx > 0) || (tttState && !tttState.gameOver) || (msState && !msState.gameOver);
-  if (hasGame) {
-    if (!confirm('Прервать игру и вернуться на главную?')) return;
-  }
+  var active = document.querySelector('.screen.active');
+  var actId = active ? active.id : '';
+  var running = (actId === 'screen-game' && S.gameActive) ||
+    (actId === 'screen-ttt' && tttState && !tttState.gameOver) ||
+    (actId === 'screen-ms' && msState && !msState.gameOver);
+  if (running && !confirm('Прервать игру и вернуться на главную?')) return;
   S.gameActive = false;
+  msStopTimer();
+  tttState = null;
+  msState = null;
   clearSInterval();
   resetGame();
   show('screen-home');
@@ -1402,9 +1408,6 @@ function goHome() {
 }
 
 function cancelGame() {
-  if (S.gameActive && S.idx > 0) {
-    if (!confirm('Прервать игру и вернуться на главную?')) return;
-  }
   goHome();
 }
 
@@ -2072,6 +2075,7 @@ function updateTimer() {
 
 // ===== END =====
 function endGame() {
+  S.gameActive = false;
   clearSInterval();
   S.totalTime = Math.floor((Date.now() - S.gStart) / 1000);
 
@@ -2308,7 +2312,7 @@ function renderAchievements() {
     var unlocked = list.indexOf(ids[i]) !== -1;
     var div = document.createElement('div');
     div.className = 'ach-item' + (unlocked ? '' : ' locked');
-    div.innerHTML = '<div class="ach-icon">' + ach.icon + '</div><div class="ach-info"><div class="ach-name">' + ach.name + '</div><div class="ach-desc">' + (unlocked ? 'Открыто \u2713' : 'Не открыто') + '</div></div>';
+    div.innerHTML = '<div class="ach-icon">' + ach.icon + '</div><div class="ach-info"><div class="ach-name">' + (unlocked ? '<span class="ach-check">\u2713 </span>' : '') + ach.name + '</div><div class="ach-desc">' + (ach.desc || '') + '</div></div>';
     el.appendChild(div);
   }
 }
@@ -2336,7 +2340,7 @@ function renderDailyGoal() {
   if (!el) return;
   var total = 3;
   el.style.display = 'flex';
-  el.innerHTML = '\uD83D\uDCCB ' + g.done + '/' + total + ' сегодня';
+  el.innerHTML = '\uD83D\uDCCB ' + g.done + ' сегодня';
   if (g.done >= total) el.style.color = '#43e97b';
   else el.style.color = '';
 }
@@ -3738,8 +3742,14 @@ function finishReadingStory() {
   
   incDailyGoal();
   var totalReads = 0;
+  var allStoriesRead = true;
+  var storyIds = Object.keys(READ_STORIES);
   for (var k in rec) { if (k.indexOf('read_') === 0) totalReads += rec[k]; }
+  for (var si = 0; si < storyIds.length; si++) {
+    if (!rec['read_' + storyIds[si]]) { allStoriesRead = false; break; }
+  }
   if (totalReads >= 5) unlockAchievement('bookworm');
+  if (allStoriesRead) unlockAchievement('all_stories');
   var wordsForWpm = R.wordsReadCount > 0 ? R.wordsReadCount : R.words.length;
   var wpm = Math.round(wordsForWpm / Math.max(1, elapsed / 60));
   if (wpm >= 60) unlockAchievement('speed_reader');
@@ -3978,7 +3988,7 @@ document.addEventListener('keydown', function(e) {
 var RULES = {
   ttt: {
     title: '\u2B55 \u041A\u0440\u0435\u0441\u0442\u0438\u043A\u0438-\u043D\u043E\u043B\u0438\u043A\u0438',
-    body: '<p>\u0418\u0433\u0440\u0430\u044E\u0442 \u0434\u0432\u0430 \u0438\u0433\u0440\u043E\u043A\u0430: X \u0438 O.</p><ul><li>X \u0445\u043E\u0434\u0438\u0442 \u043F\u0435\u0440\u0432\u044B\u043C</li><li>\u041D\u0430\u0436\u043C\u0438 \u043D\u0430 \u043F\u0443\u0441\u0442\u0443\u044E \u043A\u043B\u0435\u0442\u043A\u0443 \u0447\u0442\u043E\u0431\u044B \u043F\u043E\u0441\u0442\u0430\u0432\u0438\u0442\u044C \u0441\u0432\u043E\u0439 \u0437\u043D\u0430\u043A</li><li>\u0426\u0435\u043B\u044C \u2014 \u0441\u043E\u0431\u0440\u0430\u0442\u044C \u0442\u0440\u0438 \u0432 \u0440\u044F\u0434 (\u043F\u043E \u0433\u043E\u0440\u0438\u0437\u043E\u043D\u0442\u0430\u043B\u0438, \u0432\u0435\u0440\u0442\u0438\u043A\u0430\u043B\u0438 \u0438\u043B\u0438 \u0434\u0438\u0430\u0433\u043E\u043D\u0430\u043B\u0438)</li><li>\u0415\u0441\u043B\u0438 \u043F\u043E\u043B\u0435 \u0437\u0430\u043F\u043E\u043B\u043D\u0435\u043D\u043E \u0438 \u043D\u0438\u043A\u0442\u043E \u043D\u0435 \u0432\u044B\u0438\u0433\u0440\u0430\u043B \u2014 \u043D\u0438\u0447\u044C\u044F</li></ul><p>\u041C\u043E\u0436\u043D\u043E \u0438\u0433\u0440\u0430\u0442\u044C \u043F\u0440\u043E\u0442\u0438\u0432 \u043A\u043E\u043C\u043F\u044C\u044E\u0442\u0435\u0440\u0430 \u0438\u043B\u0438 \u0434\u0432\u0443\u043C\u044F.</p>'
+    body: '<p>\u0418\u0433\u0440\u0430\u044E\u0442 \u0434\u0432\u0430 \u0438\u0433\u0440\u043E\u043A\u0430: X \u0438 O.</p><ul><li>X \u0445\u043E\u0434\u0438\u0442 \u043F\u0435\u0440\u0432\u044B\u043C</li><li>\u041D\u0430\u0436\u043C\u0438 \u043D\u0430 \u043F\u0443\u0441\u0442\u0443\u044E \u043A\u043B\u0435\u0442\u043A\u0443 \u0447\u0442\u043E\u0431\u044B \u043F\u043E\u0441\u0442\u0430\u0432\u0438\u0442\u044C \u0441\u0432\u043E\u0439 \u0437\u043D\u0430\u043A</li><li>\u0426\u0435\u043B\u044C \u2014 \u0441\u043E\u0431\u0440\u0430\u0442\u044C \u0442\u0440\u0438 \u0432 \u0440\u044F\u0434 (\u043F\u043E \u0433\u043E\u0440\u0438\u0437\u043E\u043D\u0442\u0430\u043B\u0438, \u0432\u0435\u0440\u0442\u0438\u043A\u0430\u043B\u0438 \u0438\u043B\u0438 \u0434\u0438\u0430\u0433\u043E\u043D\u0430\u043B\u0438)</li><li>\u0415\u0441\u043B\u0438 \u043F\u043E\u043B\u0435 \u0437\u0430\u043F\u043E\u043B\u043D\u0435\u043D\u043E \u0438 \u043D\u0438\u043A\u0442\u043E \u043D\u0435 \u0432\u044B\u0438\u0433\u0440\u0430\u043B \u2014 \u043D\u0438\u0447\u044C\u044F</li></ul><p>\u041C\u043E\u0436\u043D\u043E \u0438\u0433\u0440\u0430\u0442\u044C \u043F\u0440\u043E\u0442\u0438\u0432 \u043A\u043E\u043C\u043F\u044C\u044E\u0442\u0435\u0440\u0430 \u0438\u043B\u0438 \u0432\u0434\u0432\u043E\u0451\u043C.</p>'
   },
   ms: {
     title: '\uD83D\uDCA3 \u0421\u0430\u043F\u0451\u0440',
