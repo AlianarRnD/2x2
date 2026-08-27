@@ -492,7 +492,7 @@ body{padding:0}
   <!-- HOME -->
   <div id="screen-home" class="screen active">
     <div class="logo">2x2</div>
-    <span class="ver">v1.17</span>
+    <span class="ver">v1.17.1</span>
     <div class="subtitle">тяжело в учении, легко в бою</div>
     <button class="stat-badge" onclick="showStats()">&#x1F4CA; Статистика</button>
     <div class="stat-badge" id="streakBadge" style="display:none"></div>
@@ -2555,6 +2555,7 @@ function memGenPairs() {
   return pairs;
 }
 function playMemory() {
+  show('screen-memory');
   var pairs = memGenPairs();
   var cards = [];
   for (var i = 0; i < pairs.length; i++) {
@@ -2642,6 +2643,7 @@ function renderMemRec() {
 // --- Угадай число (Guess) ---
 var guessState = null;
 function playGuess() {
+  show('screen-guess');
   guessState = { num: 1 + Math.floor(Math.random() * 50), attempts: 0, gameOver: false };
   document.getElementById('guessResult').classList.remove('show');
   document.getElementById('guessHint').textContent = 'Загадал число от 1 до 50!';
@@ -2706,6 +2708,7 @@ function genCmpExpr() {
   return { a: a, b: b, v: a * b, s: a + ' \u00D7 ' + b };
 }
 function playCompare() {
+  show('screen-compare');
   cmpState = { idx: 0, total: 10, correct: 0, qs: [], cur: null };
   for (var i = 0; i < cmpState.total; i++) cmpState.qs.push(genCmpExpr());
   document.getElementById('cmpResult').classList.remove('show');
@@ -2788,6 +2791,7 @@ function genOddRound() {
   return { a: a, b: b, wrong: wrong, oddIdx: vals.indexOf(wrong), vals: vals };
 }
 function playOdd() {
+  show('screen-odd');
   oddState = { idx: 0, total: 10, correct: 0, qs: [] };
   for (var i = 0; i < oddState.total; i++) oddState.qs.push(genOddRound());
   document.getElementById('oddResult').classList.remove('show');
@@ -2863,6 +2867,7 @@ function renderOddRec() {
 var ballState = null;
 var ballInterval = null;
 function playBalloons() {
+  show('screen-balloons');
   if (ballInterval) { clearInterval(ballInterval); ballInterval = null; }
   ballState = { lives: 3, score: 0, streak: 0, active: true };
   document.getElementById('ballResult').classList.remove('show');
@@ -2958,6 +2963,7 @@ function renderBalloonRec() {
 // --- Бинго ---
 var bingoState = null;
 function playBingo() {
+  show('screen-bingo');
   var used = {};
   var cells = [];
   while (cells.length < 25) {
@@ -3057,6 +3063,7 @@ function renderBingoRec() {
 // --- Открой таблицу (Table) ---
 var tableState = null;
 function playTable() {
+  show('screen-table');
   tableState = { opened: {}, activeQ: null, start: Date.now(), active: true };
   document.getElementById('tableResult').classList.remove('show');
   var grid = document.getElementById('tableGrid');
