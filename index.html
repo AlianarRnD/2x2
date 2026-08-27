@@ -797,6 +797,7 @@ body{padding:0}
     <button class="nav-btn" style="position:absolute;top:10px;left:10px" onclick="goHome()">&#x2715;</button>
     <h2>&#x1F3C6; Достижения</h2>
     <div id="achList" style="width:100%;max-width:320px;display:flex;flex-direction:column;gap:8px;padding:12px 0"></div>
+    <button class="stat-clear-btn" onclick="clearAchievements()">&#x1F5D1; Сбросить достижения</button>
   </div>
 
   <!-- SPRINT -->
@@ -2553,6 +2554,14 @@ function clearHistory() {
     renderRecords();
     renderHistory();
     renderAnalytics();
+  }
+}
+
+function clearAchievements() {
+  if (!confirm('Сбросить все достижения? Это действие необратимо.')) return;
+  if (prompt('Введите пароль для сброса достижений:') === '67') {
+    localStorage.removeItem('xx_achievements');
+    renderAchievements();
   }
 }
 
