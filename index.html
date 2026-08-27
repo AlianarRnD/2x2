@@ -492,7 +492,7 @@ body{padding:0}
   <!-- HOME -->
   <div id="screen-home" class="screen active">
     <div class="logo">2x2</div>
-    <span class="ver">v1.17.1</span>
+    <span class="ver">v1.17.2</span>
     <div class="subtitle">тяжело в учении, легко в бою</div>
     <button class="stat-badge" onclick="showStats()">&#x1F4CA; Статистика</button>
     <div class="stat-badge" id="streakBadge" style="display:none"></div>
@@ -569,7 +569,7 @@ body{padding:0}
           <span class="game-info-btn" onclick="event.stopPropagation();showGameRules('odd')">i</span>
           <span class="icon">&#x1F914;</span>
           Найди лишнее
-          <span class="desc">Где неверный ответ?</span>
+          <span class="desc">Три равны, один — нет</span>
         </button>
         <button class="lvl-btn lvl-hard" onclick="playBalloons()">
           <span class="game-info-btn" onclick="event.stopPropagation();showGameRules('balloons')">i</span>
@@ -2778,17 +2778,60 @@ function renderCmpRec() {
 
 // --- Найди лишнее (Odd) ---
 var oddState = null;
-function genOddRound() {
-  var a = 2 + Math.floor(Math.random() * 8);
-  var b = 2 + Math.floor(Math.random() * 8);
-  var correct = a * b;
-  var wrong = correct;
-  while (wrong === correct || wrong <= 0) {
-    wrong = correct + (Math.random() < 0.5 ? -1 : 1) * (1 + Math.floor(Math.random() * 3));
+function oddFactorPairs() {
+  var m = {};
+  for (var a = 2; a <= 9; a++) {
+    for (var b = a; b <= 9; b++) {
+      var p = a * b;
+      if (!m[p]) m[p] = [];
+      m[p].push([a, b]);
+    }
   }
-  var vals = [correct, correct, correct, wrong];
-  shuffle(vals);
-  return { a: a, b: b, wrong: wrong, oddIdx: vals.indexOf(wrong), vals: vals };
+  return m;
+}
+function genOddRound() {
+  var m = oddFactorPairs();
+  var pool = [];
+  for (var p in m) if (m[p].length >= 2) pool.push(parseInt(p, 10));
+  if (pool.length === 0) { for (var pp in m) pool.push(parseInt(pp, 10)); }
+  var P = pool[Math.floor(Math.random() * pool.length)];
+  var pairs = m[P];
+  var texts = [];
+  var usedT = [];
+  for (var i = 0; i < pairs.length && texts.length < 3; i++) {
+    usedT.push(pairs[i][0] + '_' + pairs[i][1]);
+    texts.push(pairs[i]);
+  }
+  for (var i = 0; i < pairs.length && texts.length < 3; i++) {
+    var fl = pairs[i][1] + '_' + pairs[i][0];
+    if (pairs[i][0] !== pairs[i][1] && usedT.indexOf(fl) === -1) {
+      usedT.push(fl);
+      texts.push([pairs[i][1], pairs[i][0]]);
+    }
+  }
+  while (texts.length < 3) texts.push(pairs[0]);
+  var D = P;
+  var tries = 0;
+  while (tries < 300) {
+    tries++;
+    var cand = P + (Math.random() < 0.5 ? -1 : 1) * (2 + Math.floor(Math.random() * 8));
+    if (cand < 4 || cand > 81 || cand === P) continue;
+    if (m[cand] && m[cand].length > 0) { D = cand; break; }
+  }
+  if (D === P) {
+    for (var ok in m) { if (parseInt(ok, 10) !== P) { D = parseInt(ok, 10); break; } }
+  }
+  var dpair = m[D][Math.floor(Math.random() * m[D].length)];
+  var cardObjs = [
+    { a: texts[0][0], b: texts[0][1], v: P },
+    { a: texts[1][0], b: texts[1][1], v: P },
+    { a: texts[2][0], b: texts[2][1], v: P },
+    { a: dpair[0], b: dpair[1], v: D }
+  ];
+  shuffle(cardObjs);
+  var oddIdx = -1;
+  for (var i = 0; i < cardObjs.length; i++) if (cardObjs[i].v === D) oddIdx = i;
+  return { cards: cardObjs, P: P, D: D, oddIdx: oddIdx };
 }
 function playOdd() {
   show('screen-odd');
@@ -2800,19 +2843,19 @@ function playOdd() {
 }
 function oddRender() {
   var q = oddState.qs[oddState.idx];
-  document.getElementById('oddQ').textContent = 'Найди пример с неверным ответом:';
+  document.getElementById('oddQ').textContent = 'Три примера дают один и тот же ответ. Найди лишний!';
   document.getElementById('oddProg').textContent = (oddState.idx + 1) + ' / 10';
   document.getElementById('oddScore').textContent = '\u2B50 ' + oddState.correct;
   var grid = document.getElementById('oddGrid');
   grid.innerHTML = '';
-  for (var i = 0; i < q.vals.length; i++) {
-    (function(idx, val) {
+  for (var i = 0; i < q.cards.length; i++) {
+    (function(idx, card) {
       var c = document.createElement('button');
       c.className = 'odd-card';
-      c.textContent = q.a + ' \u00D7 ' + q.b + ' = ' + val;
+      c.textContent = card.a + ' \u00D7 ' + card.b;
       c.onclick = function() { oddClick(idx, c); };
       grid.appendChild(c);
-    })(i, q.vals[i]);
+    })(i, q.cards[i]);
   }
 }
 function oddClick(idx, el) {
@@ -2821,7 +2864,8 @@ function oddClick(idx, el) {
   var q = st.qs[st.idx];
   var cards = document.querySelectorAll('#oddGrid .odd-card');
   for (var i = 0; i < cards.length; i++) cards[i].disabled = true;
-  if (idx === q.oddIdx) {
+  var ok = (idx === q.oddIdx);
+  if (ok) {
     el.classList.add('correct');
     st.correct++;
     sfxCorrect();
@@ -2830,12 +2874,19 @@ function oddClick(idx, el) {
     el.classList.add('wrong');
     sfxWrong();
   }
+  var fb = document.getElementById('oddQ');
+  var dem = q.cards[q.oddIdx];
+  if (ok) {
+    fb.textContent = '\u2713 Верно! ' + dem.a + ' \u00D7 ' + dem.b + ' = ' + q.D + ', а у всех остальных ' + q.P;
+  } else {
+    fb.textContent = '\u2717 ' + el.textContent + ' = ' + q.cards[idx].v + '. Лишний пример: ' + dem.a + ' \u00D7 ' + dem.b + ' = ' + q.D;
+  }
   document.getElementById('oddScore').textContent = '\u2B50 ' + st.correct;
   st.idx++;
   setTimeout(function() {
     if (st.idx >= st.total) oddEndGame();
     else oddRender();
-  }, 650);
+  }, 1500);
 }
 function oddEndGame() {
   var t = oddState.correct;
@@ -2860,7 +2911,7 @@ function oddClearRec() {
 function renderOddRec() {
   var rec = lsGet('xx_odd', { games: 0, best: 0 });
   var el = document.getElementById('oddRec');
-  el.textContent = rec.games > 0 ? '\uD83C\uDFC6 Игр: ' + rec.games + ' · Лучший: ' + rec.best + '/10' : 'Найди неверные ответы!';
+  el.textContent = rec.games > 0 ? '\uD83C\uDFC6 Игр: ' + rec.games + ' · Лучший: ' + rec.best + '/10' : 'Найди пример с другим ответом!';
 }
 
 // --- Воздушные шары (Balloons) ---
@@ -4960,7 +5011,7 @@ var RULES = {
   },
   odd: {
     title: '🤔 Найди лишнее',
-    body: '<p>На экране 4 одинаковых примера.</p><ul><li>Три с правильным ответом, один — с ошибкой</li><li>Найди и нажми на пример с неверным ответом</li><li>Всего 10 раундов!</li></ul><p>Пройди все 10 без ошибок!</p>'
+    body: '<p>На экране 4 разных примера на умножение.</p><ul><li>У трёх из них ответ одинаковый</li><li>Один пример даёт другой ответ</li><li>Посчитай каждый пример и найди лишний!</li></ul><p>После ответа покажем, почему он лишний. Пройди все 10 без ошибок!</p>'
   },
   balloons: {
     title: '🎈 Воздушные шары',
