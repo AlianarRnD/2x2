@@ -394,6 +394,95 @@ body{padding:0}
 .rules-modal li{margin-bottom:4px}
 .rules-modal .rules-close{width:100%;padding:12px;border-radius:12px;border:none;font-size:15px;font-weight:600;cursor:pointer;color:#fff;background:linear-gradient(135deg,#667eea,#764ba2);margin-top:12px;font-family:inherit;transition:.12s}
 .rules-modal .rules-close:active{transform:scale(0.96)}
+
+/* ===== NEW GAME SCREENS (shared) ===== */
+#screen-memory h2,#screen-guess h2,#screen-compare h2,#screen-odd h2,#screen-balloons h2,#screen-bingo h2,#screen-table h2{color:#fff;font-size:22px;font-weight:700;margin-top:16px}
+.game-top{display:flex;justify-content:space-between;width:100%;max-width:320px;align-items:center;gap:8px;font-size:14px;font-weight:700}
+.g-progress{color:#8888aa;font-size:13px}
+.g-score{color:#ffd700;font-size:14px;font-weight:700}
+.game-rec{font-size:12px;color:#8888aa;text-align:center;margin-top:4px}
+.game-reset{font-size:12px;padding:8px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:#8888aa;cursor:pointer;font-family:inherit;margin-top:10px}
+.game-result{display:none;flex-direction:column;align-items:center;gap:10px;padding:18px 24px;border-radius:18px;background:linear-gradient(135deg,#1a153a,#302b63);border:2px solid rgba(255,255,255,0.15);text-align:center;max-width:300px;width:100%;margin-top:10px}
+.game-result.show{display:flex}
+.game-result h3{color:#ffd700;font-size:20px;font-weight:700;margin:0}
+.game-result .r-s{color:#fff;font-size:16px;font-weight:700}
+.game-result .r-b{display:flex;gap:8px;width:100%}
+.game-result .r-b button{flex:1;padding:12px;border-radius:12px;border:none;font-size:15px;font-weight:600;cursor:pointer;color:#fff;font-family:inherit;transition:.12s}
+.gr-play{background:linear-gradient(135deg,#667eea,#764ba2)}
+.gr-play:active{transform:scale(0.96)}
+.gr-home{background:rgba(255,255,255,0.12)}
+.gr-home:active{transform:scale(0.96)}
+.nav-btn{position:absolute;top:14px;right:14px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,0.1);color:#fff;font-size:18px;cursor:pointer;z-index:8;font-family:inherit}
+.nav-btn:active{background:rgba(255,255,255,0.2)}
+.g-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;padding-bottom:24px}
+.g-fb{font-size:15px;font-weight:700;color:#ffd700;min-height:20px;text-align:center}
+
+/* ===== MEMORY ===== */
+.mem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;max-width:320px}
+.mem-card{aspect-ratio:1;perspective:600px;cursor:pointer;border:none;background:none;padding:0}
+.mem-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .35s;border-radius:12px}
+.mem-card.open .mem-inner{transform:rotateY(180deg)}
+.mem-face{position:absolute;top:0;left:0;width:100%;height:100%;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;border-radius:12px;font-weight:700;color:#fff;font-size:15px;text-align:center;padding:4px;-webkit-backface-visibility:hidden}
+.mem-front{background:linear-gradient(135deg,#5b548a,#3b3561);border:1px solid rgba(255,255,255,0.15);font-size:18px}
+.mem-back{background:linear-gradient(135deg,#667eea,#764ba2);transform:rotateY(180deg);border:1px solid rgba(255,255,255,0.2)}
+.mem-card.matched .mem-back{background:linear-gradient(135deg,#11998e,#38ef7d)}
+.mem-card.matched .mem-inner{transform:rotateY(180deg)}
+.mem-card.shake{animation:shake .4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+/* ===== GUESS ===== */
+.guess-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;max-width:300px}
+.guess-hint{font-size:16px;color:#ffd700;min-height:22px;text-align:center;font-weight:600}
+.guess-input{width:130px;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.08);color:#fff;font-size:28px;text-align:center;font-family:inherit;font-weight:700}
+.guess-input::-webkit-inner-spin-button,.guess-input::-webkit-outer-spin-button{-webkit-appearance:none}
+.guess-go{width:130px;padding:12px;border-radius:14px;border:none;font-size:16px;font-weight:700;cursor:pointer;color:#fff;background:linear-gradient(135deg,#667eea,#764ba2);font-family:inherit}
+.guess-go:active{transform:scale(0.96)}
+
+/* ===== COMPARE ===== */
+.cmp-q{font-size:30px;font-weight:800;color:#fff;letter-spacing:3px;text-align:center;margin:8px 0}
+.cmp-btns{display:flex;gap:10px}
+.cmp-btn{width:64px;height:64px;border-radius:16px;border:none;font-size:28px;font-weight:800;color:#fff;cursor:pointer;font-family:inherit;transition:.12s}
+.cmp-btn:active{transform:scale(0.9)}
+.cmp-btn:disabled{opacity:.4}
+.cmp-gt{background:linear-gradient(135deg,#f5576c,#ff758c)}
+.cmp-lt{background:linear-gradient(135deg,#f9a825,#ff8f00)}
+.cmp-eq{background:linear-gradient(135deg,#11998e,#38ef7d)}
+
+/* ===== ODD ===== */
+.odd-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;max-width:320px}
+.odd-card{padding:18px;border-radius:14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:17px;font-weight:600;cursor:pointer;text-align:center;transition:.12s;font-family:inherit}
+.odd-card:active{transform:scale(0.95)}
+.odd-card:disabled{opacity:.7}
+.odd-card.correct{background:linear-gradient(135deg,#11998e,#38ef7d);border-color:rgba(255,255,255,0.3)}
+.odd-card.wrong{background:linear-gradient(135deg,#f5576c,#ff758c);border-color:rgba(255,255,255,0.3)}
+
+/* ===== BALLOONS ===== */
+.ball-field{position:relative;overflow:hidden;width:100%;max-width:320px;height:380px;border-radius:16px;background:linear-gradient(180deg,#2b2a6b,#66a6ff);touch-action:manipulation}
+.ball-q{position:absolute;bottom:10px;left:10px;right:10px;background:rgba(0,0,0,0.55);border-radius:12px;padding:10px;color:#fff;font-size:21px;font-weight:800;text-align:center;z-index:5}
+.balloon{position:absolute;bottom:-70px;width:54px;height:64px;border-radius:50% 50% 50% 50%;color:#fff;font-weight:800;font-size:19px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:4;border:2px solid rgba(255,255,255,0.35);font-family:inherit;animation:rise linear forwards;text-shadow:0 1px 3px rgba(0,0,0,0.5)}
+.balloon:after{content:"";position:absolute;bottom:-10px;left:50%;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:10px solid rgba(255,255,255,0.5);transform:translateX(-50%)}
+@keyframes rise{from{transform:translateY(0)}to{transform:translateY(-470px)}}
+.ball-top{width:100%;max-width:320px;display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:800}
+.ball-lives{color:#ff5e7e;font-size:16px}
+.ball-score-txt{color:#ffd700}
+
+/* ===== BINGO ===== */
+.bingo-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;width:100%;max-width:320px}
+.bingo-cell{padding:10px 2px;border-radius:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:14px;font-weight:700;text-align:center;cursor:pointer;transition:.12s;font-family:inherit}
+.bingo-cell:active{transform:scale(0.93)}
+.bingo-cell.marked{background:linear-gradient(135deg,#11998e,#38ef7d);border-color:rgba(255,255,255,0.35)}
+.bingo-cell.wrong{background:linear-gradient(135deg,#f5576c,#ff758c);animation:shake .3s ease}
+.bingo-q{font-size:19px;font-weight:800;color:#fff;text-align:center;margin:8px 0;min-height:26px;line-height:1.4}
+
+/* ===== TABLE ===== */
+.tbl-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;width:100%;max-width:320px}
+.tbl-cell{aspect-ratio:1;border-radius:6px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:.1s}
+.tbl-cell:active{transform:scale(0.92)}
+.tbl-cell.open{background:linear-gradient(135deg,#43e97b,#38f9d7);border-color:rgba(255,255,255,0.25);color:#0b2b1a}
+.tbl-q{font-size:28px;font-weight:800;color:#fff;text-align:center;margin:6px 0;min-height:40px;line-height:1.3}
+.tbl-choices-wrap{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:320px}
+.tbl-choices-wrap .c-expr{min-width:70px;padding:12px;font-size:18px;border-radius:12px;border:2px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:#fff;font-weight:700;cursor:pointer;font-family:inherit;transition:.08s}
+.tbl-choices-wrap .c-expr:active{transform:scale(0.94);background:rgba(255,255,255,0.12)}
 </style>
 </head>
 <body ontouchstart>
@@ -403,7 +492,7 @@ body{padding:0}
   <!-- HOME -->
   <div id="screen-home" class="screen active">
     <div class="logo">2x2</div>
-    <span class="ver">v1.16</span>
+    <span class="ver">v1.17</span>
     <div class="subtitle">тяжело в учении, легко в бою</div>
     <button class="stat-badge" onclick="showStats()">&#x1F4CA; Статистика</button>
     <div class="stat-badge" id="streakBadge" style="display:none"></div>
@@ -457,6 +546,48 @@ body{padding:0}
           <span class="icon">&#x26A1;</span>
           За минуту
           <span class="desc">Сколько успеешь за 60 секунд</span>
+        </button>
+        <button class="lvl-btn lvl-eq" onclick="playMemory()">
+          <span class="game-info-btn" onclick="event.stopPropagation();showGameRules('memory')">i</span>
+          <span class="icon">&#x1F9E0;</span>
+          Парные карточки
+          <span class="desc">Найди пары пример→ответ</span>
+        </button>
+        <button class="lvl-btn lvl-eq2" onclick="playGuess()">
+          <span class="game-info-btn" onclick="event.stopPropagation();showGameRules('guess')">i</span>
+          <span class="icon">&#x1F914;</span>
+          Угадай число
+          <span class="desc">Число от 1 до 50</span>
+        </button>
+        <button class="lvl-btn lvl-div" onclick="playCompare()">
+          <span class="game-info-btn" onclick="event.stopPropagation();showGameRules('cmp')">i</span>
+          <span class="icon">&#x2696;&#xFE0F;</span>
+          Сравнивалка
+          <span class="desc">Что больше: 7×8 или 9×6?</span>
+        </button>
+        <button class="lvl-btn lvl-read" onclick="playOdd()">
+          <span class="game-info-btn" onclick="event.stopPropagation();showGameRules('odd')">i</span>
+          <span class="icon">&#x1F914;</span>
+          Найди лишнее
+          <span class="desc">Где неверный ответ?</span>
+        </button>
+        <button class="lvl-btn lvl-hard" onclick="playBalloons()">
+          <span class="game-info-btn" onclick="event.stopPropagation();showGameRules('balloons')">i</span>
+          <span class="icon">&#x1F388;</span>
+          Воздушные шары
+          <span class="desc">Лопни шарик с ответом!</span>
+        </button>
+        <button class="lvl-btn lvl-train" onclick="playBingo()">
+          <span class="game-info-btn" onclick="event.stopPropagation();showGameRules('bingo')">i</span>
+          <span class="icon">&#x1F3AF;</span>
+          Бинго
+          <span class="desc">Собери линию из 5 клеток</span>
+        </button>
+        <button class="lvl-btn lvl-eq2" onclick="playTable()">
+          <span class="game-info-btn" onclick="event.stopPropagation();showGameRules('table')">i</span>
+          <span class="icon">&#x1F4C4;</span>
+          Открой таблицу
+          <span class="desc">Открой все 64 клетки</span>
         </button>
       </div>
     </div>
@@ -840,6 +971,161 @@ body{padding:0}
     </div>
   </div>
 
+  <!-- MEMORY -->
+  <div id="screen-memory" class="screen" style="justify-content:flex-start;padding-top:46px;gap:10px">
+    <button class="nav-btn" onclick="goHome()">&#x2715;</button>
+    <h2>&#x1F9E0; Парные карточки</h2>
+    <div class="game-top">
+      <span class="g-progress" id="memPairs">Пары: 0/8</span>
+      <span class="g-progress" id="memMoves">Ходы: 0</span>
+    </div>
+    <div class="mem-grid" id="memGrid"></div>
+    <div class="game-rec" id="memRec"></div>
+    <div class="game-result" id="memResult">
+      <h3>&#x1F389; Готово!</h3>
+      <div class="r-s" id="memRS"></div>
+      <div class="r-b">
+        <button class="gr-play" onclick="playMemory()">&#x1F504; Ещё раз</button>
+        <button class="gr-home" onclick="goHome()">&#x1F3E0; На главную</button>
+      </div>
+    </div>
+    <button class="game-reset" onclick="memClearRec()">&#x1F5D1; Сбросить рекорд</button>
+  </div>
+
+  <!-- GUESS -->
+  <div id="screen-guess" class="screen" style="justify-content:flex-start;padding-top:46px;gap:10px">
+    <button class="nav-btn" onclick="goHome()">&#x2715;</button>
+    <h2>&#x1F914; Угадай число</h2>
+    <div class="guess-wrap">
+      <div class="guess-hint" id="guessHint">Загадал число от 1 до 50!</div>
+      <input class="guess-input" id="guessInput" type="number" min="1" max="50" inputmode="numeric" onkeydown="if(event.key==='Enter'){guessSubmit();}">
+      <button class="guess-go" onclick="guessSubmit()">Проверить</button>
+      <div class="g-progress" id="guessAttempts">Попытки: 0</div>
+    </div>
+    <div class="game-rec" id="guessRec"></div>
+    <div class="game-result" id="guessResult">
+      <h3>&#x1F389; Готово!</h3>
+      <div class="r-s" id="guessRS"></div>
+      <div class="r-b">
+        <button class="gr-play" onclick="playGuess()">&#x1F504; Ещё раз</button>
+        <button class="gr-home" onclick="goHome()">&#x1F3E0; На главную</button>
+      </div>
+    </div>
+    <button class="game-reset" onclick="guessClearRec()">&#x1F5D1; Сбросить рекорд</button>
+  </div>
+
+  <!-- COMPARE -->
+  <div id="screen-compare" class="screen" style="justify-content:flex-start;padding-top:46px;gap:10px">
+    <button class="nav-btn" onclick="goHome()">&#x2715;</button>
+    <h2>&#x2696;&#xFE0F; Сравнивалка</h2>
+    <div class="game-top">
+      <span class="g-progress" id="cmpProg">1 / 10</span>
+      <span class="g-score" id="cmpScore">&#x2B50; 0</span>
+    </div>
+    <div class="cmp-q" id="cmpQ"></div>
+    <div class="cmp-btns">
+      <button class="cmp-btn cmp-gt" onclick="cmpAnswer('&gt;')">&gt;</button>
+      <button class="cmp-btn cmp-lt" onclick="cmpAnswer('&lt;')">&lt;</button>
+      <button class="cmp-btn cmp-eq" onclick="cmpAnswer('=')">=</button>
+    </div>
+    <div class="g-fb" id="cmpFb"></div>
+    <div class="game-rec" id="cmpRec"></div>
+    <div class="game-result" id="cmpResult">
+      <h3>&#x1F389; Готово!</h3>
+      <div class="r-s" id="cmpRS"></div>
+      <div class="r-b">
+        <button class="gr-play" onclick="playCompare()">&#x1F504; Ещё раз</button>
+        <button class="gr-home" onclick="goHome()">&#x1F3E0; На главную</button>
+      </div>
+    </div>
+    <button class="game-reset" onclick="cmpClearRec()">&#x1F5D1; Сбросить рекорд</button>
+  </div>
+
+  <!-- ODD -->
+  <div id="screen-odd" class="screen" style="justify-content:flex-start;padding-top:46px;gap:10px">
+    <button class="nav-btn" onclick="goHome()">&#x2715;</button>
+    <h2>&#x1F914; Найди лишнее</h2>
+    <div class="game-top">
+      <span class="g-progress" id="oddProg">1 / 10</span>
+      <span class="g-score" id="oddScore">&#x2B50; 0</span>
+    </div>
+    <div class="g-fb" id="oddQ" style="font-size:15px;color:#fff"></div>
+    <div class="odd-grid" id="oddGrid"></div>
+    <div class="game-rec" id="oddRec"></div>
+    <div class="game-result" id="oddResult">
+      <h3>&#x1F389; Готово!</h3>
+      <div class="r-s" id="oddRS"></div>
+      <div class="r-b">
+        <button class="gr-play" onclick="playOdd()">&#x1F504; Ещё раз</button>
+        <button class="gr-home" onclick="goHome()">&#x1F3E0; На главную</button>
+      </div>
+    </div>
+    <button class="game-reset" onclick="oddClearRec()">&#x1F5D1; Сбросить рекорд</button>
+  </div>
+
+  <!-- BALLOONS -->
+  <div id="screen-balloons" class="screen" style="justify-content:flex-start;padding-top:46px;gap:10px">
+    <button class="nav-btn" onclick="goHome()">&#x2715;</button>
+    <h2>&#x1F388; Воздушные шары</h2>
+    <div class="ball-top">
+      <span class="ball-lives" id="ballLives">&#x2764;&#xFE0F;&#x2764;&#xFE0F;&#x2764;&#xFE0F;</span>
+      <span class="ball-score-txt" id="ballScore">&#x2B50; 0</span>
+    </div>
+    <div class="ball-field" id="ballField">
+      <div class="ball-q" id="ballQ"></div>
+    </div>
+    <div class="game-rec" id="ballRec"></div>
+    <div class="game-result" id="ballResult">
+      <h3>&#x1F389; Готово!</h3>
+      <div class="r-s" id="ballRS"></div>
+      <div class="r-b">
+        <button class="gr-play" onclick="playBalloons()">&#x1F504; Ещё раз</button>
+        <button class="gr-home" onclick="goHome()">&#x1F3E0; На главную</button>
+      </div>
+    </div>
+    <button class="game-reset" onclick="ballClearRec()">&#x1F5D1; Сбросить рекорд</button>
+  </div>
+
+  <!-- BINGO -->
+  <div id="screen-bingo" class="screen" style="justify-content:flex-start;padding-top:46px;gap:10px">
+    <button class="nav-btn" onclick="goHome()">&#x2715;</button>
+    <h2>&#x1F3AF; Бинго</h2>
+    <div class="bingo-q" id="bingoQ">Нажимай на нужное число!</div>
+    <div class="bingo-grid" id="bingoGrid"></div>
+    <div class="game-rec" id="bingoRec"></div>
+    <div class="game-result" id="bingoResult">
+      <h3>&#x1F389; Бинго!</h3>
+      <div class="r-s" id="bingoRS"></div>
+      <div class="r-b">
+        <button class="gr-play" onclick="playBingo()">&#x1F504; Ещё раз</button>
+        <button class="gr-home" onclick="goHome()">&#x1F3E0; На главную</button>
+      </div>
+    </div>
+    <button class="game-reset" onclick="bingoClearRec()">&#x1F5D1; Сбросить рекорд</button>
+  </div>
+
+  <!-- TABLE -->
+  <div id="screen-table" class="screen" style="justify-content:flex-start;padding-top:46px;gap:10px">
+    <button class="nav-btn" onclick="goHome()">&#x2715;</button>
+    <h2>&#x1F4C4; Открой таблицу</h2>
+    <div class="game-top">
+      <span class="g-progress" id="tableProg">Открыто: 0/64</span>
+    </div>
+    <div class="tbl-q" id="tableQ">Нажимай на клетки!</div>
+    <div class="tbl-grid" id="tableGrid"></div>
+    <div class="tbl-choices-wrap" id="tableChoices"></div>
+    <div class="game-rec" id="tableRec"></div>
+    <div class="game-result" id="tableResult">
+      <h3>&#x1F389; Готово!</h3>
+      <div class="r-s" id="tableRS"></div>
+      <div class="r-b">
+        <button class="gr-play" onclick="playTable()">&#x1F504; Ещё раз</button>
+        <button class="gr-home" onclick="goHome()">&#x1F3E0; На главную</button>
+      </div>
+    </div>
+    <button class="game-reset" onclick="tableClearRec()">&#x1F5D1; Сбросить рекорд</button>
+  </div>
+
 </div>
 
 <div class="rules-overlay" id="rulesOverlay" onclick="closeGameRules()">
@@ -1075,7 +1361,21 @@ const ACHIEVEMENTS = {
   five_row: { name: 'Пять подряд', icon: '🎸', desc: 'Ответь правильно 5 раз подряд' },
   ten_row: { name: 'Десять подряд', icon: '💎', desc: 'Ответь правильно 10 раз подряд' },
   explorer: { name: 'Исследователь', icon: '🗺', desc: 'Играй в 5 разных режимах' },
-  turtle: { name: 'Черепашка', icon: '🐢', desc: 'Проведи игру дольше 5 минут' }
+  turtle: { name: 'Черепашка', icon: '🐢', desc: 'Проведи игру дольше 5 минут' },
+  mem_first: { name: 'Карточных дел мастер', icon: '🧩', desc: 'Открой все пары в «Парных карточках»' },
+  mem_fast: { name: 'Фотоглаз', icon: '📸', desc: 'Открой все пары за 14 ходов или меньше' },
+  guess_first: { name: 'Ясновидец', icon: '🔮', desc: 'Угадай число' },
+  guess_lucky: { name: 'Везунчик', icon: '🍀', desc: 'Угадай число с 2 попыток или меньше' },
+  cmp_first: { name: 'Знаток сравнений', icon: '⚖️', desc: 'Пройди «Сравнивалку» до конца' },
+  cmp_perfect: { name: 'Сравнитель-профи', icon: '🥇', desc: 'Сравни все 10 примеров правильно' },
+  odd_first: { name: 'Сыщик', icon: '🕵️', desc: 'Пройди «Найди лишнее» до конца' },
+  odd_smart: { name: 'Суперсыщик', icon: '🕵️‍♂️', desc: 'Найди все 10 лишних примеров без ошибок' },
+  ball_first: { name: 'Воздухоплаватель', icon: '🎈', desc: 'Пройди «Воздушные шары» до конца' },
+  ball_streak: { name: 'Метеор', icon: '☄️', desc: 'Лопни 5 правильных шаров подряд' },
+  bingo_first: { name: 'Бинго-начинающий', icon: '🎯', desc: 'Собери линию в «Бинго»' },
+  bingo_5: { name: 'Бинго-чемпион', icon: '🏆', desc: 'Собери 5 линий в «Бинго»' },
+  table_first: { name: 'Открыватель таблицы', icon: '🗺️', desc: 'Открой всю таблицу умножения' },
+  table_fast: { name: 'Молниеносный', icon: '⚡', desc: 'Открой всю таблицу быстрее 90 секунд' }
 };
 
 // ===== HELPERS =====
@@ -1402,6 +1702,7 @@ function goHome() {
   msState = null;
   clearSInterval();
   resetGame();
+  if (ballInterval) { clearInterval(ballInterval); ballInterval = null; }
   show('screen-home');
   renderStreak();
   renderDailyGoal();
@@ -2229,6 +2530,637 @@ function resetGame() {
   S.mul = 0;
   S.totalTime = 0;
   S.isTraining = false;
+}
+
+// ===== NEW GAMES =====
+function starsStr(n) {
+  var s = '';
+  for (var i = 0; i < Math.max(1, Math.min(3, n)); i++) s += '\u2B50';
+  return s;
+}
+
+// --- Парные карточки (Memory) ---
+var memState = null;
+function memGenPairs() {
+  var pairs = [];
+  var used = {};
+  while (pairs.length < 8) {
+    var a = 2 + Math.floor(Math.random() * 8);
+    var b = 2 + Math.floor(Math.random() * 8);
+    var k = a + '_' + b;
+    if (used[k]) continue;
+    used[k] = true;
+    pairs.push({ a: a, b: b, v: a * b, id: k });
+  }
+  return pairs;
+}
+function playMemory() {
+  var pairs = memGenPairs();
+  var cards = [];
+  for (var i = 0; i < pairs.length; i++) {
+    cards.push({ id: pairs[i].id, text: pairs[i].a + ' \u00D7 ' + pairs[i].b });
+    cards.push({ id: pairs[i].id, text: '' + pairs[i].v });
+  }
+  shuffle(cards);
+  memState = { cards: cards, matched: {}, first: -1, locked: false, moves: 0 };
+  document.getElementById('memResult').classList.remove('show');
+  var grid = document.getElementById('memGrid');
+  grid.innerHTML = '';
+  for (var i = 0; i < cards.length; i++) {
+    (function(idx) {
+      var c = document.createElement('button');
+      c.className = 'mem-card';
+      c.innerHTML = '<div class="mem-inner"><div class="mem-face mem-front">?</div><div class="mem-face mem-back">' + cards[idx].text + '</div></div>';
+      c.onclick = function() { memClick(idx, c); };
+      grid.appendChild(c);
+    })(i);
+  }
+  renderMemRec();
+  memUpdateHud();
+}
+function memUpdateHud() {
+  var matched = Object.keys(memState.matched).length;
+  document.getElementById('memPairs').textContent = '\uD83D\uDD34 Пары: ' + matched + '/8';
+  document.getElementById('memMoves').textContent = '\uD83C\uDFAF Ходы: ' + memState.moves;
+}
+function memClick(idx, el) {
+  var st = memState;
+  if (!st || st.locked) return;
+  if (st.matched[st.cards[idx].id]) return;
+  if (el.classList.contains('open')) return;
+  el.classList.add('open');
+  if (st.first === -1) { st.first = idx; return; }
+  st.moves++;
+  memUpdateHud();
+  var firstIdx = st.first;
+  var firstEl = document.querySelectorAll('.mem-card')[firstIdx];
+  if (st.cards[firstIdx].id === st.cards[idx].id) {
+    st.matched[st.cards[idx].id] = true;
+    firstEl.classList.add('matched');
+    el.classList.add('matched');
+    sfxCorrect();
+    haptic(30);
+    st.first = -1;
+    if (Object.keys(st.matched).length === 8) memEndGame();
+  } else {
+    sfxWrong();
+    st.first = -1;
+    st.locked = true;
+    setTimeout(function() {
+      firstEl.classList.remove('open');
+      el.classList.remove('open');
+      st.locked = false;
+    }, 700);
+  }
+}
+function memEndGame() {
+  var moves = memState.moves;
+  var rec = lsGet('xx_mem', { games: 0, bestFlips: 999 });
+  rec.games++;
+  if (moves < rec.bestFlips) rec.bestFlips = moves;
+  lsSet('xx_mem', rec);
+  var stars = moves <= 16 ? 3 : moves <= 22 ? 2 : 1;
+  document.getElementById('memRS').textContent = 'Открыл все пары за ' + moves + ' ходов ' + starsStr(stars);
+  document.getElementById('memResult').classList.add('show');
+  unlockAchievement('mem_first');
+  if (moves <= 14) unlockAchievement('mem_fast');
+  updateStreak();
+  incDailyGoal();
+  renderMemRec();
+}
+function memClearRec() {
+  if (!confirm('Сбросить рекорд игры «Парные карточки»?')) return;
+  localStorage.removeItem('xx_mem');
+  renderMemRec();
+}
+function renderMemRec() {
+  var rec = lsGet('xx_mem', { games: 0, bestFlips: 999 });
+  var el = document.getElementById('memRec');
+  el.textContent = rec.games > 0 ? '\uD83C\uDFC6 Игр: ' + rec.games + ' · Лучший: ' + (rec.bestFlips === 999 ? '—' : rec.bestFlips + ' ходов') : 'Сыграй первую партию!';
+}
+
+// --- Угадай число (Guess) ---
+var guessState = null;
+function playGuess() {
+  guessState = { num: 1 + Math.floor(Math.random() * 50), attempts: 0, gameOver: false };
+  document.getElementById('guessResult').classList.remove('show');
+  document.getElementById('guessHint').textContent = 'Загадал число от 1 до 50!';
+  document.getElementById('guessAttempts').textContent = 'Попытки: 0';
+  document.getElementById('guessInput').value = '';
+  document.getElementById('guessInput').focus();
+  renderGuessRec();
+}
+function guessSubmit() {
+  var st = guessState;
+  if (!st || st.gameOver) return;
+  var input = document.getElementById('guessInput');
+  var v = parseInt(input.value, 10);
+  if (isNaN(v) || v < 1 || v > 50) {
+    document.getElementById('guessHint').textContent = 'Введи число от 1 до 50!';
+    return;
+  }
+  st.attempts++;
+  if (v === st.num) {
+    st.gameOver = true;
+    sfxFanfare();
+    haptic(200);
+    document.getElementById('guessHint').textContent = '\uD83C\uDF89 Угадал! Это ' + st.num + '!';
+    document.getElementById('guessAttempts').textContent = 'Попытки: ' + st.attempts;
+    var rec = lsGet('xx_guess', { games: 0, bestAttempts: 99 });
+    rec.games++;
+    if (st.attempts < rec.bestAttempts) rec.bestAttempts = st.attempts;
+    lsSet('xx_guess', rec);
+    var stars = st.attempts <= 3 ? 3 : st.attempts <= 6 ? 2 : 1;
+    document.getElementById('guessRS').textContent = 'Угадал за ' + st.attempts + ' ' + (st.attempts === 1 ? 'попытку' : st.attempts <= 4 ? 'попытки' : 'попыток') + ' ' + starsStr(stars);
+    document.getElementById('guessResult').classList.add('show');
+    unlockAchievement('guess_first');
+    if (st.attempts <= 2) unlockAchievement('guess_lucky');
+    updateStreak();
+    incDailyGoal();
+    renderGuessRec();
+  } else {
+    sfxWrong();
+    document.getElementById('guessHint').textContent = v < st.num ? '\uD83D\uDC46 Число БОЛЬШЕ' : '\uD83D\uDC47 Число МЕНЬШЕ';
+    document.getElementById('guessAttempts').textContent = 'Попытки: ' + st.attempts;
+    input.value = '';
+    input.focus();
+  }
+}
+function guessClearRec() {
+  if (!confirm('Сбросить рекорд игры «Угадай число»?')) return;
+  localStorage.removeItem('xx_guess');
+  renderGuessRec();
+}
+function renderGuessRec() {
+  var rec = lsGet('xx_guess', { games: 0, bestAttempts: 99 });
+  var el = document.getElementById('guessRec');
+  if (rec.bestAttempts === 99 && rec.games === 0) { el.textContent = 'Угадай число быстрее всех!'; return; }
+  el.textContent = '\uD83C\uDFC6 Игр: ' + rec.games + ' · Лучший: ' + (rec.bestAttempts === 99 ? '—' : rec.bestAttempts + ' попыток');
+}
+
+// --- Сравнивалка (Compare) ---
+var cmpState = null;
+function genCmpExpr() {
+  var a = 2 + Math.floor(Math.random() * 8);
+  var b = 2 + Math.floor(Math.random() * 8);
+  return { a: a, b: b, v: a * b, s: a + ' \u00D7 ' + b };
+}
+function playCompare() {
+  cmpState = { idx: 0, total: 10, correct: 0, qs: [], cur: null };
+  for (var i = 0; i < cmpState.total; i++) cmpState.qs.push(genCmpExpr());
+  document.getElementById('cmpResult').classList.remove('show');
+  cmpRender();
+  renderCmpRec();
+}
+function cmpRender() {
+  var st = cmpState;
+  var l = st.qs[st.idx];
+  var r = genCmpExpr();
+  st.cur = { l: l, r: r };
+  document.getElementById('cmpQ').textContent = l.s + '  \u2753  ' + r.s;
+  document.getElementById('cmpProg').textContent = (st.idx + 1) + ' / ' + st.total;
+  document.getElementById('cmpFb').textContent = '';
+  setCmpBtns(true);
+}
+function setCmpBtns(on) {
+  var btns = document.querySelectorAll('#screen-compare .cmp-btn');
+  for (var i = 0; i < btns.length; i++) btns[i].disabled = !on;
+}
+function cmpAnswer(sign) {
+  var st = cmpState;
+  if (!st || st.idx >= st.total || !st.cur) return;
+  var l = st.cur.l.v, r = st.cur.r.v;
+  var ok = (sign === '>' && l > r) || (sign === '<' && l < r) || (sign === '=' && l === r);
+  if (ok) {
+    st.correct++;
+    sfxCorrect();
+    haptic(30);
+    document.getElementById('cmpFb').textContent = '\u2713 Верно!';
+  } else {
+    sfxWrong();
+    document.getElementById('cmpFb').textContent = '\u2717 Ой!';
+  }
+  setCmpBtns(false);
+  st.idx++;
+  setTimeout(function() {
+    if (st.idx >= st.total) cmpEndGame();
+    else cmpRender();
+  }, 600);
+}
+function cmpEndGame() {
+  var t = cmpState.correct;
+  var rec = lsGet('xx_cmp', { games: 0, best: 0 });
+  rec.games++;
+  if (t > rec.best) rec.best = t;
+  lsSet('xx_cmp', rec);
+  var stars = t === 10 ? 3 : t >= 7 ? 2 : 1;
+  document.getElementById('cmpRS').textContent = 'Верно ' + t + ' из 10 ' + starsStr(stars);
+  document.getElementById('cmpResult').classList.add('show');
+  unlockAchievement('cmp_first');
+  if (t === 10) unlockAchievement('cmp_perfect');
+  updateStreak();
+  incDailyGoal();
+  renderCmpRec();
+}
+function cmpClearRec() {
+  if (!confirm('Сбросить рекорд игры «Сравнивалка»?')) return;
+  localStorage.removeItem('xx_cmp');
+  renderCmpRec();
+}
+function renderCmpRec() {
+  var rec = lsGet('xx_cmp', { games: 0, best: 0 });
+  var el = document.getElementById('cmpRec');
+  el.textContent = rec.games > 0 ? '\uD83C\uDFC6 Игр: ' + rec.games + ' · Лучший: ' + rec.best + '/10' : 'Ответь на все сравнения!';
+}
+
+// --- Найди лишнее (Odd) ---
+var oddState = null;
+function genOddRound() {
+  var a = 2 + Math.floor(Math.random() * 8);
+  var b = 2 + Math.floor(Math.random() * 8);
+  var correct = a * b;
+  var wrong = correct;
+  while (wrong === correct || wrong <= 0) {
+    wrong = correct + (Math.random() < 0.5 ? -1 : 1) * (1 + Math.floor(Math.random() * 3));
+  }
+  var vals = [correct, correct, correct, wrong];
+  shuffle(vals);
+  return { a: a, b: b, wrong: wrong, oddIdx: vals.indexOf(wrong), vals: vals };
+}
+function playOdd() {
+  oddState = { idx: 0, total: 10, correct: 0, qs: [] };
+  for (var i = 0; i < oddState.total; i++) oddState.qs.push(genOddRound());
+  document.getElementById('oddResult').classList.remove('show');
+  oddRender();
+  renderOddRec();
+}
+function oddRender() {
+  var q = oddState.qs[oddState.idx];
+  document.getElementById('oddQ').textContent = 'Найди пример с неверным ответом:';
+  document.getElementById('oddProg').textContent = (oddState.idx + 1) + ' / 10';
+  document.getElementById('oddScore').textContent = '\u2B50 ' + oddState.correct;
+  var grid = document.getElementById('oddGrid');
+  grid.innerHTML = '';
+  for (var i = 0; i < q.vals.length; i++) {
+    (function(idx, val) {
+      var c = document.createElement('button');
+      c.className = 'odd-card';
+      c.textContent = q.a + ' \u00D7 ' + q.b + ' = ' + val;
+      c.onclick = function() { oddClick(idx, c); };
+      grid.appendChild(c);
+    })(i, q.vals[i]);
+  }
+}
+function oddClick(idx, el) {
+  var st = oddState;
+  if (!st || st.idx >= st.total) return;
+  var q = st.qs[st.idx];
+  var cards = document.querySelectorAll('#oddGrid .odd-card');
+  for (var i = 0; i < cards.length; i++) cards[i].disabled = true;
+  if (idx === q.oddIdx) {
+    el.classList.add('correct');
+    st.correct++;
+    sfxCorrect();
+    haptic(30);
+  } else {
+    el.classList.add('wrong');
+    sfxWrong();
+  }
+  document.getElementById('oddScore').textContent = '\u2B50 ' + st.correct;
+  st.idx++;
+  setTimeout(function() {
+    if (st.idx >= st.total) oddEndGame();
+    else oddRender();
+  }, 650);
+}
+function oddEndGame() {
+  var t = oddState.correct;
+  var rec = lsGet('xx_odd', { games: 0, best: 0 });
+  rec.games++;
+  if (t > rec.best) rec.best = t;
+  lsSet('xx_odd', rec);
+  var stars = t === 10 ? 3 : t >= 7 ? 2 : 1;
+  document.getElementById('oddRS').textContent = 'Нашёл лишнее ' + t + ' из 10 ' + starsStr(stars);
+  document.getElementById('oddResult').classList.add('show');
+  unlockAchievement('odd_first');
+  if (t === 10) unlockAchievement('odd_smart');
+  updateStreak();
+  incDailyGoal();
+  renderOddRec();
+}
+function oddClearRec() {
+  if (!confirm('Сбросить рекорд игры «Найди лишнее»?')) return;
+  localStorage.removeItem('xx_odd');
+  renderOddRec();
+}
+function renderOddRec() {
+  var rec = lsGet('xx_odd', { games: 0, best: 0 });
+  var el = document.getElementById('oddRec');
+  el.textContent = rec.games > 0 ? '\uD83C\uDFC6 Игр: ' + rec.games + ' · Лучший: ' + rec.best + '/10' : 'Найди неверные ответы!';
+}
+
+// --- Воздушные шары (Balloons) ---
+var ballState = null;
+var ballInterval = null;
+function playBalloons() {
+  if (ballInterval) { clearInterval(ballInterval); ballInterval = null; }
+  ballState = { lives: 3, score: 0, streak: 0, active: true };
+  document.getElementById('ballResult').classList.remove('show');
+  document.getElementById('ballLives').textContent = '\u2764\uFE0F'.repeat(3);
+  document.getElementById('ballScore').textContent = '\u2B50 0';
+  document.getElementById('ballField').innerHTML = '<div class="ball-q" id="ballQ"></div>';
+  ballNewQ();
+  ballInterval = setInterval(function() { try { ballSpawn(); } catch(e) {} }, 1100);
+  renderBalloonRec();
+}
+function ballNewQ() {
+  if (!ballState) return;
+  var a = 2 + Math.floor(Math.random() * 8);
+  var b = 2 + Math.floor(Math.random() * 8);
+  ballState.q = { a: a, b: b, v: a * b };
+  document.getElementById('ballQ').textContent = a + ' \u00D7 ' + b + ' = ?';
+}
+function ballSpawn() {
+  if (!ballState || !ballState.active) return;
+  var field = document.getElementById('ballField');
+  var right = Math.random() < 0.4;
+  var val;
+  if (right) val = ballState.q.v;
+  else {
+    do {
+      val = ballState.q.v + (Math.random() < 0.5 ? -1 : 1) * (1 + Math.floor(Math.random() * 4));
+    } while (val === ballState.q.v || val <= 0 || val > 300);
+  }
+  var b = document.createElement('button');
+  b.className = 'balloon';
+  b.textContent = val;
+  b.dataset.val = val;
+  var cols = ['#f5576c', '#f9a825', '#667eea', '#11998e', '#ff8f00'];
+  var c1 = cols[Math.floor(Math.random() * cols.length)];
+  var c2 = cols[Math.floor(Math.random() * cols.length)];
+  b.style.background = 'linear-gradient(135deg,' + c1 + ',' + c2 + ')';
+  b.style.left = (5 + Math.random() * 75) + '%';
+  b.style.animationDuration = (6 + Math.random() * 3) + 's';
+  b.onclick = function() { ballPop(b); };
+  field.appendChild(b);
+  (function(bb) {
+    setTimeout(function() { if (bb.parentNode) { bb.parentNode.removeChild(bb); } }, 10000);
+  })(b);
+}
+function ballPop(b) {
+  if (!ballState || !ballState.active) return;
+  if (b.parentNode) b.parentNode.removeChild(b);
+  var val = parseInt(b.dataset.val, 10);
+  if (val === ballState.q.v) {
+    ballState.score++;
+    ballState.streak++;
+    sfxCorrect();
+    haptic(30);
+    document.getElementById('ballScore').textContent = '\u2B50 ' + ballState.score;
+    if (ballState.streak >= 5) unlockAchievement('ball_streak');
+    ballNewQ();
+  } else {
+    ballState.lives--;
+    ballState.streak = 0;
+    sfxWrong();
+    document.getElementById('ballLives').textContent = '\u2764\uFE0F'.repeat(Math.max(0, ballState.lives));
+    if (ballState.lives <= 0) ballEndGame();
+  }
+}
+function ballEndGame() {
+  if (!ballState) return;
+  ballState.active = false;
+  if (ballInterval) { clearInterval(ballInterval); ballInterval = null; }
+  var sc = ballState.score;
+  var rec = lsGet('xx_balloon', { games: 0, best: 0 });
+  rec.games++;
+  if (sc > rec.best) rec.best = sc;
+  lsSet('xx_balloon', rec);
+  var stars = sc >= 12 ? 3 : sc >= 7 ? 2 : 1;
+  document.getElementById('ballRS').textContent = 'Лопнул ' + sc + ' ' + (sc % 10 === 1 && sc % 100 !== 11 ? 'шар' : (sc % 10 >= 2 && sc % 10 <= 4 && (sc % 100 < 10 || sc % 100 >= 20) ? 'шара' : 'шаров')) + ' ' + starsStr(stars);
+  document.getElementById('ballResult').classList.add('show');
+  unlockAchievement('ball_first');
+  updateStreak();
+  incDailyGoal();
+  renderBalloonRec();
+}
+function ballClearRec() {
+  if (!confirm('Сбросить рекорд игры «Воздушные шары»?')) return;
+  localStorage.removeItem('xx_balloon');
+  renderBalloonRec();
+}
+function renderBalloonRec() {
+  var rec = lsGet('xx_balloon', { games: 0, best: 0 });
+  var el = document.getElementById('ballRec');
+  el.textContent = rec.games > 0 ? '\uD83C\uDFC6 Игр: ' + rec.games + ' · Лучший: ' + rec.best + ' шаров' : 'Лопай шарики с правильным ответом!';
+}
+
+// --- Бинго ---
+var bingoState = null;
+function playBingo() {
+  var used = {};
+  var cells = [];
+  while (cells.length < 25) {
+    var a = 2 + Math.floor(Math.random() * 8);
+    var b = 2 + Math.floor(Math.random() * 8);
+    var v = a * b;
+    var k = a + '_' + b + '_' + v;
+    if (used[k]) continue;
+    used[k] = true;
+    cells.push({ a: a, b: b, v: v });
+  }
+  bingoState = { cells: cells, marked: {}, active: true, current: null };
+  document.getElementById('bingoResult').classList.remove('show');
+  var grid = document.getElementById('bingoGrid');
+  grid.innerHTML = '';
+  for (var i = 0; i < cells.length; i++) {
+    (function(idx) {
+      var c = document.createElement('button');
+      c.className = 'bingo-cell';
+      c.textContent = cells[idx].v;
+      c.onclick = function() { bingoClick(idx, c); };
+      grid.appendChild(c);
+    })(i);
+  }
+  bingoNextQ();
+  renderBingoRec();
+}
+function bingoNextQ() {
+  if (!bingoState || !bingoState.active) return;
+  var avail = [];
+  for (var i = 0; i < 25; i++) if (!bingoState.marked[i]) avail.push(i);
+  if (avail.length === 0) return;
+  var idx = avail[Math.floor(Math.random() * avail.length)];
+  bingoState.current = { idx: idx, cell: bingoState.cells[idx] };
+  document.getElementById('bingoQ').textContent = bingoState.current.cell.a + ' \u00D7 ' + bingoState.current.cell.b + ' = ?\u2003Нажми это число на поле!';
+}
+function bingoClick(idx, el) {
+  var st = bingoState;
+  if (!st || !st.active || st.marked[idx]) return;
+  if (!st.current || st.current.idx !== idx) {
+    el.classList.add('wrong');
+    sfxWrong();
+    setTimeout(function() { el.classList.remove('wrong'); }, 300);
+    return;
+  }
+  st.marked[idx] = true;
+  el.classList.add('marked');
+  sfxCorrect();
+  haptic(30);
+  if (bingoCheckWin()) {
+    st.active = false;
+    var rec = lsGet('xx_bingo', { games: 0, wins: 0 });
+    rec.games++;
+    rec.wins++;
+    lsSet('xx_bingo', rec);
+    document.getElementById('bingoRS').textContent = '\uD83C\uDF89 Бинго! Линия собрана!';
+    document.getElementById('bingoResult').classList.add('show');
+    unlockAchievement('bingo_first');
+    if (rec.wins >= 5) unlockAchievement('bingo_5');
+    updateStreak();
+    incDailyGoal();
+    renderBingoRec();
+    return;
+  }
+  bingoNextQ();
+}
+function bingoCheckWin() {
+  var m = bingoState.marked;
+  for (var r = 0; r < 5; r++) {
+    var all = true;
+    for (var c = 0; c < 5; c++) if (!m[r * 5 + c]) { all = false; break; }
+    if (all) return true;
+  }
+  for (var c = 0; c < 5; c++) {
+    var all2 = true;
+    for (var r = 0; r < 5; r++) if (!m[r * 5 + c]) { all2 = false; break; }
+    if (all2) return true;
+  }
+  var d1 = true, d2 = true;
+  for (var i = 0; i < 5; i++) {
+    if (!m[i * 5 + i]) d1 = false;
+    if (!m[i * 5 + (4 - i)]) d2 = false;
+  }
+  return d1 || d2;
+}
+function bingoClearRec() {
+  if (!confirm('Сбросить рекорд игры «Бинго»?')) return;
+  localStorage.removeItem('xx_bingo');
+  renderBingoRec();
+}
+function renderBingoRec() {
+  var rec = lsGet('xx_bingo', { games: 0, wins: 0 });
+  var el = document.getElementById('bingoRec');
+  el.textContent = rec.games > 0 ? '\uD83C\uDFC6 Игр: ' + rec.games + ' · Побед (' + rec.wins + ')' : 'Собери линию из 5 клеток!';
+}
+
+// --- Открой таблицу (Table) ---
+var tableState = null;
+function playTable() {
+  tableState = { opened: {}, activeQ: null, start: Date.now(), active: true };
+  document.getElementById('tableResult').classList.remove('show');
+  var grid = document.getElementById('tableGrid');
+  grid.innerHTML = '';
+  for (var r = 0; r < 8; r++) {
+    for (var c = 0; c < 8; c++) {
+      (function(rr, cc) {
+        var cell = document.createElement('button');
+        cell.className = 'tbl-cell';
+        cell.dataset.r = rr;
+        cell.dataset.c = cc;
+        cell.textContent = '?';
+        cell.onclick = function() { tablePick(rr, cc); };
+        grid.appendChild(cell);
+      })(r, c);
+    }
+  }
+  document.getElementById('tableQ').textContent = 'Нажимай на клетки!';
+  document.getElementById('tableChoices').innerHTML = '';
+  document.getElementById('tableProg').textContent = 'Открыто: 0/64';
+  renderTableRec();
+}
+function tablePick(r, c) {
+  var st = tableState;
+  if (!st || !st.active) return;
+  var key = r + '_' + c;
+  if (st.opened[key]) return;
+  st.activeQ = { r: r, c: c, a: r + 2, b: c + 2, v: (r + 2) * (c + 2) };
+  document.getElementById('tableQ').textContent = st.activeQ.a + ' \u00D7 ' + st.activeQ.b + ' = ?';
+  var wrap = document.getElementById('tableChoices');
+  wrap.innerHTML = '';
+  var choices = [st.activeQ.v];
+  var seen = {};
+  var attempts = 0;
+  while (choices.length < 4 && attempts < 200) {
+    attempts++;
+    var w = st.activeQ.v + (Math.random() < 0.5 ? -1 : 1) * (1 + Math.floor(Math.random() * 8));
+    if (w > 0 && w <= 200 && w !== st.activeQ.v && !seen[w]) { seen[w] = true; choices.push(w); }
+  }
+  shuffle(choices);
+  for (var i = 0; i < choices.length; i++) {
+    (function(val) {
+      var b = document.createElement('button');
+      b.className = 'c-expr val-btn';
+      b.textContent = '' + val;
+      b.onclick = function() { tableAnswer(val); };
+      wrap.appendChild(b);
+    })(choices[i]);
+  }
+}
+function tableAnswer(v) {
+  var st = tableState;
+  if (!st || !st.active || !st.activeQ) return;
+  var aq = st.activeQ;
+  var wrap = document.getElementById('tableChoices');
+  if (v === aq.v) {
+    st.opened[aq.r + '_' + aq.c] = true;
+    sfxCorrect();
+    haptic(30);
+    var cell = document.querySelector('#tableGrid .tbl-cell[data-r="' + aq.r + '"][data-c="' + aq.c + '"]');
+    if (cell) {
+      cell.classList.add('open');
+      cell.textContent = v;
+    }
+    st.activeQ = null;
+    wrap.innerHTML = '';
+    document.getElementById('tableQ').textContent = 'Открыл ' + aq.a + ' \u00D7 ' + aq.b + '!';
+    document.getElementById('tableProg').textContent = 'Открыто: ' + Object.keys(st.opened).length + '/64';
+    if (Object.keys(st.opened).length >= 64) tableEndGame();
+  } else {
+    sfxWrong();
+    document.getElementById('tableQ').textContent = '\u2717 Неверно! Попробуй снова';
+    document.getElementById('tableQ').style.color = '#ff758c';
+    setTimeout(function() { document.getElementById('tableQ').style.color = ''; }, 500);
+  }
+}
+function tableEndGame() {
+  var st = tableState;
+  if (!st) return;
+  st.active = false;
+  var secs = Math.round((Date.now() - st.start) / 1000);
+  var rec = lsGet('xx_table', { games: 0, bestTime: 99999 });
+  rec.games++;
+  if (secs < rec.bestTime) rec.bestTime = secs;
+  lsSet('xx_table', rec);
+  var stars = secs <= 120 ? 3 : secs <= 240 ? 2 : 1;
+  document.getElementById('tableRS').textContent = 'Открыл всю таблицу за ' + fmtDur(secs) + ' ' + starsStr(stars);
+  document.getElementById('tableResult').classList.add('show');
+  unlockAchievement('table_first');
+  if (secs <= 90) unlockAchievement('table_fast');
+  updateStreak();
+  incDailyGoal();
+  renderTableRec();
+}
+function tableClearRec() {
+  if (!confirm('Сбросить рекорд игры «Открой таблицу»?')) return;
+  localStorage.removeItem('xx_table');
+  renderTableRec();
+}
+function renderTableRec() {
+  var rec = lsGet('xx_table', { games: 0, bestTime: 99999 });
+  var el = document.getElementById('tableRec');
+  if (rec.games === 0 || rec.bestTime === 99999) { el.textContent = 'Открой всю таблицу на скорость!'; return; }
+  el.textContent = '\uD83C\uDFC6 Игр: ' + rec.games + ' · Лучший: ' + fmtDur(rec.bestTime);
 }
 
 // ===== STATISTICS =====
@@ -4004,8 +4936,36 @@ var RULES = {
     body: '<p>\u041F\u043E\u043B\u0435 10\u00D710 \u0441 \u043C\u0438\u043D\u0430\u043C\u0438.</p><ul><li>\u041D\u0430\u0436\u043C\u0438 \u043D\u0430 \u043A\u043B\u0435\u0442\u043A\u0443 \u0447\u0442\u043E\u0431\u044B \u043E\u0442\u043A\u0440\u044B\u0442\u044C \u0435\u0451</li><li>\u0427\u0438\u0441\u043B\u043E = \u0441\u043A\u043E\u043B\u044C\u043A\u043E \u043C\u0438\u043D \u0440\u044F\u0434\u043E\u043C</li><li>\u0414\u043E\u043B\u0433\u043E\u0435 \u043D\u0430\u0436\u0430\u0442\u0438\u0435 \u2014 \u043F\u043E\u0441\u0442\u0430\u0432\u0438\u0442\u044C \u0444\u043B\u0430\u0433 \u2691</li><li>\u0426\u0435\u043B\u044C: \u043E\u0442\u043A\u0440\u044B\u0442\u044C \u0432\u0441\u0435 \u0431\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u044B\u0435 \u043A\u043B\u0435\u0442\u043A\u0438 \u0434\u043E \u043A\u043E\u043D\u0446\u0430 \u0438\u0433\u0440\u044B</li></ul><p>\u041F\u0435\u0440\u0432\u044B\u0439 \u043A\u043B\u0438\u043A \u0432\u0441\u0435\u0433\u0434\u0430 \u0431\u0435\u0437\u043E\u043F\u0430\u0441\u0435\u043D.</p>'
   },
   sprint: {
-    title: '\u26A1 \u0417\u0430 \u043C\u0438\u043D\u0443\u0442\u0443',
-    body: '<p>60 \u0441\u0435\u043A\u0443\u043D\u0434 \u043D\u0430 \u043C\u0430\u043A\u0441\u0438\u043C\u0443\u043C \u043F\u0440\u0430\u0432\u0438\u043B\u044C\u043D\u044B\u0445 \u043E\u0442\u0432\u0435\u0442\u043E\u0432.</p><ul><li>\u0412\u044B\u0431\u0435\u0440\u0438 \u0443\u043C\u043D\u043E\u0436\u0435\u043D\u0438\u0435 \u0438\u043B\u0438 \u0434\u0435\u043B\u0435\u043D\u0438\u0435</li><li>\u041E\u0442\u0432\u0435\u0442\u044C \u0438\u0437 4 \u0432\u0430\u0440\u0438\u0430\u043D\u0442\u043E\u0432</li><li>\u0427\u0435\u043C \u0431\u043E\u043B\u044C\u0448\u0435 \u043F\u0440\u0430\u0432\u0438\u043B\u044C\u043D\u044B\u0445 \u2014 \u0442\u0435\u043C \u043B\u0443\u0447\u0448\u0435!</li></ul><p>\u0412\u0440\u0435\u043C\u044F \u0438\u0434\u0451\u0442 \u043D\u0430 \u043F\u043E\u043B\u043E\u0441\u043D\u0435. \u0423\u0441\u043F\u0435\u0435\u0448\u044C!</p>'
+    title: '⚡ За минуту',
+    body: '<p>60 секунд на максимум правильных ответов.</p><ul><li>Выбери умножение или деление</li><li>Ответь из 4 вариантов</li><li>Чем больше правильных — тем лучше!</li></ul><p>Время идёт на полосне. Успеешь!</p>'
+  },
+  memory: {
+    title: '🧠 Парные карточки',
+    body: '<p>Открой все 8 пар — пример и его ответ.</p><ul><li>Нажимай на карточки, чтобы переворачивать их</li><li>Найди пару: «3 × 4» и «12»</li><li>Задача — открыть все пары за меньшее число ходов!</li></ul><p>Лучший результат сохраняется.</p>'
+  },
+  guess: {
+    title: '🤔 Угадай число',
+    body: '<p>Компьютер загадал число от 1 до 50.</p><ul><li>Введи своё число и нажми «Проверить»</li><li>Если мимо — подсказка «больше» или «меньше»</li><li>Угадай за как можно меньше попыток!</li></ul><p>Лучший результат сохраняется.</p>'
+  },
+  cmp: {
+    title: '⚖️ Сравнивалка',
+    body: '<p>Сравни два примера на умножение.</p><ul><li>Нажми «&gt;» если левое больше</li><li>Нажми «&lt;» если правое больше</li><li>Нажми «=» если они равны</li></ul><p>Всего 10 раундов. Ответь правильно на все!</p>'
+  },
+  odd: {
+    title: '🤔 Найди лишнее',
+    body: '<p>На экране 4 одинаковых примера.</p><ul><li>Три с правильным ответом, один — с ошибкой</li><li>Найди и нажми на пример с неверным ответом</li><li>Всего 10 раундов!</li></ul><p>Пройди все 10 без ошибок!</p>'
+  },
+  balloons: {
+    title: '🎈 Воздушные шары',
+    body: '<p>Внизу — пример, вверх летят шарики с числами.</p><ul><li>Лопни шарик с ПРАВИЛЬНЫМ ответом</li><li>Ошибаться можно только 3 раза (3 сердечка)</li><li>За правильные ответы растёт счёт!</li></ul><p>Лопни 5 шаров подряд — получишь достижение!</p>'
+  },
+  bingo: {
+    title: '🎯 Бинго',
+    body: '<p>Поле 5×5 с числами — ответами из таблицы умножения.</p><ul><li>Под полем появляется пример</li><li>Нажми на его ответ на поле</li><li>Собери линию из 5 отмеченных клеток!</li></ul><p>Линия может быть в ряд, столбик или по диагонали.</p>'
+  },
+  table: {
+    title: '📄 Открой таблицу',
+    body: '<p>Поле 8×8 — вся таблица умножения.</p><ul><li>Нажимай на любую клетку</li><li>Ответь на пример, чтобы открыть её</li><li>Открой все 64 клетки как можно быстрее!</li></ul><p>Лучшее время сохраняется.</p>'
   }
 };
 function showGameRules(game) {
