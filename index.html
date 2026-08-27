@@ -492,7 +492,7 @@ body{padding:0}
   <!-- HOME -->
   <div id="screen-home" class="screen active">
     <div class="logo">2x2</div>
-    <span class="ver">v1.17.2</span>
+    <span class="ver">v1.17.3</span>
     <div class="subtitle">тяжело в учении, легко в бою</div>
     <button class="stat-badge" onclick="showStats()">&#x1F4CA; Статистика</button>
     <div class="stat-badge" id="streakBadge" style="display:none"></div>
@@ -1090,6 +1090,10 @@ body{padding:0}
   <div id="screen-bingo" class="screen" style="justify-content:flex-start;padding-top:46px;gap:10px">
     <button class="nav-btn" onclick="goHome()">&#x2715;</button>
     <h2>&#x1F3AF; Бинго</h2>
+    <div class="ball-top">
+      <span class="ball-lives" id="bingoLives">&#x2764;&#xFE0F;&#x2764;&#xFE0F;&#x2764;&#xFE0F;</span>
+      <span class="ball-score-txt" id="bingoScore">&#x2B50; 0</span>
+    </div>
     <div class="bingo-q" id="bingoQ">Нажимай на нужное число!</div>
     <div class="bingo-grid" id="bingoGrid"></div>
     <div class="game-rec" id="bingoRec"></div>
@@ -3015,18 +3019,17 @@ function renderBalloonRec() {
 var bingoState = null;
 function playBingo() {
   show('screen-bingo');
-  var used = {};
+  var usedV = {};
   var cells = [];
   while (cells.length < 25) {
     var a = 2 + Math.floor(Math.random() * 8);
     var b = 2 + Math.floor(Math.random() * 8);
     var v = a * b;
-    var k = a + '_' + b + '_' + v;
-    if (used[k]) continue;
-    used[k] = true;
+    if (usedV[v]) continue;
+    usedV[v] = true;
     cells.push({ a: a, b: b, v: v });
   }
-  bingoState = { cells: cells, marked: {}, active: true, current: null };
+  bingoState = { cells: cells, marked: {}, active: true, current: null, lives: 3, score: 0 };
   document.getElementById('bingoResult').classList.remove('show');
   var grid = document.getElementById('bingoGrid');
   grid.innerHTML = '';
@@ -3039,8 +3042,14 @@ function playBingo() {
       grid.appendChild(c);
     })(i);
   }
+  bingoHud();
   bingoNextQ();
   renderBingoRec();
+}
+function bingoHud() {
+  if (!bingoState) return;
+  document.getElementById('bingoLives').textContent = '\u2764\uFE0F'.repeat(Math.max(0, bingoState.lives));
+  document.getElementById('bingoScore').textContent = '\u2B50 ' + bingoState.score;
 }
 function bingoNextQ() {
   if (!bingoState || !bingoState.active) return;
@@ -3054,32 +3063,52 @@ function bingoNextQ() {
 function bingoClick(idx, el) {
   var st = bingoState;
   if (!st || !st.active || st.marked[idx]) return;
-  if (!st.current || st.current.idx !== idx) {
+  if (!st.current) return;
+  if (st.cells[idx].v !== st.current.cell.v) {
     el.classList.add('wrong');
     sfxWrong();
+    haptic(100);
     setTimeout(function() { el.classList.remove('wrong'); }, 300);
+    st.score = Math.max(0, st.score - 1);
+    st.lives--;
+    bingoHud();
+    if (st.lives <= 0) bingoEndGame(false);
     return;
   }
   st.marked[idx] = true;
   el.classList.add('marked');
+  st.score++;
+  bingoHud();
   sfxCorrect();
   haptic(30);
   if (bingoCheckWin()) {
-    st.active = false;
-    var rec = lsGet('xx_bingo', { games: 0, wins: 0 });
-    rec.games++;
-    rec.wins++;
-    lsSet('xx_bingo', rec);
-    document.getElementById('bingoRS').textContent = '\uD83C\uDF89 Бинго! Линия собрана!';
-    document.getElementById('bingoResult').classList.add('show');
-    unlockAchievement('bingo_first');
-    if (rec.wins >= 5) unlockAchievement('bingo_5');
-    updateStreak();
-    incDailyGoal();
-    renderBingoRec();
+    bingoEndGame(true);
     return;
   }
   bingoNextQ();
+}
+function bingoEndGame(won) {
+  var st = bingoState;
+  if (!st) return;
+  st.active = false;
+  var rec = lsGet('xx_bingo', { games: 0, wins: 0 });
+  rec.games++;
+  var h3 = document.querySelector('#bingoResult h3');
+  if (won) {
+    rec.wins++;
+    if (h3) h3.textContent = '\uD83C\uDF89 Бинго!';
+    document.getElementById('bingoRS').textContent = 'Линия собрана! Счёт: ' + st.score;
+  } else {
+    if (h3) h3.textContent = '\uD83D\uDC94 Жизни кончились';
+    document.getElementById('bingoRS').textContent = 'Счёт: ' + st.score + ' \u00B7 Не сдавайся!';
+  }
+  lsSet('xx_bingo', rec);
+  document.getElementById('bingoResult').classList.add('show');
+  unlockAchievement('bingo_first');
+  if (rec.wins >= 5) unlockAchievement('bingo_5');
+  updateStreak();
+  incDailyGoal();
+  renderBingoRec();
 }
 function bingoCheckWin() {
   var m = bingoState.marked;
