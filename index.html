@@ -350,6 +350,7 @@ body{padding:0}
 /* READ RESULT */
 .read-result-box{width:100%;max-width:320px;text-align:center;padding:16px;border-radius:18px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06)}
 .read-result-grade{font-size:48px;font-weight:900;margin:8px 0;color:#ffd700}
+.read-result-speed{font-size:20px;font-weight:800;margin:8px 0 4px;color:#ffd700;line-height:1.3}
 .read-result-text{color:#c0c0e0;font-size:14px;line-height:1.6}
 #screen-read-result h2{color:#fff;font-size:22px;font-weight:700}
 /* STORY BADGES */
@@ -1286,11 +1287,13 @@ var R = {
   recognition: null,
   stars: 0,
   quizCorrect: 0,
-  isListening: false,
+isListening: false,
   lastResultIdx: 0,
+  restartCount: 0,
   speechThrottle: 0,
 restartTimeout: null,
   watchdog: null,
+  lastMode: '',
   micContinue: false
 };
 
@@ -4333,7 +4336,7 @@ function startReading(storyKey) {
   var story = READ_STORIES[storyKey];
   if (!story) return;
   
-  R.storyId = storyKey;
+R.storyId = storyKey;
   R.active = true;
   R.elapsedSeconds = 0;
   R.stars = 0;
@@ -4341,6 +4344,8 @@ function startReading(storyKey) {
   R.currentWordIdx = 0;
   R.lastSpeechTime = 0;
   R.lastResultIdx = 0;
+  R.restartCount = 0;
+  R.lastMode = '';
   
   document.getElementById('readTitle').textContent = story.title;
   document.getElementById('readStarsCount').textContent = '0';
@@ -4537,27 +4542,53 @@ function toggleReadingMic() {
   }
 }
 
+var READ_SILENCE_LIMIT = 30000;
+
 function startWatchdog() {
   stopWatchdog();
   R.watchdog = setInterval(function() {
     if (!R.active || !R.isListening) { stopWatchdog(); return; }
-    if (Date.now() - R.lastResultTime > 6000) {
-      console.log("Watchdog: zombie detected, restarting mic");
-      try {
-        if (R.recognition) {
-          R.recognition.onend = null;
-          R.recognition.onerror = null;
-          R.recognition.onresult = null;
-          R.recognition.abort();
-        }
-} catch(e) {}
-      restartRecognition();
-    }
+    watchdogTick();
   }, 2000);
+}
+
+function watchdogTick() {
+  if (Date.now() - R.lastResultTime > 12000) {
+    console.log("Watchdog: silence too long, pausing mic");
+    autoPauseMic();
+  }
 }
 
 function stopWatchdog() {
   if (R.watchdog) { clearInterval(R.watchdog); R.watchdog = null; }
+}
+
+function autoPauseMic() {
+  stopWatchdog();
+  R.restartCount = 0;
+  if (R.restartTimeout) { clearTimeout(R.restartTimeout); R.restartTimeout = null; }
+  R.isListening = false;
+  if (R.recognition) {
+    try {
+      R.recognition.onend = null;
+      R.recognition.onerror = null;
+      R.recognition.onresult = null;
+      R.recognition.abort();
+    } catch(e) {}
+    R.recognition = null;
+  }
+  if (R.mode !== 'technique') msStopReadingTimer();
+  var micStatus = document.getElementById('readMicStatus');
+  if (micStatus) {
+    micStatus.className = 'read-mic-status';
+    micStatus.title = '\u041C\u0438\u043A\u0440\u043E\u0444\u043E\u043D \u043F\u0440\u0438\u043E\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D \u2014 \u043D\u0430\u0436\u043C\u0438 \u00AB\u0421\u0442\u0430\u0440\u0442\u00BB, \u0447\u0442\u043E\u0431\u044B \u043F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C';
+  }
+  var startBtn = document.getElementById('readStartBtn');
+  if (startBtn) {
+    startBtn.textContent = '\u25B6 \u0421\u0442\u0430\u0440\u0442';
+    startBtn.className = 'read-ctrl-btn play-btn';
+  }
+  updateWordHighlights();
 }
 
 function restartRecognition() {
@@ -4589,26 +4620,25 @@ function createRecognition() {
 rec.onend = function() {
     stopWatchdog();
     if (R.active && R.micContinue) {
-      if (R.restartTimeout) return;
-      R.restartTimeout = setTimeout(function() {
-        R.restartTimeout = null;
-        if (R.active && R.micContinue) {
-          try {
-            restartRecognition();
-          } catch(err) {}
-        }
-      }, 400);
+      var silentFor = Date.now() - R.lastSpeechTime;
+      if (R.restartCount < 3 && silentFor < READ_SILENCE_LIMIT) {
+        if (R.restartTimeout) return;
+        R.restartCount++;
+        var delay = 800 * Math.pow(2, R.restartCount - 1);
+        R.restartTimeout = setTimeout(function() {
+          R.restartTimeout = null;
+          if (R.active && R.micContinue && R.isListening) {
+            try {
+              restartRecognition();
+            } catch(err) {}
+          }
+        }, delay);
+        return;
+      }
+      autoPauseMic();
       return;
     }
-    R.isListening = false;
-    if (R.mode !== 'technique') msStopReadingTimer();
-    document.getElementById('readMicStatus').className = 'read-mic-status';
-    var startBtn = document.getElementById('readStartBtn');
-    if (startBtn) {
-      startBtn.textContent = '▶ Старт';
-      startBtn.className = 'read-ctrl-btn play-btn';
-    }
-    updateWordHighlights();
+    autoPauseMic();
   };
 
   rec.onerror = function(e) {
@@ -4630,17 +4660,23 @@ rec.onend = function() {
       }
       return;
     }
-    if (e.error === 'no-speech' || e.error === 'network' || e.error === 'aborted') {
+if (e.error === 'no-speech' || e.error === 'network' || e.error === 'aborted') {
       if (R.active && R.isListening) {
-        if (R.restartTimeout) return;
-R.restartTimeout = setTimeout(function() {
-          R.restartTimeout = null;
-          if (R.active && R.isListening) {
-            try {
-              restartRecognition();
-            } catch(err) {}
-          }
-        }, 500);
+        var silentFor = Date.now() - R.lastSpeechTime;
+        if (R.restartCount < 3 && silentFor < READ_SILENCE_LIMIT) {
+          if (R.restartTimeout) return;
+          R.restartCount++;
+          R.restartTimeout = setTimeout(function() {
+            R.restartTimeout = null;
+            if (R.active && R.isListening) {
+              try {
+                restartRecognition();
+              } catch(err) {}
+            }
+          }, 500);
+          return;
+        }
+        autoPauseMic();
       }
     }
   };
@@ -4674,6 +4710,7 @@ function startMicOnly() {
 R.micContinue = true;
   R.recognition = createRecognition();
   R.lastResultIdx = 0;
+  R.restartCount = 0;
   
   try {
     R.recognition.start();
@@ -4723,6 +4760,7 @@ function handleSpeechInput(text) {
   
   if (advance > 0) {
     R.currentWordIdx += advance;
+    R.restartCount = 0;
     if (R.mode === 'technique') R.wordsReadCount = R.currentWordIdx;
     updateWordHighlights();
     
@@ -4830,6 +4868,7 @@ function finishReadingStory() {
 }
 
 function finishReadingDone() {
+  R.lastMode = R.mode;
   R.mode = '';
   if (R.ebookTimerInterval) { clearInterval(R.ebookTimerInterval); R.ebookTimerInterval = null; }
   finishReadingStory();
@@ -4900,6 +4939,9 @@ function showReadResult(storyName) {
   var box = document.getElementById('readResultBox');
   box.innerHTML = '';
   
+  var modeForStats = R.mode || R.lastMode;
+  var showSpeedStats = (modeForStats === 'ebook' || modeForStats === 'karaoke');
+  
   var pct = total > 0 ? Math.round(correct / total * 100) : 0;
   var grade = pct >= 80 ? '\u{1F31F} Отлично!' : pct >= 50 ? '\u{1F44D} Хорошо!' : '\u{1F4AA} Нужно практиковаться';
   var gradeEl = document.createElement('div');
@@ -4907,13 +4949,35 @@ function showReadResult(storyName) {
   gradeEl.textContent = grade;
   box.appendChild(gradeEl);
   
+  if (showSpeedStats) {
+    var wordsForWpm = R.words.length > 0 ? R.words.length : (R.wordsReadCount || 0);
+    var readMinutes = R.elapsedSeconds > 0 ? R.elapsedSeconds / 60 : 1;
+    var wpm = wordsForWpm > 0 ? Math.round(wordsForWpm / readMinutes) : 0;
+    var speedEl = document.createElement('div');
+    speedEl.className = 'read-result-speed';
+    speedEl.textContent = '\u{1F680} Ваш результат: ' + wpm + ' слов в минуту!';
+    box.appendChild(speedEl);
+  }
+  
   var details = document.createElement('div');
   details.className = 'read-result-text';
   var lines = [];
   lines.push('\u{1F4D6} Сказка: ' + storyName);
-  lines.push('\u{1F3A4} Время чтения: ' + formatReadTime(R.elapsedSeconds));
+  var story = READ_STORIES[R.storyId];
+  if (showSpeedStats && story) {
+    lines.push('\u{1F4DD} Знаков в тексте: ' + story.text.length);
+  }
+  if (showSpeedStats) {
+    var secs = R.elapsedSeconds;
+    lines.push('\u23F1 Время чтения: ' + secs + ' сек');
+  } else {
+    lines.push('\u{1F3A4} Время чтения: ' + formatReadTime(R.elapsedSeconds));
+  }
   lines.push('\u2B50 Звёзды: ' + R.stars);
-  if (total > 0) lines.push('\u{1F4DD} Викторина: ' + correct + '/' + total + ' (' + pct + '%)');
+  if (total > 0) {
+    if (showSpeedStats) lines.push('\u{1F9E0} Процент понятого текста: ' + pct + '%');
+    lines.push('\u{1F4DD} Викторина: ' + correct + '/' + total + ' (' + pct + '%)');
+  }
   if (R.mode === 'technique' && R.quarter) {
     var wordsForWpm = R.wordsReadCount > 0 ? R.wordsReadCount : R.words.length;
     var wpm = Math.round(wordsForWpm / Math.max(1, R.elapsedSeconds / 60));
