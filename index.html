@@ -1294,7 +1294,9 @@ isListening: false,
 restartTimeout: null,
   watchdog: null,
   lastMode: '',
-  micContinue: false
+  micContinue: false,
+  atoms: [],
+  atomIdx: 0
 };
 
 // ===== STATE =====
@@ -4351,15 +4353,33 @@ R.storyId = storyKey;
   document.getElementById('readStarsCount').textContent = '0';
   document.getElementById('readTimer').textContent = '\u23F1 00:00';
   
-  var rawWords = story.text.split(/\s+/);
+var rawWords = story.text.split(/\s+/);
   R.words = [];
+  R.atoms = [];
   for (var i = 0; i < rawWords.length; i++) {
     var w = rawWords[i];
     if (w.trim() === '') continue;
-    R.words.push({text: w, parsed: parseWord(w), index: R.words.length});
+    var parsed = parseWord(w);
+    if (parsed.length === 0) continue;
+    var pieces = w.toLowerCase()
+      .replace(/[Ёё]/g, 'е')
+      .split(/[^а-яё0-9]+/);
+    var wordObj = {
+      text: w,
+      parsed: parsed,
+      index: R.words.length,
+      atomStart: R.atoms.length,
+      light: LIGHT_WORD.test(parsed)
+    };
+    wordObj.atoms = [];
+    for (var pi = 0; pi < pieces.length; pi++) {
+      if (pieces[pi].length === 0) continue;
+      R.atoms.push({ text: pieces[pi], word: wordObj.index });
+      wordObj.atoms.push(R.atoms.length - 1);
+    }
+    R.words.push(wordObj);
   }
-  R.words = R.words.filter(function(w) { return w.parsed.length > 0; });
-  for (var i = 0; i < R.words.length; i++) R.words[i].index = i;
+  R.atomIdx = 0;
   
   if (R.mode === 'technique') {
     show('screen-read-quarter');
@@ -4543,6 +4563,8 @@ function toggleReadingMic() {
 }
 
 var READ_SILENCE_LIMIT = 30000;
+var SPOKEN_FILLER = /^(и|в|а|у|с|о|я|то|же|бы|уж|б|ж|к|ну|вот|так|ух|ох|ай|ой|эх|да|э|мм|м|гм)$/;
+var LIGHT_WORD = /^(и|в|а|у|с|о|я|то|же|бы|уж|б|ж|к|да|ну|вот|так|ух|ох|ай|ой|эх)$/;
 
 function startWatchdog() {
   stopWatchdog();
@@ -4553,7 +4575,7 @@ function startWatchdog() {
 }
 
 function watchdogTick() {
-  if (Date.now() - R.lastResultTime > 12000) {
+  if (Date.now() - R.lastResultTime > 30000) {
     console.log("Watchdog: silence too long, pausing mic");
     autoPauseMic();
   }
@@ -4593,8 +4615,14 @@ function autoPauseMic() {
 
 function restartRecognition() {
   R.lastResultIdx = 0;
-  R.recognition = createRecognition();
-  try { R.recognition.start(); } catch(e) {}
+  try {
+    R.recognition.start();
+  } catch(e) {
+    try {
+      R.recognition = createRecognition();
+      R.recognition.start();
+    } catch(err) {}
+  }
 }
 
 function createRecognition() {
@@ -4604,8 +4632,9 @@ function createRecognition() {
   rec.continuous = true;
   rec.interimResults = true;
 
-  rec.onstart = function() {
+rec.onstart = function() {
     R.isListening = true;
+    R.lastResultIdx = 0;
     R.lastResultTime = Date.now();
     document.getElementById('readMicStatus').className = 'read-mic-status active';
     var startBtn = document.getElementById('readStartBtn');
@@ -4621,10 +4650,15 @@ rec.onend = function() {
     stopWatchdog();
     if (R.active && R.micContinue) {
       var silentFor = Date.now() - R.lastSpeechTime;
-      if (R.restartCount < 3 && silentFor < READ_SILENCE_LIMIT) {
+      if (silentFor < READ_SILENCE_LIMIT) {
         if (R.restartTimeout) return;
         R.restartCount++;
-        var delay = 800 * Math.pow(2, R.restartCount - 1);
+        if (R.restartCount > 6) {
+          R.restartCount = 0;
+          autoPauseMic();
+          return;
+        }
+        var delay = R.restartCount <= 2 ? 120 : 400;
         R.restartTimeout = setTimeout(function() {
           R.restartTimeout = null;
           if (R.active && R.micContinue && R.isListening) {
@@ -4673,7 +4707,7 @@ if (e.error === 'no-speech' || e.error === 'network' || e.error === 'aborted') {
                 restartRecognition();
               } catch(err) {}
             }
-          }, 500);
+}, 300);
           return;
         }
         autoPauseMic();
@@ -4682,19 +4716,15 @@ if (e.error === 'no-speech' || e.error === 'network' || e.error === 'aborted') {
   };
 
 rec.onresult = function(event) {
-    // Двигаем курсор ТОЛЬКО по финальным (isFinal) транскриптам и только при достаточной уверенности.
-    var finalText = "";
+    // Живой прогресс: обрабатываем и финальные, и промежуточные (interim) транскрипты.
+    // Матчер идемпотентен — повтор промежуточного текста не даёт двойного хода.
     for (var i = R.lastResultIdx; i < event.results.length; ++i) {
       var item = event.results[i];
-      if (!item.isFinal) continue;
-      R.lastResultIdx = i + 1;
-      var conf = (item[0] && typeof item[0].confidence === 'number') ? item[0].confidence : 0.5;
-      if (conf >= 0.4) finalText += (item[0].transcript + ' ');
-    }
-    if (finalText.trim()) {
       R.lastResultTime = Date.now();
       R.lastSpeechTime = Date.now();
-      handleSpeechInput(finalText);
+      if (item.isFinal) R.lastResultIdx = i + 1;
+      var txt = (item[0] && item[0].transcript) ? item[0].transcript : '';
+      if (txt.trim()) handleSpeechInput(txt);
     }
   };
 
@@ -4741,31 +4771,102 @@ function stopMicOnly() {
   updateWordHighlights();
 }
 
+function levDist(a, b) {
+  var la = a.length, lb = b.length;
+  if (la === 0) return lb;
+  if (lb === 0) return la;
+  if (Math.abs(la - lb) > 1) return Math.abs(la - lb);
+  var prev = [], cur = [];
+  for (var j = 0; j <= lb; j++) prev[j] = j;
+  for (var i = 1; i <= la; i++) {
+    cur[0] = i;
+    for (var j = 1; j <= lb; j++) {
+      var cost = a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1;
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost);
+    }
+    for (var j = 0; j <= lb; j++) prev[j] = cur[j];
+  }
+  return prev[lb];
+}
+
+function skipLightWords() {
+  while (R.atomIdx < R.atoms.length) {
+    var wd = R.words[R.atoms[R.atomIdx].word];
+    if (!wd.light) break;
+    R.atomIdx = wd.atomStart + wd.atoms.length;
+  }
+}
+
 function handleSpeechInput(text) {
-  // Разобьем распознанный текст на отдельные слова и очистим их
-  var spokenWords = text.split(/\s+/).map(parseWord).filter(function(w) { return w.length >= 2; });
-  if (spokenWords.length === 0) return;
-  
-  // Последовательное выравнивание: считаем непрерывный отрезок, совпадающий
-  // СТРОГО по порядку с словами сказки, начиная с текущего маркера.
-  var maxWords = R.words.length;
-  var advance = 0;
-  while (advance < spokenWords.length && R.currentWordIdx + advance < maxWords) {
-    if (R.words[R.currentWordIdx + advance].parsed === spokenWords[advance]) {
-      advance++;
-    } else {
+  var spoken = text.split(/\s+/).map(parseWord).filter(function(w) { return w.length >= 2; });
+  if (spoken.length === 0) return;
+
+  skipLightWords();
+  var tk = 0;
+  while (tk < spoken.length && R.atomIdx < R.atoms.length) {
+    skipLightWords();
+    if (R.atomIdx >= R.atoms.length) break;
+
+    var tok = spoken[tk];
+    var wi = R.atoms[R.atomIdx].word;
+    var wobj = R.words[wi];
+    var inWord = R.atomIdx - wobj.atomStart;
+    var matchedHere = false;
+
+    // A) целое слово одним токеном (важно для «Жили-были», «трё-ё-х», «ко-ко-ко»)
+    if (inWord === 0 && wobj.atoms.length > 1) {
+      if (tok === wobj.parsed || levDist(tok, wobj.parsed) <= 1) {
+        R.atomIdx += wobj.atoms.length;
+        tk++;
+        matchedHere = true;
+      }
+    }
+
+    // B) склейка соседних токенов под один атом («по меньше» -> «поменьше»)
+    if (!matchedHere) {
+      var atomText = R.atoms[R.atomIdx].text;
+      var joined = '';
+      for (var k = tk; k < spoken.length; k++) {
+        var jt = spoken[k];
+        if (SPOKEN_FILLER.test(jt) && !SPOKEN_FILLER.test(atomText)) continue;
+        joined += jt;
+        if (joined === atomText || levDist(joined, atomText) <= 1) {
+          tk = k + 1;
+          R.atomIdx++;
+          matchedHere = true;
+          break;
+        }
+        if (joined.length > atomText.length + 1) break;
+        // Префикс последнего токена на последнем атоме слова (обрезанный финал):
+        // ASR прислал кусок слова, ребёнок его договорил.
+        if (inWord === wobj.atoms.length - 1 && k === spoken.length - 1 && atomText.indexOf(joined) === 0) {
+          tk = k + 1;
+          R.atomIdx++;
+          matchedHere = true;
+          break;
+        }
+      }
+    }
+
+    if (!matchedHere) {
+      // Токен не совпал ни с одним атомом: если это слово-заполнитель («и», «ну», «вот»),
+      // пропускаем его без наказания; иначе батч останавливается (не потеряв уже принятое).
+      if (SPOKEN_FILLER.test(tok)) { tk++; continue; }
       break;
     }
   }
-  
-  if (advance > 0) {
-    R.currentWordIdx += advance;
+
+  skipLightWords();
+
+  var d = R.currentWordIdx;
+  while (d < R.words.length && R.atomIdx >= R.words[d].atomStart + R.words[d].atoms.length) d++;
+
+  if (d > R.currentWordIdx) {
+    R.currentWordIdx = d;
     R.restartCount = 0;
     if (R.mode === 'technique') R.wordsReadCount = R.currentWordIdx;
     updateWordHighlights();
-    
-    // Если дошли до конца сказки
-    if (R.currentWordIdx >= maxWords) {
+    if (R.currentWordIdx >= R.words.length) {
       finishReadingStory();
     }
   }
