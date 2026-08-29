@@ -510,7 +510,7 @@ body{padding:0}
   <!-- HOME -->
   <div id="screen-home" class="screen active">
     <div class="logo">2x2</div>
-    <span class="ver">v1.22.0</span>
+    <span class="ver">v1.23.0</span>
     <div class="subtitle">тяжело в учении, легко в бою</div>
     <button class="stat-badge" onclick="showStats()">&#x1F4CA; Статистика</button>
     <div class="stat-badge" id="streakBadge" style="display:none"></div>
@@ -811,7 +811,7 @@ body{padding:0}
         <button class="game-back" onclick="stopReadingAndGoBack()">&#x2715;</button>
         <div id="readTimer" class="read-timer">⏱ 00:00</div>
       </div>
-      <div class="read-row2">
+      <div class="read-row2" id="readRow2">
         <div id="readMicStatus" class="read-mic-status">🎙️</div>
         <div class="read-heard" id="readHeard"></div>
       </div>
@@ -4342,6 +4342,9 @@ function playReading() {
 }
 
 function stopReadingAndGoBack() {
+  if (R.active || isQuizInProgress()) {
+    if (!window.confirm('\u041F\u0440\u0435\u0440\u0432\u0430\u0442\u044C \u0447\u0442\u0435\u043D\u0438\u0435? \u041F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u044D\u0442\u043E\u0439 \u0441\u043A\u0430\u0437\u043A\u0438 \u043D\u0435 \u0441\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u0441\u044F.')) return;
+  }
   stopReading();
   if (R.mode === 'technique' && document.getElementById('screen-read-quarter').classList.contains('active')) {
     show('screen-read-mode');
@@ -4352,8 +4355,13 @@ function stopReadingAndGoBack() {
   }
 }
 function stopReadingAndGoBack2() {
+  if (R.active && !window.confirm('\u041F\u0440\u0435\u0440\u0432\u0430\u0442\u044C \u0447\u0442\u0435\u043D\u0438\u0435? \u041F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u044D\u0442\u043E\u0439 \u0441\u043A\u0430\u0437\u043A\u0438 \u043D\u0435 \u0441\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u0441\u044F.')) return;
   stopReading();
   show('screen-read-select');
+}
+function isQuizInProgress() {
+  var el = document.getElementById('screen-read-quiz');
+  return !!(el && el.classList.contains('active') && quizState && quizState.questions && quizState.questions.length > 0);
 }
 
 function stopReading() {
@@ -4418,6 +4426,7 @@ R.storyId = storyKey;
   R.quizCorrect = 0;
   R.currentWordIdx = 0;
   R.lastSpeechTime = 0;
+  R.lastProgressTime = Date.now();
   R.lastResultIdx = 0;
   R.restartCount = 0;
   R.lastMode = '';
@@ -4465,6 +4474,7 @@ var rawWords = story.text.split(/\s+/);
     document.getElementById('readSkipBtn').style.display = 'none';
     document.getElementById('readDoneBtn').style.display = 'block';
     document.getElementById('readMicStatus').style.display = 'none';
+    hideReadHeardRow();
     document.getElementById('readTimer').style.display = '';
     document.getElementById('readTimer').textContent = '\u23F1 00:00';
     R.ebookTimerInterval = setInterval(function() {
@@ -4484,6 +4494,7 @@ var rawWords = story.text.split(/\s+/);
     document.getElementById('readSkipBtn').style.display = 'none';
     document.getElementById('readDoneBtn').style.display = 'none';
     document.getElementById('readMicStatus').style.display = 'none';
+    hideReadHeardRow();
     document.getElementById('readTimer').style.display = '';
     document.getElementById('readTimer').textContent = '\u{1F50A} \u0427\u0438\u0442\u0430\u0435\u043C...';
     var u = speechSynthesis;
@@ -4503,6 +4514,7 @@ var rawWords = story.text.split(/\s+/);
   document.getElementById('readSkipBtn').style.display = '';
   document.getElementById('readDoneBtn').style.display = 'none';
   document.getElementById('readMicStatus').style.display = '';
+  showReadHeardRow();
   document.getElementById('readTimer').style.display = '';
   renderReadingText();
   show('screen-read-game');
@@ -4525,6 +4537,7 @@ function selectQuarter(q) {
   document.getElementById('readSkipBtn').style.display = '';
   document.getElementById('readDoneBtn').style.display = 'none';
   document.getElementById('readMicStatus').style.display = '';
+  showReadHeardRow();
   document.getElementById('readTimer').style.display = '';
   document.getElementById('readTimer').textContent = '\u23F1 1:00';
 }
@@ -4631,6 +4644,9 @@ function toggleReadingMic() {
 }
 
 var READ_SILENCE_LIMIT = 30000;
+// Гипотеза «зависла»: результаты идут, но курсор не двигается дольше лимита —
+// перезапускаем сессию, чтобы сбросить эхо уже принятых/повторяющихся слов.
+var READ_STUCK_LIMIT = 12000;
 var SPOKEN_FILLER = /^(и|в|а|у|с|о|я|то|же|бы|уж|б|ж|к|ну|вот|так|ух|ох|ай|ой|эх|да|э|мм|м|гм)$/;
 var LIGHT_WORD = /^(и|в|а|у|с|о|я|то|же|бы|уж|б|ж|к|да|ну|вот|так|ух|ох|ай|ой|эх)$/;
 
@@ -4694,6 +4710,20 @@ function restartRecognition() {
   }
 }
 
+// Распознавание «зависло» на гипотезе (текст в глазике есть, курсор стоит):
+// сбрасываем эхо через короткий перезапуск сессии.
+function dropStuckHypothesis() {
+  R.lastProgressTime = Date.now();
+  if (R.restartTimeout) { clearTimeout(R.restartTimeout); R.restartTimeout = null; }
+  try { if (R.recognition) R.recognition.abort(); } catch(e) {}
+  R.restartTimeout = setTimeout(function() {
+    R.restartTimeout = null;
+    if (R.active && R.micContinue && R.isListening) {
+      try { restartRecognition(); } catch(err) {}
+    }
+  }, 250);
+}
+
 // Отложенный перезапуск сессии распознавания. Если за время сессии не было
 // НИ ОДНОГО результата — это «глухая» сессия: не долбим уведомлением про
 // микрофон, а после нескольких таких сессий ставим паузу с подсказкой.
@@ -4738,6 +4768,18 @@ function setReadHeard(text) {
   el.textContent = '\uD83D\uDC41\u200D ' + t;
 }
 
+function hideReadHeardRow() {
+  var row = document.getElementById('readRow2');
+  if (row) row.style.display = 'none';
+  setReadHeard('');
+}
+
+function showReadHeardRow() {
+  var row = document.getElementById('readRow2');
+  if (row) row.style.display = '';
+  setReadHeard('');
+}
+
 function createRecognition() {
   var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   var rec = new SpeechRecognition();
@@ -4750,6 +4792,7 @@ rec.onstart = function() {
     R.receivedAny = false;
     R.lastResultIdx = 0;
     R.lastResultTime = Date.now();
+    R.lastProgressTime = Date.now();
     document.getElementById('readMicStatus').className = 'read-mic-status active';
     var startBtn = document.getElementById('readStartBtn');
     startBtn.textContent = '⏸ Пауза';
@@ -4835,6 +4878,11 @@ rec.onresult = function(event) {
       }
     }
     setReadHeard(lastText);
+    // Гипотеза «зависла»: результаты текут, а курсор стоит дольше лимита.
+    if (R.active && R.isListening && R.receivedAny && R.lastProgressTime &&
+        Date.now() - R.lastProgressTime > READ_STUCK_LIMIT) {
+      dropStuckHypothesis();
+    }
   };
 
   return rec;
@@ -4917,26 +4965,63 @@ function handleSpeechInput(text) {
   if (R.atomIdx >= R.atoms.length) return;
 
   // Chrome/Android возвращает растущую «гипотезу» целиком с начала фразы —
-  // принятые ранее слова снова висят в начале. Поэтому ищем текущее слово
-  // в любом месте слышимого текста и стартуем от первого вхождения.
-  var from = findStartTokenIndex(spoken);
-  if (from < 0) return;
+  // принятые ранее слова снова висят в начале. В текстах с повторами
+  // («Катится колобок…», куплеты песни, «— Колобок, колобок!») первое
+  // вхождение может оказаться уже прочитанным экземпляром. Поэтому ищем
+  // якорь, дающий МАКСИМАЛЬНЫЙ прогресс матчинга (равный — самый ранний).
+  var best = bestAnchor(spoken);
+  if (!best) return;
+  R.atomIdx = best.end;
+  skipLightWords();
 
+  var d = R.currentWordIdx;
+  while (d < R.words.length && R.atomIdx >= R.words[d].atomStart + R.words[d].atoms.length) d++;
+
+  if (d > R.currentWordIdx) {
+    R.currentWordIdx = d;
+    R.lastProgressTime = Date.now();
+    R.restartCount = 0;
+    if (R.mode === 'technique') R.wordsReadCount = R.currentWordIdx;
+    updateWordHighlights();
+    if (R.currentWordIdx >= R.words.length) {
+      finishReadingStory();
+    }
+  }
+}
+
+// Пробный прогон матчера из стартовой позиции (from) без изменения состояния.
+// Возвращает { consumed, end } — число совпавших токенов-атомов и итоговый атом;
+// лёгкие слова (бесплатное продвижение) в consumed не считаются.
+function matchBatch(spoken, from, startAtomIdx) {
+  var ai = startAtomIdx;
   var tk = from;
-  while (tk < spoken.length && R.atomIdx < R.atoms.length) {
-    skipLightWords();
-    if (R.atomIdx >= R.atoms.length) break;
+  var consumed = 0;
+
+  function skipLight() {
+    while (ai < R.atoms.length) {
+      var wd = R.words[R.atoms[ai].word];
+      if (!wd.light) break;
+      ai = wd.atomStart + wd.atoms.length;
+    }
+  }
+
+  skipLight();
+  if (ai >= R.atoms.length) return { consumed: consumed, end: ai };
+
+  while (tk < spoken.length && ai < R.atoms.length) {
+    skipLight();
+    if (ai >= R.atoms.length) break;
 
     var tok = spoken[tk];
-    var wi = R.atoms[R.atomIdx].word;
+    var wi = R.atoms[ai].word;
     var wobj = R.words[wi];
-    var inWord = R.atomIdx - wobj.atomStart;
+    var inWord = ai - wobj.atomStart;
     var matchedHere = false;
 
     // A) целое слово одним токеном (важно для «Жили-были», «трё-ё-х», «ко-ко-ко»)
     if (inWord === 0 && wobj.atoms.length > 1) {
       if (tok === wobj.parsed || levDist(tok, wobj.parsed) <= 1) {
-        R.atomIdx += wobj.atoms.length;
+        ai += wobj.atoms.length;
         tk++;
         matchedHere = true;
       }
@@ -4944,7 +5029,7 @@ function handleSpeechInput(text) {
 
     // B) склейка соседних токенов под один атом («по меньше» -> «поменьше»)
     if (!matchedHere) {
-      var atomText = R.atoms[R.atomIdx].text;
+      var atomText = R.atoms[ai].text;
       var joined = '';
       for (var k = tk; k < spoken.length; k++) {
         var jt = spoken[k];
@@ -4952,7 +5037,7 @@ function handleSpeechInput(text) {
         joined += jt;
         if (joined === atomText || levDist(joined, atomText) <= 1) {
           tk = k + 1;
-          R.atomIdx++;
+          ai++;
           matchedHere = true;
           break;
         }
@@ -4961,7 +5046,7 @@ function handleSpeechInput(text) {
         // ASR прислал кусок слова, ребёнок его договорил.
         if (inWord === wobj.atoms.length - 1 && k === spoken.length - 1 && atomText.indexOf(joined) === 0) {
           tk = k + 1;
-          R.atomIdx++;
+          ai++;
           matchedHere = true;
           break;
         }
@@ -4970,7 +5055,7 @@ function handleSpeechInput(text) {
       // потребляем атом полностью, если следующий токен не продолжает слово.
       if (!matchedHere && tk === from && inWord === wobj.atoms.length - 1 &&
           tok.length >= 2 && atomText.indexOf(tok) === 0) {
-        R.atomIdx++;
+        ai++;
         tk++;
         matchedHere = true;
       }
@@ -4982,46 +5067,24 @@ function handleSpeechInput(text) {
       if (SPOKEN_FILLER.test(tok)) { tk++; continue; }
       break;
     }
+    consumed++;
   }
 
-  skipLightWords();
-
-  var d = R.currentWordIdx;
-  while (d < R.words.length && R.atomIdx >= R.words[d].atomStart + R.words[d].atoms.length) d++;
-
-  if (d > R.currentWordIdx) {
-    R.currentWordIdx = d;
-    R.restartCount = 0;
-    if (R.mode === 'technique') R.wordsReadCount = R.currentWordIdx;
-    updateWordHighlights();
-    if (R.currentWordIdx >= R.words.length) {
-      finishReadingStory();
-    }
-  }
+  skipLight();
+  return { consumed: consumed, end: ai };
 }
 
-// Ищем первый токен (или склейку токенов), который соответствует атому текущего
-// слова — с этого места матчер продолжает «цеплять» уже принятые слова гипотезы.
-function findStartTokenIndex(spoken) {
-  skipLightWords();
-  if (R.atomIdx >= R.atoms.length) return -1;
-  var atomText = R.atoms[R.atomIdx].text;
-  var wi = R.atoms[R.atomIdx].word;
-  var wobj = R.words[wi];
-  var inWord0 = R.atomIdx === wobj.atomStart;
+// Выбирает якорь (стартовый токен гипотезы) с максимальным прогрессом матчинга.
+// Равный прогресс → самый ранний токен. Нет продвижения ни из одной позиции → null.
+function bestAnchor(spoken) {
+  var best = null;
   for (var j = 0; j < spoken.length; j++) {
-    var s = spoken[j];
-    if (inWord0 && wobj.atoms.length > 1 && (s === wobj.parsed || levDist(s, wobj.parsed) <= 1)) return j;
-    if (s === atomText || levDist(s, atomText) <= 1) return j;
-    if (atomText.indexOf(s) === 0 && s.length >= 2) return j;
-    var joined = s;
-    for (var k = j + 1; k < spoken.length; k++) {
-      joined += spoken[k];
-      if (joined === atomText || levDist(joined, atomText) <= 1) return j;
-      if (joined.length > atomText.length + 1) break;
+    var r = matchBatch(spoken, j, R.atomIdx);
+    if (r.consumed > 0 && (!best || r.consumed > best.consumed)) {
+      best = { consumed: r.consumed, end: r.end };
     }
   }
-  return -1;
+  return best;
 }
 
 function msStartReadingTimer() {
@@ -5133,7 +5196,12 @@ function registerStoryRead() {
 var quizState = { questions: [], idx: 0, correct: 0 };
 
 function showReadQuiz() {
-  quizState = { questions: READ_QUIZZES[R.storyId] || [], idx: 0, correct: 0 };
+  var base = READ_QUIZZES[R.storyId] || [];
+  var questions = base.map(function(q) {
+    var order = shuffle(q.a.slice());
+    return { q: q.q, a: order, c: order.indexOf(q.a[q.c]) };
+  });
+  quizState = { questions: shuffle(questions), idx: 0, correct: 0 };
   renderQuizQuestion();
   show('screen-read-quiz');
 }
