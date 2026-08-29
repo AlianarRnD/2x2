@@ -138,6 +138,8 @@ body{padding:0}
 
 /* GAME CANCEL BUTTON */
 .game-back{position:absolute;top:6px;left:6px;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:#8888bb;font-size:18px;cursor:pointer;transition:.1s;display:flex;align-items:center;justify-content:center;z-index:10;font-family:inherit}
+.rand-dice{position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:#ffd700;font-size:16px;cursor:pointer;transition:.1s;display:flex;align-items:center;justify-content:center;z-index:10;font-family:inherit}
+.rand-dice:active{transform:scale(0.9);background:rgba(255,255,255,0.1)}
 .game-back:active{transform:scale(0.9);background:rgba(255,255,255,0.1)}
 
 /* NAV BUTTON */
@@ -269,6 +271,7 @@ body{padding:0}
   .nav-btn{width:28px;height:28px;font-size:16px}
   .info-btn{width:28px;height:28px;font-size:14px}
   .game-back{width:28px;height:28px;font-size:16px;top:4px;left:4px}
+  .rand-dice{width:28px;height:28px;font-size:14px;top:8px;right:8px}
   .next-btn{padding:10px 24px;font-size:14px}
   .info-popup{top:36px;min-width:170px;padding:10px 12px}
   .info-popup .ip-row{font-size:12px}
@@ -301,8 +304,10 @@ body{padding:0}
 
 /* READ SCREEN & CARAOKE CSS */
 .read-screen{height:100%;width:100%;max-width:360px}
-.read-header{display:flex;justify-content:space-between;align-items:center;width:100%;padding:4px 0;position:relative;margin-bottom:4px}
-.read-timer{color:#ffd700;font-size:14px;font-weight:700;margin-left:48px;white-space:nowrap}
+.read-header{width:100%;margin-bottom:4px}
+.read-row1{position:relative;display:flex;justify-content:flex-end;align-items:center;width:100%;min-height:36px}
+.read-row2{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:2px}
+.read-timer{color:#ffd700;font-size:14px;font-weight:700;white-space:nowrap}
 .read-mic-status{font-size:18px;transition:transform 0.2s,filter 0.2s;opacity:0.4;filter:grayscale(1)}
 .read-mic-status.active{opacity:1;filter:grayscale(0);animation:pulse 1.2s infinite}
 .read-heard{font-size:12px;color:rgba(255,255,255,0.45);min-height:16px;text-align:center;padding:0 8px;margin-bottom:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
@@ -365,7 +370,7 @@ body{padding:0}
 .story-shade{position:absolute;inset:0;z-index:1;background:linear-gradient(to top,rgba(0,0,0,0.82),rgba(0,0,0,0.12) 55%,rgba(0,0,0,0.25));pointer-events:none}
 .story-logo-emoji{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;font-size:40px}
 .story-title{position:absolute;left:0;right:0;bottom:0;z-index:2;font-size:12px;line-height:1.3;text-align:left;padding:14px 8px 10px;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.9);background:linear-gradient(to top,rgba(0,0,0,0.72),rgba(0,0,0,0));display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.story-badge{position:absolute;top:6px;left:6px;font-size:11px;pointer-events:none;z-index:3;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.8))}
+.story-badge{display:inline-block;margin-right:4px;font-size:12px;line-height:1;pointer-events:none;vertical-align:middle;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.8))}
 .story-group{grid-column:1/-1;text-align:center;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#c8c8e8;background:rgba(255,255,255,0.07);padding:7px 8px;border-radius:12px;margin-top:2px}
 .story-info-img{width:92px;height:92px;border-radius:18px;margin:0 auto 10px;display:block;border:2px solid rgba(255,255,255,0.2);box-shadow:0 6px 18px rgba(0,0,0,0.4)}
 .story-info-desc{text-align:justify;margin-bottom:10px}
@@ -505,7 +510,7 @@ body{padding:0}
   <!-- HOME -->
   <div id="screen-home" class="screen active">
     <div class="logo">2x2</div>
-    <span class="ver">v1.21.0</span>
+    <span class="ver">v1.22.0</span>
     <div class="subtitle">тяжело в учении, легко в бою</div>
     <button class="stat-badge" onclick="showStats()">&#x1F4CA; Статистика</button>
     <div class="stat-badge" id="streakBadge" style="display:none"></div>
@@ -794,6 +799,7 @@ body{padding:0}
   <!-- READ SELECT -->
   <div id="screen-read-select" class="screen" style="justify-content:flex-start;padding-top:40px;gap:6px">
     <button class="nav-btn" style="position:absolute;top:10px;left:10px" onclick="goHome()">&#x2715;</button>
+    <button class="rand-dice" onclick="pickStory(&#39;random&#39;)" title="Случайная сказка">&#x1F3B2;</button>
 <h2>&#x1F4D6; Выбери сказку</h2>
     <div class="story-grid" id="storyGrid" style="margin-top:16px;width:100%"></div>
   </div>
@@ -801,11 +807,14 @@ body{padding:0}
   <!-- READ GAME -->
   <div id="screen-read-game" class="screen read-screen" style="justify-content:flex-start;padding:12px 8px;gap:8px">
     <div class="read-header">
-      <button class="game-back" onclick="stopReadingAndGoBack()">&#x2715;</button>
-      <div id="readTimer" class="read-timer">⏱ 00:00</div>
-      <div id="readMicStatus" class="read-mic-status">🎙️</div>
-      <div class="read-heard" id="readHeard"></div>
-      <div class="stars-num" id="readStarsWrap"><span id="readStarsCount">0</span> ⭐</div>
+      <div class="read-row1">
+        <button class="game-back" onclick="stopReadingAndGoBack()">&#x2715;</button>
+        <div id="readTimer" class="read-timer">⏱ 00:00</div>
+      </div>
+      <div class="read-row2">
+        <div id="readMicStatus" class="read-mic-status">🎙️</div>
+        <div class="read-heard" id="readHeard"></div>
+      </div>
     </div>
     <div class="read-title" id="readTitle">Сказка</div>
     <div class="read-text-container" id="readTextContainer">
@@ -1159,77 +1168,137 @@ const READ_QUIZZES = {
   kasha: [
     { q: 'Кто попросил у бабушки поесть?', a: ['Купец', 'Охотник', 'Солдат', 'Поп'], c: 2 },
     { q: 'Что сварил солдат старухе?', a: ['Кашу из топора', 'Щи из капусты', 'Уху из рыбы', 'Кисель'], c: 0 },
-    { q: 'Что солдат добавил вторым?', a: ['Сахар', 'Крупу и масло', 'Сметану', 'Яблоки'], c: 1 }
+    { q: 'Что солдат добавил вторым?', a: ['Сахар', 'Крупу и масло', 'Сметану', 'Яблоки'], c: 1 },
+    { q: 'Куда солдат положил топор?', a: ['В горшок', 'В ведро', 'В кастрюлю', 'В котелок'], c: 0 },
+    { q: 'Что солдат попросил у старухи первым?', a: ['Масло', 'Крупу', 'Хлеб', 'Соль'], c: 1 },
+    { q: 'Что солдат добавил в кашу после крупы?', a: ['Мёд', 'Сметану', 'Масло', 'Сахар'], c: 2 },
+    { q: 'О чём спросила старуха после угощения?', a: ['«Когда же топор будем есть?»', '«Где ты взял крупу?»', '«Почему каша чёрная?»', '«Зачем тебе топор?»'], c: 0 }
   ],
   lisa: [
     { q: 'Чем лиса угостила журавля?', a: ['Пирогом', 'Мёдом', 'Рыбой', 'Манной кашей'], c: 3 },
     { q: 'Во что журавль налил окрошку?', a: ['В миску', 'В кувшин', 'В тарелку', 'В бочку'], c: 1 },
-    { q: 'Почему лиса не могла съесть окрошку?', a: ['Не любила её', 'Журавль съел', 'Голова не лезла в кувшин', 'Окрошка была солёная'], c: 2 }
+    { q: 'Почему лиса не могла съесть окрошку?', a: ['Не любила её', 'Журавль съел', 'Голова не лезла в кувшин', 'Окрошка была солёная'], c: 2 },
+    { q: 'Какую кашу сварила лиса журавлю?', a: ['Рисовую', 'Гречневую', 'Манную', 'Пшённую'], c: 2 },
+    { q: 'Что журавль приготовил для лисы?', a: ['Окрошку', 'Суп', 'Кашу', 'Компот'], c: 0 },
+    { q: 'Откуда лиса не смогла поесть у журавля?', a: ['Из глубокой тарелки', 'Из кувшина с узким горлышком', 'Из котла', 'Из корзинки'], c: 1 },
+    { q: 'Чем закончилась дружба лисы и журавля?', a: ['Они побратались', 'Они стали соседями', 'Дружба расстроилась', 'Журавль простил лису'], c: 2 }
   ],
   strah: [
     { q: 'Что упало зайке на лоб?', a: ['Орех', 'Камень', 'Яблоко', 'Жёлудь'], c: 2 },
     { q: 'Кто кричал, что за ним гнались четыре охотника?', a: ['Бабушка', 'Мышка', 'Курочка', 'Зайка'], c: 3 },
-    { q: 'Где спряталась мышка?', a: ['На печке', 'В огороде', 'Под печкой', 'В погребе'], c: 2 }
+    { q: 'Где спряталась мышка?', a: ['На печке', 'В огороде', 'Под печкой', 'В погребе'], c: 2 },
+    { q: 'Куда спряталась курочка?', a: ['На лавку', 'На печку', 'Под печку', 'В огород'], c: 1 },
+    { q: 'Кто, по словам бабушки, чуть её не задавил?', a: ['Медведище', 'Волк', 'Лиса', 'Котище'], c: 0 },
+    { q: 'Кто, по словам мышки, гнался за ней с усами?', a: ['Лиса', 'Волк', 'Медведище', 'Котище'], c: 3 },
+    { q: 'У кого вёдра были с огурчик?', a: ['У курочки', 'У мышки', 'У внучки', 'У бабушки'], c: 0 }
   ],
   redhood: [
     { q: 'Что несла Красная Шапочка бабушке?', a: ['Пирожки и горшочек масла', 'Мёд и хлеб', 'Молоко и яйца', 'Яблоки'], c: 0 },
     { q: 'Кого девочка встретила в лесу?', a: ['Медведя', 'Волка', 'Лису', 'Дровосеков'], c: 1 },
-    { q: 'Кто спас Красную Шапочку и бабушку?', a: ['Охотники', 'Лесник', 'Дровосеки', 'Соседи'], c: 2 }
+    { q: 'Кто спас Красную Шапочку и бабушку?', a: ['Охотники', 'Лесник', 'Дровосеки', 'Соседи'], c: 2 },
+    { q: 'Что собирала Красная Шапочка по дороге?', a: ['Орехи', 'Грибы', 'Ягоды', 'Букеты'], c: 3 },
+    { q: 'Где жила бабушка Красной Шапочки?', a: ['За рекой в горах', 'За мельницей на опушке леса', 'В большом городе', 'В пещере'], c: 1 },
+    { q: 'Как волк попал в дом к бабушке?', a: ['Дёрнул за верёвочку — дверь открылась', 'Выбил дверь плечом', 'Влез через окно', 'Бабушка сама открыла'], c: 0 },
+    { q: 'Что волк сделал с бабушкой?', a: ['Связал её', 'Спрятал в шкаф', 'Проглотил её', 'Увёл в лес'], c: 2 }
   ],
   fisher: [
     { q: 'Где жили старик со старухой?', a: ['У синего моря', 'В дремучем лесу', 'У высокой горы', 'В большом городе'], c: 0 },
     { q: 'Что поймал старик в третий раз?', a: ['Щуку', 'Золотую рыбку', 'Сома', 'Пусто'], c: 1 },
-    { q: 'Чем закончилась сказка для старухи?', a: ['Стала царицей', 'Получила дворянство', 'Сидит у разбитого корыта', 'Стала владычицей морской'], c: 2 }
+    { q: 'Чем закончилась сказка для старухи?', a: ['Стала царицей', 'Получила дворянство', 'Сидит у разбитого корыта', 'Стала владычицей морской'], c: 2 },
+    { q: 'Что старуха попросила у рыбки первым?', a: ['Новое корыто', 'Новую избу', 'Дворянство', 'Царство'], c: 0 },
+    { q: 'Чем пришёл второй раз невод старика?', a: ['С тиной', 'С травою морскою', 'С рыбкой', 'Пустой'], c: 1 },
+    { q: 'Что обещала рыбка за своё освобождение?', a: ['Золотые монеты', 'Новые сети', 'Выполнить любое желание', 'Драгоценности'], c: 2 },
+    { q: 'Сколько лет жили старик со старухой у моря?', a: ['Десять лет', 'Тридцать лет и три года', 'Пятьдесят лет', 'Сто лет'], c: 1 }
   ],
   balda: [
     { q: 'За сколько щелчков по лбу согласился служить Балда?', a: ['За три щелка', 'За десять щелков', 'За один щелчок', 'Бесплатно'], c: 0 },
     { q: 'У кого Балда стал собирать оброк?', a: ['У крестьян', 'У купцов', 'У бояр', 'У чертей'], c: 3 },
-    { q: 'Как Балда обогнал бесёнка в беге?', a: ['Бежал быстрее всех', 'Выпустил вместо себя зайца', 'Поплыл по морю', 'Сел на коня'], c: 1 }
+    { q: 'Как Балда обогнал бесёнка в беге?', a: ['Бежал быстрее всех', 'Выпустил вместо себя зайца', 'Поплыл по морю', 'Сел на коня'], c: 1 },
+    { q: 'Что Балда попросил есть за свою работу?', a: ['Варёную полбу', 'Мёд и пряники', 'Хлеб и соль', 'Кашу с маслом'], c: 0 },
+    { q: 'Кто подсказал попу, как избавиться от Балды?', a: ['Поповна', 'Попадья', 'Черти', 'Сам Балда'], c: 1 },
+    { q: 'Куда пошёл Балда собирать оброк?', a: ['В лес', 'В город', 'В поле', 'К морю'], c: 3 },
+    { q: 'Кем должен был стать Балда для попа?', a: ['Поваром, конюхом и плотником', 'Охотником', 'Пахарем и сеятелем', 'Стражем'], c: 0 }
   ],
   sivka: [
     { q: 'Кто поймал ночью разношерстного коня?', a: ['Старший брат', 'Иванушка-дурачок', 'Средний брат', 'Отец'], c: 1 },
     { q: 'Как звал Иванушка волшебного коня?', a: ['«Сивка-бурка, вещий каурка!»', '«Вихрь, приди!»', '«Гнедко, стой!»', '«Буран, неси!»'], c: 0 },
-    { q: 'Что Иванушка снял у царевны с пальца?', a: ['Платок', 'Браслет', 'Перстень', 'Ленту'], c: 2 }
+    { q: 'Что Иванушка снял у царевны с пальца?', a: ['Платок', 'Браслет', 'Перстень', 'Ленту'], c: 2 },
+    { q: 'Что делал Иванушка, пока братья работали?', a: ['Ходил в поле', 'Лежал на печи', 'Спал на сеновале', 'Играл с братьями'], c: 1 },
+    { q: 'Кто по ночам топтал пшеницу?', a: ['Дикие гуси', 'Соседский бык', 'Разношерстный конь', 'Волки'], c: 2 },
+    { q: 'Что пообещал конь Иванушке за свободу?', a: ['Сослужить великую службу', 'Подарить золото', 'Стать его конём', 'Покатать на спине'], c: 0 },
+    { q: 'Где проспал ночь старший брат, сторожа пшеницу?', a: ['На печке', 'На сеновале', 'В шалаше', 'Под мостом'], c: 1 }
   ],
   catboots: [
     { q: 'Что досталось младшему сыну мельника?', a: ['Мельница', 'Осёл', 'Дом', 'Кот'], c: 3 },
     { q: 'Какое имя дал Кот своему хозяину?', a: ['Маркиз Карабас', 'Барон Дуб', 'Граф Лес', 'Принц Валентайн'], c: 0 },
-    { q: 'В кого превратился Людоед в конце сказки?', a: ['В льва', 'В слона', 'В дракона', 'В мышь'], c: 3 }
+    { q: 'В кого превратился Людоед в конце сказки?', a: ['В льва', 'В слона', 'В дракона', 'В мышь'], c: 3 },
+    { q: 'Что попросил Кот у хозяина?', a: ['Мешок и пару сапог', 'Лук и стрелы', 'Собаку', 'Монеты'], c: 0 },
+    { q: 'Кого Кот поймал первым в мешок?', a: ['Куропатку', 'Зайца', 'Лису', 'Кролика'], c: 3 },
+    { q: 'Что Кот положил в мешок как приманку?', a: ['Отруби и травку', 'Зерно и морковку', 'Хлеб и сыр', 'Орехи'], c: 0 },
+    { q: 'Кому Кот относил подарки от маркиза Карабаса?', a: ['Мельнику', 'Царевне', 'Королю', 'Соседям'], c: 2 }
   ],
   alenushka: [
     { q: 'Кем стал Иванушка, напившись из копытца?', a: ['Теленочком', 'Жеребенком', 'Козленочком', 'Поросенком'], c: 2 },
     { q: 'Куда бросила ведьма Аленушку?', a: ['В глубокую яму', 'В речку', 'В колодец', 'В погреб'], c: 1 },
-    { q: 'Кто рассказал купцу, что слышал у реки?', a: ['Слуга', 'Козленочек', 'Соседка', 'Ведьма'], c: 0 }
+    { q: 'Кто рассказал купцу, что слышал у реки?', a: ['Слуга', 'Козленочек', 'Соседка', 'Ведьма'], c: 0 },
+    { q: 'Из какого копытца напился Иванушка?', a: ['Из коровьего', 'Из лошадиного', 'Из козьего', 'Из поросячьего'], c: 2 },
+    { q: 'Кто предложил Аленушке выйти замуж?', a: ['Купец', 'Царевич', 'Охотник', 'Козленочек'], c: 0 },
+    { q: 'Куда ведьма позвала Аленушку купаться?', a: ['В баню', 'На реку', 'В озеро', 'В пруд'], c: 1 },
+    { q: 'Что ведьма привязала Аленушке на шею?', a: ['Кувшин', 'Мешочек', 'Пояс', 'Камень'], c: 3 }
   ],
   flower: [
     { q: 'Сколько у цветика было лепестков?', a: ['Пять', 'Шесть', 'Семь', 'Восемь'], c: 2 },
     { q: 'Кто съел у Жени баранки?', a: ['Кошка', 'Птицы', 'Мальчишки', 'Собака'], c: 3 },
-    { q: 'Что Женя загадала последним, голубым лепестком?', a: ['Чтобы Витя выздоровел', 'Чтобы купить игрушки', 'Чтобы вернуть баранки', 'Чтобы попасть на Северный полюс'], c: 0 }
+    { q: 'Что Женя загадала последним, голубым лепестком?', a: ['Чтобы Витя выздоровел', 'Чтобы купить игрушки', 'Чтобы вернуть баранки', 'Чтобы попасть на Северный полюс'], c: 0 },
+    { q: 'Какая баранка была у братика Павлика?', a: ['С тмином', 'С маком', 'С сахаром', 'Маленькая розовая'], c: 3 },
+    { q: 'Кто подарил Жене цветик-семицветик?', a: ['Мама', 'Старушка', 'Волшебница', 'Собака'], c: 1 },
+    { q: 'Что надо сделать с лепестком, чтобы желание сбылось?', a: ['Оторвать его и сказать волшебные слова', 'Потереть его', 'Положить под подушку', 'Съесть его'], c: 0 },
+    { q: 'Куда мама послала Женю за баранками?', a: ['В магазин', 'В школу', 'На рынок за яблоками', 'В гости'], c: 0 }
   ],
   geese: [
     { q: 'Кого унесли гуси-лебеди?', a: ['Братика', 'Сестричку', 'Щенка', 'Котёнка'], c: 0 },
     { q: 'Кто показал девочке, куда улетели гуси?', a: ['Зайчик', 'Ёжик', 'Лиса', 'Волк'], c: 0 },
-    { q: 'Что девочка съела, когда яблонька прятала её?', a: ['Дикое яблочко', 'Ржаной пирожок', 'Кисель с молочком', 'Грибок'], c: 0 }
+    { q: 'Что девочка съела, когда яблонька прятала её?', a: ['Дикое яблочко', 'Ржаной пирожок', 'Кисель с молочком', 'Грибок'], c: 0 },
+    { q: 'Что обещали родители принести дочке с работы?', a: ['Конфеты', 'Новое платье', 'Платочек и сладкую булочку', 'Игрушку'], c: 2 },
+    { q: 'Куда девочка посадила братца играть?', a: ['В сад', 'На травку', 'В люльку', 'На лавочку'], c: 1 },
+    { q: 'Что попросила печка взамен на подсказку?', a: ['Съесть ржаной пирожок', 'Выпить молочка', 'Съесть яблочко', 'Полить её'], c: 0 },
+    { q: 'Куда унесли гуси-лебеди братца?', a: ['За реку, за лес, к высоким горам', 'За море', 'В пещеру', 'В город'], c: 0 }
   ],
   kolobok: [
     { q: 'Кто испёк колобка?', a: ['Дед', 'Внучка', 'Старуха', 'Кот'], c: 2 },
     { q: 'Кого колобок встретил первым?', a: ['Лису', 'Волка', 'Медведя', 'Зайца'], c: 3 },
-    { q: 'Кто съел колобка?', a: ['Волк', 'Лиса', 'Медведь', 'Заяц'], c: 1 }
+    { q: 'Кто съел колобка?', a: ['Волк', 'Лиса', 'Медведь', 'Заяц'], c: 1 },
+    { q: 'На чём замесила старуха колобка?', a: ['На воде', 'На молоке', 'На сметане', 'На мёду'], c: 2 },
+    { q: 'Где остужали колобка?', a: ['На печке', 'На окошке', 'На столе', 'На крыльце'], c: 1 },
+    { q: 'Кого колобок встретил после волка?', a: ['Лису', 'Зайца', 'Медведя', 'Волка'], c: 2 },
+    { q: 'Что отвечал колобок, когда его хотели съесть?', a: ['«Не ешь меня, я тебе песенку спою!»', '«Я вернусь домой!»', '«Отстань, я устал!»', '«Съешь меня, пожалуйста»'], c: 0 }
   ],
   teremok: [
     { q: 'Кто первым нашёл теремок?', a: ['Лягушонок', 'Ёжик', 'Мышонок', 'Зайчонок'], c: 2 },
     { q: 'Кто раздавил теремок?', a: ['Медведь', 'Волк', 'Кабан', 'Лось'], c: 0 },
-    { q: 'Чем закончилась сказка?', a: ['Звери разбежались', 'Построили новый теремок', 'Теремок остался пустым', 'Медведь остался жить на крыше'], c: 1 }
+    { q: 'Чем закончилась сказка?', a: ['Звери разбежались', 'Построили новый теремок', 'Теремок остался пустым', 'Медведь остался жить на крыше'], c: 1 },
+    { q: 'Кто поселился в теремке вторым?', a: ['Ёжик', 'Зайчонок', 'Мышонок', 'Лягушонок'], c: 3 },
+    { q: 'Кто пришёл в теремок после лягушонка?', a: ['Ёжик', 'Медведь', 'Волчонок', 'Зайчонок'], c: 0 },
+    { q: 'Где сел медведь, не поместившись в теремке?', a: ['На лавке', 'На крыше', 'На пеньке', 'На крыльце'], c: 1 },
+    { q: 'Почему теремок развалился?', a: ['Медведь раздавил его с крыши', 'Налетел ураган', 'Теремок был старым', 'Звери толкали стены'], c: 0 }
   ],
   masha: [
     { q: 'Кто нашёл заблудившуюся Машеньку?', a: ['Заяц', 'Медведь', 'Дядюшка', 'Охотник'], c: 1 },
     { q: 'Куда спряталась Машенька, чтобы медведь отнёс её домой?', a: ['В корзинку', 'В погреб', 'На печку', 'В шкаф'], c: 0 },
-    { q: 'Что Машенька кричала медведю из корзинки?', a: ['«Не садись, не кушай!»', '«Помогите!»', '«Я дома!»', '«Беги быстрее!»'], c: 0 }
+    { q: 'Что Машенька кричала медведю из корзинки?', a: ['«Не садись, не кушай!»', '«Помогите!»', '«Я дома!»', '«Беги быстрее!»'], c: 0 },
+    { q: 'С кем Маша играла в прятки?', a: ['С братом', 'С котом', 'С подружками', 'С собакой'], c: 2 },
+    { q: 'Что приказал медведь делать Маше?', a: ['Варить обед и прибирать', 'Пасти коров', 'Прясть пряжу', 'Играть с ним'], c: 0 },
+    { q: 'Что сплела Машенька, чтобы вернуться домой?', a: ['Венок', 'Большую корзину с крышкой', 'Платье', 'Удочку'], c: 1 },
+    { q: 'Что Маша сказала, что понесёт бабушке и дедушке?', a: ['Мёд', 'Грибы', 'Пирог', 'Ягоды'], c: 2 }
   ],
   repka: [
     { q: 'Кто посадил репку?', a: ['Бабка', 'Внучка', 'Дед', 'Мышка'], c: 2 },
     { q: 'Кого дед позвал первым?', a: ['Внучку', 'Бабку', 'Жучку', 'Кошку'], c: 1 },
-    { q: 'Кто помог вытянуть репку последним?', a: ['Кошка', 'Жучка', 'Внучка', 'Мышка'], c: 3 }
+    { q: 'Кто помог вытянуть репку последним?', a: ['Кошка', 'Жучка', 'Внучка', 'Мышка'], c: 3 },
+    { q: 'Кого позвала бабка на помощь?', a: ['Жучку', 'Кошку', 'Внучку', 'Мышку'], c: 2 },
+    { q: 'Кого кликнула внучка?', a: ['Кошку', 'Бабку', 'Мышку', 'Жучку'], c: 3 },
+    { q: 'Кого кликнула Жучка?', a: ['Внучку', 'Кошку', 'Собаку', 'Бабку'], c: 1 },
+    { q: 'Какой выросла репка?', a: ['Большая-пребольшая', 'Маленькая', 'Кислая', 'Некрасивая'], c: 0 }
   ]
 };
 
@@ -1255,7 +1324,7 @@ function renderStoryGrid() {
   var wrap = document.getElementById('storyGrid');
   if (!wrap || wrap.childNodes.length) return;
   var cls = {"kasha": "lvl-eq", "lisa": "lvl-div", "strah": "lvl-eq2", "sivka": "lvl-eq2", "alenushka": "lvl-eq", "kolobok": "lvl-hard", "teremok": "lvl-eq", "masha": "lvl-div", "repka": "lvl-eq2", "geese": "lvl-eq2", "fisher": "lvl-eq", "balda": "lvl-div", "redhood": "lvl-hard", "catboots": "lvl-hard", "flower": "lvl-div"};
-  var g = '<button class="lvl-btn story-tile story-random lvl-read" onclick="pickStory(&#39;random&#39;)"><span class="story-logo story-logo-emoji">\uD83C\uDFB2</span><span class="story-title">Случайная сказка</span></button>';
+  var g = '';
   var groups = [{"name": "Русские народные", "ids": ["kasha", "lisa", "strah", "sivka", "alenushka", "kolobok", "teremok", "masha", "repka", "geese"]}, {"name": "Александр Сергеевич Пушкин", "ids": ["fisher", "balda"]}, {"name": "Шарль Перро", "ids": ["redhood", "catboots"]}, {"name": "Валентин Катаев", "ids": ["flower"]}];
   for (var gi = 0; gi < groups.length; gi++) {
     g += '<div class="story-group">' + groups[gi].name + '</div>';
@@ -1265,8 +1334,7 @@ function renderStoryGrid() {
 g += '<button class="lvl-btn story-tile ' + cls[id] + '" onclick="pickStory(&#39;' + id + '&#39;)">' +
         '<img class="story-logo" src="' + READ_INFO[id].img + '" alt="">' +
         '<span class="story-shade"></span>' +
-        '<span class="story-title">' + st.title + '</span>' +
-        '<span class="story-badge" id="sb_' + id + '"></span>' +
+        '<span class="story-title"><span class="story-badge" id="sb_' + id + '"></span>' + st.title + '</span>' +
         '<span class="story-info-btn" onclick="event.stopPropagation();showStoryInfo(&#39;' + id + '&#39;)">i</span>' +
         '</button>';
     }
@@ -3639,14 +3707,15 @@ function renderRecords() {
     stIds.sort(function(a, b) { return (readCounts[b].date || 0) - (readCounts[a].date || 0); });
     for (var si2 = 0; si2 < stIds.length; si2++) {
       var sid = stIds[si2];
-      var rc = readCounts[sid] || { n: 0, date: 0 };
+      var rc = readCounts[sid] || { n: 0, date: 0, lastTime: 0 };
       var story = READ_STORIES[sid];
       var sname = story ? story.title : '\u0421\u043A\u0430\u0437\u043A\u0430';
+      var ttxt = rc.lastTime ? '\u23F1 ' + formatReadTime(rc.lastTime) : '\u2014';
       var ndate = rc.date ? ' \u00B7 ' + fmtDate(rc.date) + ' ' + fmtClock(rc.date) : '';
       var item = document.createElement('div');
       item.className = 'sr';
       item.innerHTML = '<span class="sr-l">\u0427\u0442\u0435\u043D\u0438\u0435 \u00B7 ' + sname + '</span>' +
-        '<span class="sr-r">\u041F\u0440\u043E\u0447\u0438\u0442\u0430\u043D\u043E: ' + (rc.n || 0) + (rc.n === 1 ? ' \u0440\u0430\u0437' : ' \u0440\u0430\u0437\u0430') + ndate + '</span>';
+        '<span class="sr-r">' + ttxt + ndate + '</span>';
       list.appendChild(item);
     }
     return;
@@ -4354,7 +4423,6 @@ R.storyId = storyKey;
   R.lastMode = '';
   
   document.getElementById('readTitle').textContent = story.title;
-  document.getElementById('readStarsCount').textContent = '0';
   document.getElementById('readTimer').textContent = '\u23F1 00:00';
   
 var rawWords = story.text.split(/\s+/);
@@ -4393,7 +4461,6 @@ var rawWords = story.text.split(/\s+/);
   if (R.mode === 'ebook') {
     show('screen-read-game');
     renderEbookText();
-    document.getElementById('readStarsWrap').style.display = 'none';
     document.getElementById('readStartBtn').style.display = 'none';
     document.getElementById('readSkipBtn').style.display = 'none';
     document.getElementById('readDoneBtn').style.display = 'block';
@@ -4413,7 +4480,6 @@ var rawWords = story.text.split(/\s+/);
   if (R.mode === 'listen') {
     show('screen-read-game');
     renderEbookText();
-    document.getElementById('readStarsWrap').style.display = 'none';
     document.getElementById('readStartBtn').style.display = 'none';
     document.getElementById('readSkipBtn').style.display = 'none';
     document.getElementById('readDoneBtn').style.display = 'none';
@@ -4433,7 +4499,6 @@ var rawWords = story.text.split(/\s+/);
     return;
   }
 
-  document.getElementById('readStarsWrap').style.display = '';
   document.getElementById('readStartBtn').style.display = '';
   document.getElementById('readSkipBtn').style.display = '';
   document.getElementById('readDoneBtn').style.display = 'none';
@@ -4456,7 +4521,6 @@ function selectQuarter(q) {
   R.elapsedSeconds = 0;
   show('screen-read-game');
   renderReadingText();
-  document.getElementById('readStarsWrap').style.display = 'none';
   document.getElementById('readStartBtn').style.display = '';
   document.getElementById('readSkipBtn').style.display = '';
   document.getElementById('readDoneBtn').style.display = 'none';
@@ -5011,14 +5075,6 @@ function finishReadingStory() {
   var timeStars = Math.floor(elapsed / 60);
   var finishBonus = 5;
   R.stars = timeStars + finishBonus;
-  document.getElementById('readStarsCount').textContent = R.stars;
-  
-  var readCounts = lsGet('xx_read_counts', {});
-  var rc = readCounts[R.storyId] || { n: 0, date: 0 };
-  rc.n++;
-  rc.date = Date.now();
-  readCounts[R.storyId] = rc;
-  lsSet('xx_read_counts', readCounts);
   
   var hist = lsGet('xx_hist', []);
   var histEntry = {
@@ -5034,15 +5090,6 @@ function finishReadingStory() {
   lsSet('xx_hist', hist);
   
   incDailyGoal();
-  var totalReads = 0;
-  var allStoriesRead = true;
-  var storyIds = Object.keys(READ_STORIES);
-  for (var k in readCounts) { totalReads += readCounts[k].n || 0; }
-  for (var si = 0; si < storyIds.length; si++) {
-    if (!((readCounts[storyIds[si]] || {}).n)) { allStoriesRead = false; break; }
-  }
-  if (totalReads >= 5) unlockAchievement('bookworm');
-  if (allStoriesRead) unlockAchievement('all_stories');
   var wordsForWpm = R.wordsReadCount > 0 ? R.wordsReadCount : R.words.length;
   var wpm = Math.round(wordsForWpm / Math.max(1, elapsed / 60));
   if (wpm >= 60) unlockAchievement('speed_reader');
@@ -5063,6 +5110,25 @@ function finishReadingDone() {
   finishReadingStory();
 }
 
+function registerStoryRead() {
+  var readCounts = lsGet('xx_read_counts', {});
+  var rc = readCounts[R.storyId] || { n: 0, date: 0, lastTime: 0 };
+  rc.n++;
+  rc.date = Date.now();
+  if (R.elapsedSeconds > 0) rc.lastTime = R.elapsedSeconds;
+  readCounts[R.storyId] = rc;
+  lsSet('xx_read_counts', readCounts);
+  var totalReads = 0;
+  var allStoriesRead = true;
+  var storyIds = Object.keys(READ_STORIES);
+  for (var k in readCounts) { totalReads += readCounts[k].n || 0; }
+  for (var si = 0; si < storyIds.length; si++) {
+    if (!((readCounts[storyIds[si]] || {}).n)) { allStoriesRead = false; break; }
+  }
+  if (totalReads >= 5) unlockAchievement('bookworm');
+  if (allStoriesRead) unlockAchievement('all_stories');
+}
+
 // ===== READING QUIZ =====
 var quizState = { questions: [], idx: 0, correct: 0 };
 
@@ -5076,6 +5142,7 @@ function renderQuizQuestion() {
   var wrap = document.getElementById('quizWrap');
   wrap.innerHTML = '';
   if (quizState.idx >= quizState.questions.length) {
+    if (quizState.questions.length > 0 && quizState.correct === quizState.questions.length) registerStoryRead();
     showReadResult(READ_STORIES[R.storyId].title);
     return;
   }
