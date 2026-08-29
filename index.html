@@ -317,9 +317,11 @@ body{padding:0}
 .read-text{font-size:24px;line-height:1.7;color:rgba(255,255,255,0.4);font-weight:600;text-align:justify}
 .read-word{display:inline-block;margin:0 4px;border-radius:6px;padding:2px 6px;transition:color 0.15s,background-color 0.15s;cursor:pointer;user-select:none}
 .read-word.done{color:#ffd700;text-shadow:0 0 4px rgba(255,215,0,0.25)}
-.read-word.current{color:#4facfe;background:rgba(79,172,254,0.18);box-shadow:0 0 0 2px rgba(79,172,254,0.35)}
-.read-word.tap-current{color:#38ef7d;background:rgba(56,239,125,0.15);box-shadow:0 0 0 2px rgba(56,239,125,0.4);animation:tapPulse 1.5s ease-in-out infinite}
-@keyframes tapPulse{0%,100%{box-shadow:0 0 0 2px rgba(56,239,125,0.4)}50%{box-shadow:0 0 0 4px rgba(56,239,125,0.15)}}
+.read-word.current{color:#38ef7d;background:rgba(56,239,125,0.15);box-shadow:0 0 0 2px rgba(56,239,125,0.4)}
+.read-word.tap-current{color:#4facfe;background:rgba(79,172,254,0.18);box-shadow:0 0 0 2px rgba(79,172,254,0.35);animation:tapPulse 1.5s ease-in-out infinite}
+.read-word.miss{color:#ff4757;background:rgba(255,71,87,0.18);box-shadow:0 0 0 2px rgba(255,71,87,0.55);animation:missShake 0.3s ease-in-out 2}
+@keyframes tapPulse{0%,100%{box-shadow:0 0 0 2px rgba(79,172,254,0.4)}50%{box-shadow:0 0 0 4px rgba(79,172,254,0.15)}}
+@keyframes missShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-2px)}75%{transform:translateX(2px)}}
 .read-controls{display:flex;gap:10px;width:100%;margin-bottom:4px}
 .read-ctrl-btn{flex:1;padding:14px;border-radius:14px;border:none;font-size:16px;font-weight:700;cursor:pointer;color:#fff;transition:transform 0.1s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
 .read-ctrl-btn:active{transform:scale(0.95)}
@@ -377,9 +379,25 @@ body{padding:0}
 .rules-modal b{color:#fff}
 /* EBOOK */
 .read-ebook-text{font-size:18px;line-height:1.8;color:rgba(255,255,255,0.7);font-weight:500;text-align:justify;padding:12px 8px;white-space:pre-wrap}
+.read-ebook-para{margin-bottom:14px}
+.read-illust{width:100%;max-width:70vw;margin:6px auto 16px;border-radius:16px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.35);text-align:center}
+.read-illust img{width:100%;display:block}
 /* TECHNIQUE DONE BTN */
 .read-done-btn{width:100%;max-width:280px;padding:14px;border-radius:14px;border:none;font-size:16px;font-weight:700;cursor:pointer;color:#fff;background:linear-gradient(135deg,#43e97b,#38f9d7);box-shadow:0 4px 12px rgba(67,233,123,0.3);transition:.12s;font-family:inherit}
 .read-done-btn:active{transform:scale(0.96)}
+.read-done-btn.disabled{opacity:.55;filter:grayscale(.6);pointer-events:none}
+.read-done-btn.shake{animation:missShake .3s ease-in-out 2}
+.read-audio-row{display:flex;gap:14px;justify-content:center;align-items:center;margin-top:10px}
+.read-audio-btn{width:64px;height:64px;border-radius:32px;border:none;font-size:24px;cursor:pointer;color:#fff;transition:.12s;font-family:inherit;box-shadow:0 4px 14px rgba(56,239,125,0.35);background:linear-gradient(135deg,#43e97b,#38ef7d)}
+.read-audio-btn.stop{background:linear-gradient(135deg,#4facfe,#6ec1ff);box-shadow:0 4px 14px rgba(79,172,254,0.35)}
+.read-audio-btn:active{transform:scale(0.93)}
+.read-audio-vol{display:flex;align-items:center;gap:8px;margin-top:12px;color:#fff;font-size:15px}
+.read-audio-vol input{flex:1;accent-color:#38ef7d}
+.read-audio-time{text-align:center;color:rgba(255,255,255,0.75);font-size:14px;margin-top:6px;font-variant-numeric:tabular-nums}
+.read-mode-btn.disabled{opacity:.5;filter:grayscale(.65);box-shadow:none}
+.read-mode-btn.disabled:active{transform:none}
+.read-mode-hint{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);background:rgba(0,0,0,0.78);color:#fff;padding:10px 18px;border-radius:12px;font-size:15px;font-weight:600;animation:hintFade 1.8s ease-out forwards;white-space:nowrap;z-index:60}
+@keyframes hintFade{0%{opacity:0}15%{opacity:1}80%{opacity:1}100%{opacity:0}}
 
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
@@ -510,7 +528,7 @@ body{padding:0}
   <!-- HOME -->
   <div id="screen-home" class="screen active">
     <div class="logo">2x2</div>
-    <span class="ver">v1.23.0</span>
+    <span class="ver">v1.24.0</span>
     <div class="subtitle">тяжело в учении, легко в бою</div>
     <button class="stat-badge" onclick="showStats()">&#x1F4CA; Статистика</button>
     <div class="stat-badge" id="streakBadge" style="display:none"></div>
@@ -768,7 +786,7 @@ body{padding:0}
     <h2>&#x1F4D6; Режим чтения</h2>
     <button class="read-mode-btn rm-karaoke" onclick="selectReadMode('karaoke')">&#x1F3A4; Караоке</button>
     <button class="read-mode-btn rm-ebook" onclick="selectReadMode('ebook')">&#x1F4DA; Читать как книгу</button>
-    <button class="read-mode-btn rm-listen" onclick="selectReadMode('listen')">&#x1F50A; Слушать вслух</button>
+    <button id="listenModeBtn" class="read-mode-btn rm-listen" onclick="selectReadMode('listen')">&#x1F50A; Аудиосказка</button>
     <button class="read-mode-btn rm-technique" onclick="selectReadMode('technique')">&#x23F1; Техника чтения</button>
   </div>
 
@@ -825,6 +843,18 @@ body{padding:0}
       <button class="read-ctrl-btn skip-btn" id="readSkipBtn" onclick="skipCurrentWord()">&#x23ED; Пропустить</button>
     </div>
     <button class="read-done-btn" id="readDoneBtn" style="display:none" onclick="finishReadingDone()">&#x2705; Я закончил читать</button>
+    <div id="readAudioBox" style="display:none;width:100%;max-width:300px;text-align:center">
+      <audio id="readAudio" preload="metadata" ontimeupdate="updateReadAudioTime()" onplay="readAudioOnPlay()" onpause="readAudioOnPause()" onended="readAudioOnEnded()" oncanplay="readAudioOnCanplay()"></audio>
+      <div class="read-audio-row">
+        <button class="read-audio-btn play" id="readAudioToggle" onclick="toggleReadAudio()">&#x25B6;</button>
+        <button class="read-audio-btn stop" id="readAudioStopBtn" onclick="stopReadAudio()">&#x23F9;</button>
+      </div>
+      <div class="read-audio-vol">
+        <span>🔈</span>
+        <input type="range" id="readAudioVol" min="0" max="100" value="85" oninput="setReadAudioVolume(this.value)">
+      </div>
+      <div class="read-audio-time" id="readAudioTime">00:00 / 00:00</div>
+    </div>
   </div>
 
   <!-- STATISTICS -->
@@ -1162,6 +1192,24 @@ const READ_TECHNIQUE = {
   q2: { wpm: 45 },
   q3: { wpm: 60 },
   q4: { wpm: 75 }
+};
+
+// Аудиосказки: storyId -> файл в audio/. Плеер есть только у сказок с MP3.
+const READ_AUDIO = {
+  kolobok: 'audio/kolobok.mp3'
+};
+
+// Иллюстрации сказок: картинка вставляется перед Н-ным вхождением слова.
+const READ_ILLUST = {
+  kolobok: [
+    { word: 'испеки', nth: 1, img: 'img/kolobok1.jpg' },
+    { word: 'полежал', nth: 1, img: 'img/kolobok2.jpg' },
+    { word: 'катится', nth: 1, img: 'img/kolobok3.jpg' },
+    { word: 'катится', nth: 2, img: 'img/kolobok4.jpg' },
+    { word: 'катится', nth: 3, img: 'img/kolobok5.jpg' },
+    { word: 'катится', nth: 4, img: 'img/kolobok6.jpg' },
+    { word: 'вскочил', nth: 1, img: 'img/kolobok7.jpg' }
+  ]
 };
 
 const READ_QUIZZES = {
@@ -4373,6 +4421,15 @@ function stopReading() {
   try { speechSynthesis && speechSynthesis.cancel(); } catch(e) {}
   if (R.ebookTimerInterval) { clearInterval(R.ebookTimerInterval); R.ebookTimerInterval = null; }
   if (R.restartTimeout) { clearTimeout(R.restartTimeout); R.restartTimeout = null; }
+  try {
+    var _au = document.getElementById('readAudio');
+    if (_au) {
+      _au.removeAttribute('src');
+      _au.load();
+    }
+  } catch(e) {}
+  var _ab = document.getElementById('readAudioBox');
+  if (_ab) _ab.style.display = 'none';
   if (R.recognition) {
     try {
       R.recognition.onend = null;
@@ -4406,7 +4463,35 @@ function pickStory(storyKey) {
     storyKey = keys[Math.floor(Math.random() * keys.length)];
   }
   R.storyId = storyKey;
+  updateListenBtn();
   show('screen-read-mode');
+}
+
+// «Аудиосказка» активна только если для сказки есть MP3.
+function updateListenBtn() {
+  var btn = document.getElementById('listenModeBtn');
+  if (!btn) return;
+  if (READ_AUDIO[R.storyId]) {
+    btn.classList.remove('disabled');
+    btn.title = '';
+  } else {
+    btn.classList.add('disabled');
+    btn.title = 'Скоро появится';
+  }
+}
+
+// Короткая всплывающая подсказка на экране выбора режима.
+function showReadHint(msg) {
+  var screen = document.getElementById('screen-read-mode');
+  if (!screen) return;
+  var old = document.getElementById('readModeHint');
+  if (old) old.remove();
+  var hint = document.createElement('div');
+  hint.id = 'readModeHint';
+  hint.className = 'read-mode-hint';
+  hint.textContent = msg;
+  screen.appendChild(hint);
+  setTimeout(function() { var h = document.getElementById('readModeHint'); if (h) h.remove(); }, 1800);
 }
 
 function startReading(storyKey) {
@@ -4473,6 +4558,7 @@ var rawWords = story.text.split(/\s+/);
     document.getElementById('readStartBtn').style.display = 'none';
     document.getElementById('readSkipBtn').style.display = 'none';
     document.getElementById('readDoneBtn').style.display = 'block';
+    updateEbookDoneBtn();
     document.getElementById('readMicStatus').style.display = 'none';
     hideReadHeardRow();
     document.getElementById('readTimer').style.display = '';
@@ -4480,6 +4566,7 @@ var rawWords = story.text.split(/\s+/);
     R.ebookTimerInterval = setInterval(function() {
       if (!R.active) return;
       R.elapsedSeconds++;
+      updateEbookDoneBtn();
       var mm = String(Math.floor(R.elapsedSeconds / 60)).padStart(2, '0');
       var ss = String(R.elapsedSeconds % 60).padStart(2, '0');
       document.getElementById('readTimer').textContent = '\u23F1 ' + mm + ':' + ss;
@@ -4487,26 +4574,9 @@ var rawWords = story.text.split(/\s+/);
     return;
   }
 
-  if (R.mode === 'listen') {
+if (R.mode === 'listen') {
     show('screen-read-game');
-    renderEbookText();
-    document.getElementById('readStartBtn').style.display = 'none';
-    document.getElementById('readSkipBtn').style.display = 'none';
-    document.getElementById('readDoneBtn').style.display = 'none';
-    document.getElementById('readMicStatus').style.display = 'none';
-    hideReadHeardRow();
-    document.getElementById('readTimer').style.display = '';
-    document.getElementById('readTimer').textContent = '\u{1F50A} \u0427\u0438\u0442\u0430\u0435\u043C...';
-    var u = speechSynthesis;
-    u.cancel();
-    var utt = new SpeechSynthesisUtterance(story.text);
-    utt.lang = 'ru-RU';
-    utt.rate = 0.9;
-    utt.onend = function() {
-      document.getElementById('readTimer').textContent = '\u2705 \u041A\u043E\u043D\u0435\u0446!';
-      sfxFanfare();
-    };
-    u.speak(utt);
+    startListenFlow();
     return;
   }
 
@@ -4522,6 +4592,11 @@ var rawWords = story.text.split(/\s+/);
 
 function selectReadMode(mode) {
   R.mode = mode;
+  if (mode === 'listen' && !READ_AUDIO[R.storyId]) {
+    showReadHint('Скоро появится');
+    R.mode = '';
+    return;
+  }
   updateStreak();
   startReading(R.storyId);
 }
@@ -4547,10 +4622,54 @@ function renderEbookText() {
   container.innerHTML = '';
   var story = READ_STORIES[R.storyId];
   if (!story) return;
-  var div = document.createElement('div');
-  div.className = 'read-ebook-text';
-  div.textContent = story.text;
-  container.appendChild(div);
+  var wrapper = document.createElement('div');
+  wrapper.className = 'read-ebook-text';
+  var paras = story.text.split(/\n{2,}/);
+  var illusts = illustPositions(story);
+  for (var p = 0; p < paras.length; p++) {
+    var para = document.createElement('div');
+    para.className = 'read-ebook-para';
+    para.textContent = paras[p];
+    wrapper.appendChild(para);
+    if (illusts[p]) {
+      for (var ii = 0; ii < illusts[p].length; ii++) {
+        var il = document.createElement('div');
+        il.className = 'read-illust';
+        var im = document.createElement('img');
+        im.src = illusts[p][ii];
+        im.alt = '';
+        im.loading = 'lazy';
+        il.appendChild(im);
+        wrapper.appendChild(il);
+      }
+    }
+  }
+  container.appendChild(wrapper);
+}
+
+// Какая иллюстрация куда встаёт: { индекс абзаца: [urls] }.
+function illustPositions(story) {
+  var out = {};
+  var rules = READ_ILLUST[R.storyId];
+  if (!rules || rules.length === 0) return out;
+  var seen = {};
+  for (var i = 0; i < rules.length; i++) seen[rules[i].word] = 0;
+  var paras = story.text.split(/\n{2,}/);
+  for (var p = 0; p < paras.length; p++) {
+    var toks = paras[p].toLowerCase().replace(/[Ёё]/g, 'е').split(/[^а-яё0-9]+/);
+    for (var t = 0; t < toks.length; t++) {
+      if (!seen.hasOwnProperty(toks[t])) continue;
+      seen[toks[t]]++;
+      for (var r = 0; r < rules.length; r++) {
+        if (rules[r].word === toks[t] && rules[r].nth === seen[toks[t]]) {
+          if (!out[p]) out[p] = [];
+          out[p].push(rules[r].img);
+          break;
+        }
+      }
+    }
+  }
+  return out;
 }
 
 function renderReadingText() {
@@ -4611,7 +4730,8 @@ function updateWordHighlights() {
     if (i < R.currentWordIdx) {
       el.className = 'read-word done';
     } else if (i === R.currentWordIdx) {
-      el.className = micActive ? 'read-word current' : 'read-word tap-current';
+      var miss = R.missUntil && Date.now() < R.missUntil ? ' miss' : '';
+      el.className = micActive ? 'read-word current' + miss : 'read-word tap-current' + miss;
       if (R.active) {
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
@@ -4674,19 +4794,12 @@ function autoPauseMic() {
   R.restartCount = 0;
   if (R.restartTimeout) { clearTimeout(R.restartTimeout); R.restartTimeout = null; }
   R.isListening = false;
-  if (R.recognition) {
-    try {
-      R.recognition.onend = null;
-      R.recognition.onerror = null;
-      R.recognition.onresult = null;
-      R.recognition.abort();
-    } catch(e) {}
-    R.recognition = null;
-  }
+  teardownRecognition();
   if (R.mode !== 'technique') msStopReadingTimer();
   var micStatus = document.getElementById('readMicStatus');
   if (micStatus) {
     micStatus.className = 'read-mic-status';
+    micStatus.textContent = '\uD83C\uDF99\uFE0F';
     micStatus.title = '\u041C\u0438\u043A\u0440\u043E\u0444\u043E\u043D \u043F\u0440\u0438\u043E\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D \u2014 \u043D\u0430\u0436\u043C\u0438 \u00AB\u0421\u0442\u0430\u0440\u0442\u00BB, \u0447\u0442\u043E\u0431\u044B \u043F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C';
   }
   setReadHeard('');
@@ -4722,6 +4835,29 @@ function dropStuckHypothesis() {
       try { restartRecognition(); } catch(err) {}
     }
   }, 250);
+}
+
+// Полный сброс сессии распознавания: отвязываем обработчики, abort и обнуляем.
+function teardownRecognition() {
+  if (R.recognition) {
+    try {
+      R.recognition.onend = null;
+      R.recognition.onerror = null;
+      R.recognition.onresult = null;
+      R.recognition.abort();
+    } catch(e) {}
+    R.recognition = null;
+  }
+}
+
+// Иконка микрофона: всегда возвращаем «🎙️» и чистим подсказку об ошибке.
+function resetMicIcon() {
+  var el = document.getElementById('readMicStatus');
+  if (el) {
+    el.textContent = '\uD83C\uDF99\uFE0F';
+    el.title = '';
+    el.className = 'read-mic-status';
+  }
 }
 
 // Отложенный перезапуск сессии распознавания. Если за время сессии не было
@@ -4793,7 +4929,12 @@ rec.onstart = function() {
     R.lastResultIdx = 0;
     R.lastResultTime = Date.now();
     R.lastProgressTime = Date.now();
-    document.getElementById('readMicStatus').className = 'read-mic-status active';
+    var micEl = document.getElementById('readMicStatus');
+    if (micEl) {
+      micEl.textContent = '\uD83C\uDF99\uFE0F';
+      micEl.title = '';
+      micEl.className = 'read-mic-status active';
+    }
     var startBtn = document.getElementById('readStartBtn');
     startBtn.textContent = '⏸ Пауза';
     startBtn.className = 'read-ctrl-btn play-btn listening';
@@ -4893,18 +5034,44 @@ function startMicOnly() {
     showMicError("Распознавание речи не поддерживается в этом браузере. Используйте Safari на iPhone или Chrome на Android.");
     return;
   }
-  
-R.micContinue = true;
+
+  // Жёсткий перезапуск: полностью сбрасываем прошлую сессию и её таймеры,
+  // чтобы кнопка «Старт» всегда давала живую распознавалку.
+  teardownRecognition();
+  if (R.restartTimeout) { clearTimeout(R.restartTimeout); R.restartTimeout = null; }
+  R.micContinue = true;
   R.receivedAny = false;
   R.silentSessions = 0;
-  R.recognition = createRecognition();
-  R.lastResultIdx = 0;
   R.restartCount = 0;
-  
+  R.isListening = false;
+  R.lastResultIdx = 0;
+  R.lastResultTime = Date.now();
+  R.lastSpeechTime = Date.now();
+  R.lastProgressTime = Date.now();
+
+  // showMicError могла затереть текст подсказкой — восстанавливаем слова.
+  var textEl = document.getElementById('readText');
+  if (textEl && R.words && R.words.length > 0 && !document.getElementById('rw_0')) {
+    renderReadingText();
+  }
+  resetMicIcon();
+
+  tryStartRecognition();
+}
+
+function tryStartRecognition(_attempt) {
+  var attempt = _attempt || 0;
   try {
+    if (!R.recognition) R.recognition = createRecognition();
     R.recognition.start();
   } catch(e) {
     console.log("Start mic error:", e);
+    if (attempt < 2) {
+      setTimeout(function() {
+        teardownRecognition();
+        tryStartRecognition(attempt + 1);
+      }, 300);
+    }
   }
 }
 
@@ -4914,14 +5081,8 @@ function stopMicOnly() {
   stopWatchdog();
   msStopReadingTimer();
   if (R.restartTimeout) { clearTimeout(R.restartTimeout); R.restartTimeout = null; }
-  if (R.recognition) {
-    try {
-      R.recognition.onend = null;
-      R.recognition.stop();
-    } catch(e) {}
-    R.recognition = null;
-  }
-  document.getElementById('readMicStatus').className = 'read-mic-status';
+  teardownRecognition();
+  resetMicIcon();
   setReadHeard('');
   var startBtn = document.getElementById('readStartBtn');
   if (startBtn) {
@@ -4970,7 +5131,26 @@ function handleSpeechInput(text) {
   // вхождение может оказаться уже прочитанным экземпляром. Поэтому ищем
   // якорь, дающий МАКСИМАЛЬНЫЙ прогресс матчинга (равный — самый ранний).
   var best = bestAnchor(spoken);
-  if (!best) return;
+  if (!best) {
+    // Гипотеза не подошла к текущему слову — ребёнок читает с ошибкой.
+    flashMiss();
+    return;
+  }
+
+  // Прыжок через текущее слово разрешён ТОЛЬКО если «префикс» гипотезы —
+  // уже прочитанные слова (эхо растущей гипотезы Chrome). Иначе это ошибка
+  // чтения: при тексте «старик» и произнесённом «дедушка» (слово есть дальше
+  // в тексте) прыгать нельзя — подсвечиваем ошибку текущего слова красным.
+  if (best.startJ > 0) {
+    for (var p = 0; p < best.startJ; p++) {
+      var ptok = spoken[p];
+      if (SPOKEN_FILLER.test(ptok)) continue;
+      if (tokenInDone(ptok)) continue;
+      flashMiss();
+      return;
+    }
+  }
+
   R.atomIdx = best.end;
   skipLightWords();
 
@@ -4979,6 +5159,7 @@ function handleSpeechInput(text) {
 
   if (d > R.currentWordIdx) {
     R.currentWordIdx = d;
+    R.missUntil = 0;
     R.lastProgressTime = Date.now();
     R.restartCount = 0;
     if (R.mode === 'technique') R.wordsReadCount = R.currentWordIdx;
@@ -5081,10 +5262,42 @@ function bestAnchor(spoken) {
   for (var j = 0; j < spoken.length; j++) {
     var r = matchBatch(spoken, j, R.atomIdx);
     if (r.consumed > 0 && (!best || r.consumed > best.consumed)) {
-      best = { consumed: r.consumed, end: r.end };
+      best = { consumed: r.consumed, end: r.end, startJ: j };
     }
   }
   return best;
+}
+
+var READ_MISS_MS = 2500;
+var READ_MISS_COOLDOWN_MS = 1500;
+
+// Красная вспышка на текущем слове — «это слово не распознано».
+function flashMiss() {
+  var now = Date.now();
+  if (R.missCooldownUntil && now < R.missCooldownUntil) return;
+  R.missCooldownUntil = now + READ_MISS_COOLDOWN_MS;
+  R.missUntil = now + READ_MISS_MS;
+  updateWordHighlights();
+  setTimeout(function() {
+    if (R.missUntil && Date.now() >= R.missUntil) {
+      R.missUntil = 0;
+      updateWordHighlights();
+    }
+  }, READ_MISS_MS + 50);
+}
+
+// Совпадает ли токен с каким-нибудь УЖЕ ПРОЧИТАННЫМ словом (эхо гипотезы).
+function tokenInDone(tok) {
+  for (var i = 0; i < R.currentWordIdx; i++) {
+    var wobj = R.words[i];
+    if (tok === wobj.parsed || levDist(tok, wobj.parsed) <= 1) return true;
+    for (var a = 0; a < wobj.atoms.length; a++) {
+      var at = R.atoms[wobj.atoms[a]].text;
+      if (tok === at || levDist(tok, at) <= 1) return true;
+      if (tok.length >= 2 && at.indexOf(tok) === 0) return true;
+    }
+  }
+  return false;
 }
 
 function msStartReadingTimer() {
@@ -5128,6 +5341,91 @@ function msStopReadingTimer() {
   }
 }
 
+// ===== АУДИОСКАЗКА: экран чистого плеера без текста и таймера =====
+function startListenFlow() {
+  stopWatchdog();
+  R.isListening = false;
+  R.micContinue = false;
+  document.getElementById('readTimer').style.display = 'none';
+  document.getElementById('readRow2').style.display = 'none';
+  document.getElementById('readStartBtn').style.display = 'none';
+  document.getElementById('readSkipBtn').style.display = 'none';
+  document.getElementById('readDoneBtn').style.display = 'none';
+  document.getElementById('readText').innerHTML = '';
+  document.getElementById('readAudioBox').style.display = '';
+
+  var audio = document.getElementById('readAudio');
+  audio.src = READ_AUDIO[R.storyId];
+  audio.currentTime = 0;
+  audio.volume = 0.85;
+  var vol = document.getElementById('readAudioVol');
+  if (vol) vol.value = 85;
+  updateReadAudioTime();
+  updateReadAudioToggle();
+  try {
+    audio.play();
+  } catch(e) {}
+}
+
+function toggleReadAudio() {
+  var audio = document.getElementById('readAudio');
+  if (!audio.src) return;
+  if (audio.paused || audio.ended) {
+    audio.play();
+  } else {
+    audio.pause();
+  }
+  updateReadAudioToggle();
+}
+
+function stopReadAudio() {
+  var audio = document.getElementById('readAudio');
+  if (!audio.src) return;
+  audio.pause();
+  audio.currentTime = 0;
+  updateReadAudioToggle();
+  updateReadAudioTime();
+}
+
+function setReadAudioVolume(v) {
+  var audio = document.getElementById('readAudio');
+  if (audio) audio.volume = Number(v) / 100;
+}
+
+function updateReadAudioToggle() {
+  var audio = document.getElementById('readAudio');
+  var btn = document.getElementById('readAudioToggle');
+  if (!audio || !btn) return;
+  btn.textContent = (audio.paused || audio.ended) ? '\u25B6' : '\u23F8';
+}
+
+function fmtAudioTime(s) {
+  if (!isFinite(s) || s < 0) s = 0;
+  var m = String(Math.floor(s / 60)).padStart(2, '0');
+  var ss = String(Math.floor(s % 60)).padStart(2, '0');
+  return m + ':' + ss;
+}
+
+function updateReadAudioTime() {
+  var audio = document.getElementById('readAudio');
+  var el = document.getElementById('readAudioTime');
+  if (!audio || !el) return;
+  var dur = isFinite(audio.duration) ? audio.duration : 0;
+  el.textContent = fmtAudioTime(audio.currentTime) + ' / ' + fmtAudioTime(dur);
+}
+
+function readAudioOnCanplay() {
+  updateReadAudioTime();
+}
+function readAudioOnPlay() { updateReadAudioToggle(); }
+function readAudioOnPause() { updateReadAudioToggle(); }
+function readAudioOnEnded() {
+  updateReadAudioToggle();
+  updateReadAudioTime();
+  sfxFanfare();
+  finishReadingStory();
+}
+
 function finishReadingStory() {
   stopReading();
   
@@ -5166,7 +5464,31 @@ function finishReadingStory() {
   }
 }
 
+var READ_DONE_MIN_SEC = 60;
+
+// Кнопка «Я закончил читать» в ebook-режиме активна только после минуты чтения.
+function updateEbookDoneBtn() {
+  var b = document.getElementById('readDoneBtn');
+  if (!b || R.mode !== 'ebook') return;
+  var remain = READ_DONE_MIN_SEC - R.elapsedSeconds;
+  if (remain > 0) {
+    b.textContent = '\u23F3 \u0415\u0449\u0451 ' + remain + ' \u0441\u0435\u043A';
+    b.classList.add('disabled');
+  } else {
+    b.textContent = '\u2705 \u042F \u0437\u0430\u043A\u043E\u043D\u0447\u0438\u043B \u0447\u0438\u0442\u0430\u0442\u044C';
+    b.classList.remove('disabled');
+  }
+}
+
 function finishReadingDone() {
+  if (R.mode === 'ebook' && R.elapsedSeconds < READ_DONE_MIN_SEC) {
+    var b = document.getElementById('readDoneBtn');
+    if (b) {
+      b.classList.add('shake');
+      setTimeout(function() { b.classList.remove('shake'); }, 600);
+    }
+    return;
+  }
   R.lastMode = R.mode;
   R.mode = '';
   if (R.ebookTimerInterval) { clearInterval(R.ebookTimerInterval); R.ebookTimerInterval = null; }
@@ -5267,7 +5589,17 @@ function showReadResult(storyName) {
   var showSpeedStats = (modeForStats === 'ebook' || modeForStats === 'karaoke');
   
   var pct = total > 0 ? Math.round(correct / total * 100) : 0;
-  var grade = pct >= 80 ? '\u{1F31F} Отлично!' : pct >= 50 ? '\u{1F44D} Хорошо!' : '\u{1F4AA} Нужно практиковаться';
+  var grade;
+  if (R.mode === 'technique' && R.quarter) {
+    // Техника = прочитано слов за минуту (окно ровно 60 секунд).
+    var twpm = R.wordsReadCount > 0 ? R.wordsReadCount : R.words.length;
+    var tstd = READ_TECHNIQUE[R.quarter];
+    grade = twpm >= tstd.wpm ? '\u{1F525} Отлично, норма выполнена!' : '\u{1F4AA} Нужно быстрее';
+  } else if (total > 0) {
+    grade = pct >= 80 ? '\u{1F31F} Отлично!' : pct >= 50 ? '\u{1F44D} Хорошо!' : '\u{1F4AA} Нужно практиковаться';
+  } else {
+    grade = '\u2705 Молодец!';
+  }
   var gradeEl = document.createElement('div');
   gradeEl.className = 'read-result-grade';
   gradeEl.textContent = grade;
@@ -5303,11 +5635,10 @@ function showReadResult(storyName) {
     lines.push('\u{1F4DD} Викторина: ' + correct + '/' + total + ' (' + pct + '%)');
   }
   if (R.mode === 'technique' && R.quarter) {
-    var wordsForWpm = R.wordsReadCount > 0 ? R.wordsReadCount : R.words.length;
-    var wpm = Math.round(wordsForWpm / Math.max(1, R.elapsedSeconds / 60));
+    var twpm = R.wordsReadCount > 0 ? R.wordsReadCount : R.words.length;
     var std = READ_TECHNIQUE[R.quarter];
-    var passed = wpm >= std.wpm;
-    lines.push('\u{1F3A4} Скорость: ' + wpm + ' слов/мин (норма: ' + std.wpm + ')');
+    var passed = twpm >= std.wpm;
+    lines.push('\u{1F3A4} Скорость: ' + twpm + ' слов/мин (норма: ' + std.wpm + ')');
     lines.push(passed ? '\u2705 Норма выполнена!' : '\u274C Нужно быстрее');
   }
   details.innerHTML = lines.join('<br>');
