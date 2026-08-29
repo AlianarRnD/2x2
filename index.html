@@ -305,6 +305,7 @@ body{padding:0}
 .read-timer{color:#ffd700;font-size:14px;font-weight:700;margin-left:48px;white-space:nowrap}
 .read-mic-status{font-size:18px;transition:transform 0.2s,filter 0.2s;opacity:0.4;filter:grayscale(1)}
 .read-mic-status.active{opacity:1;filter:grayscale(0);animation:pulse 1.2s infinite}
+.read-heard{font-size:12px;color:rgba(255,255,255,0.45);min-height:16px;text-align:center;padding:0 8px;margin-bottom:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .read-title{color:#fff;font-size:18px;font-weight:800;text-align:center;margin:4px 0;text-transform:uppercase;letter-spacing:0.5px}
 .read-text-container{flex:1;width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:16px;overflow-y:auto;padding:16px 12px;margin-bottom:8px;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;-ms-overflow-style:none;scrollbar-width:none}
 .read-text-container::-webkit-scrollbar{display:none}
@@ -504,7 +505,7 @@ body{padding:0}
   <!-- HOME -->
   <div id="screen-home" class="screen active">
     <div class="logo">2x2</div>
-    <span class="ver">v1.18.0</span>
+    <span class="ver">v1.21.0</span>
     <div class="subtitle">тяжело в учении, легко в бою</div>
     <button class="stat-badge" onclick="showStats()">&#x1F4CA; Статистика</button>
     <div class="stat-badge" id="streakBadge" style="display:none"></div>
@@ -803,6 +804,7 @@ body{padding:0}
       <button class="game-back" onclick="stopReadingAndGoBack()">&#x2715;</button>
       <div id="readTimer" class="read-timer">⏱ 00:00</div>
       <div id="readMicStatus" class="read-mic-status">🎙️</div>
+      <div class="read-heard" id="readHeard"></div>
       <div class="stars-num" id="readStarsWrap"><span id="readStarsCount">0</span> ⭐</div>
     </div>
     <div class="read-title" id="readTitle">Сказка</div>
@@ -1056,7 +1058,7 @@ body{padding:0}
     <div class="game-top">
       <span class="g-progress" id="tableProg">Открыто: 0/64</span>
     </div>
-    <div class="tbl-q" id="tableQ">Нажимай на клетки!</div>
+    <div class="tbl-q" id="tableQ"></div>
     <div class="tbl-grid" id="tableGrid"></div>
     <div class="tbl-choices-wrap" id="tableChoices"></div>
     <div class="game-rec" id="tableRec"></div>
@@ -1296,7 +1298,9 @@ restartTimeout: null,
   lastMode: '',
   micContinue: false,
   atoms: [],
-  atomIdx: 0
+  atomIdx: 0,
+  receivedAny: false,
+  silentSessions: 0
 };
 
 // ===== STATE =====
@@ -4605,6 +4609,7 @@ function autoPauseMic() {
     micStatus.className = 'read-mic-status';
     micStatus.title = '\u041C\u0438\u043A\u0440\u043E\u0444\u043E\u043D \u043F\u0440\u0438\u043E\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D \u2014 \u043D\u0430\u0436\u043C\u0438 \u00AB\u0421\u0442\u0430\u0440\u0442\u00BB, \u0447\u0442\u043E\u0431\u044B \u043F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C';
   }
+  setReadHeard('');
   var startBtn = document.getElementById('readStartBtn');
   if (startBtn) {
     startBtn.textContent = '\u25B6 \u0421\u0442\u0430\u0440\u0442';
@@ -4625,6 +4630,50 @@ function restartRecognition() {
   }
 }
 
+// Отложенный перезапуск сессии распознавания. Если за время сессии не было
+// НИ ОДНОГО результата — это «глухая» сессия: не долбим уведомлением про
+// микрофон, а после нескольких таких сессий ставим паузу с подсказкой.
+function scheduleRecycle(delay) {
+  if (R.restartTimeout) return;
+  R.restartCount++;
+  if (R.restartCount > 6) {
+    R.restartCount = 0;
+    autoPauseMic();
+    return;
+  }
+  R.restartTimeout = setTimeout(function() {
+    R.restartTimeout = null;
+    if (R.active && R.micContinue && R.isListening) {
+      try {
+        restartRecognition();
+      } catch(err) {}
+    }
+  }, delay);
+}
+
+// Сессия закончилась, ничего не услышав. Три «глухие» сессии подряд =
+// микрофон/распознавание не работают — пауза с понятной подсказкой.
+function noteSilentSession() {
+  R.silentSessions++;
+  if (R.silentSessions >= 3) {
+    R.silentSessions = 0;
+    autoPauseMic();
+    showMicError('\u041C\u0438\u043A\u0440\u043E\u0444\u043E\u043D \u043D\u0435 \u0441\u043B\u044B\u0448\u0438\u0442 \u0440\u0435\u0447\u044C. \u041F\u0440\u043E\u0432\u0435\u0440\u044C \u0434\u043E\u0441\u0442\u0443\u043F \u043A \u043C\u0438\u043A\u0440\u043E\u0444\u043E\u043D\u0443 \u0438 \u043D\u0430\u0436\u043C\u0438 \u00AB\u0421\u0442\u0430\u0440\u0442\u00BB.');
+    return true;
+  }
+  scheduleRecycle(600);
+  return false;
+}
+
+function setReadHeard(text) {
+  var el = document.getElementById('readHeard');
+  if (!el) return;
+  if (!text) { el.textContent = ''; return; }
+  var t = String(text);
+  if (t.length > 70) t = t.slice(0, 70) + '\u2026';
+  el.textContent = '\uD83D\uDC41\u200D ' + t;
+}
+
 function createRecognition() {
   var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   var rec = new SpeechRecognition();
@@ -4634,6 +4683,7 @@ function createRecognition() {
 
 rec.onstart = function() {
     R.isListening = true;
+    R.receivedAny = false;
     R.lastResultIdx = 0;
     R.lastResultTime = Date.now();
     document.getElementById('readMicStatus').className = 'read-mic-status active';
@@ -4648,29 +4698,19 @@ rec.onstart = function() {
 
 rec.onend = function() {
     stopWatchdog();
-    if (R.active && R.micContinue) {
-      var silentFor = Date.now() - R.lastSpeechTime;
-      if (silentFor < READ_SILENCE_LIMIT) {
-        if (R.restartTimeout) return;
-        R.restartCount++;
-        if (R.restartCount > 6) {
-          R.restartCount = 0;
-          autoPauseMic();
-          return;
-        }
-        var delay = R.restartCount <= 2 ? 120 : 400;
-        R.restartTimeout = setTimeout(function() {
-          R.restartTimeout = null;
-          if (R.active && R.micContinue && R.isListening) {
-            try {
-              restartRecognition();
-            } catch(err) {}
-          }
-        }, delay);
+    if (R.active && R.micContinue && R.isListening) {
+      if (!R.receivedAny) {
+        // «Глухая» сессия — не мигаем уведомлением микрофона, а после трёх
+        // таких сессий говорим пользователю, что микрофон не слышит.
+        noteSilentSession();
         return;
       }
-      autoPauseMic();
-      return;
+      R.silentSessions = 0;
+      var silentFor = Date.now() - R.lastSpeechTime;
+      if (silentFor < READ_SILENCE_LIMIT) {
+        scheduleRecycle(150);
+        return;
+      }
     }
     autoPauseMic();
   };
@@ -4696,18 +4736,14 @@ rec.onend = function() {
     }
 if (e.error === 'no-speech' || e.error === 'network' || e.error === 'aborted') {
       if (R.active && R.isListening) {
+        if (!R.receivedAny) {
+          noteSilentSession();
+          return;
+        }
+        R.silentSessions = 0;
         var silentFor = Date.now() - R.lastSpeechTime;
-        if (R.restartCount < 3 && silentFor < READ_SILENCE_LIMIT) {
-          if (R.restartTimeout) return;
-          R.restartCount++;
-          R.restartTimeout = setTimeout(function() {
-            R.restartTimeout = null;
-            if (R.active && R.isListening) {
-              try {
-                restartRecognition();
-              } catch(err) {}
-            }
-}, 300);
+        if (silentFor < READ_SILENCE_LIMIT) {
+          scheduleRecycle(300);
           return;
         }
         autoPauseMic();
@@ -4718,14 +4754,23 @@ if (e.error === 'no-speech' || e.error === 'network' || e.error === 'aborted') {
 rec.onresult = function(event) {
     // Живой прогресс: обрабатываем и финальные, и промежуточные (interim) транскрипты.
     // Матчер идемпотентен — повтор промежуточного текста не даёт двойного хода.
+    if (!R.receivedAny) {
+      R.receivedAny = true;
+      R.silentSessions = 0;
+    }
+    var lastText = '';
     for (var i = R.lastResultIdx; i < event.results.length; ++i) {
       var item = event.results[i];
       R.lastResultTime = Date.now();
       R.lastSpeechTime = Date.now();
       if (item.isFinal) R.lastResultIdx = i + 1;
       var txt = (item[0] && item[0].transcript) ? item[0].transcript : '';
-      if (txt.trim()) handleSpeechInput(txt);
+      if (txt.trim()) {
+        lastText = txt;
+        handleSpeechInput(txt);
+      }
     }
+    setReadHeard(lastText);
   };
 
   return rec;
@@ -4738,6 +4783,8 @@ function startMicOnly() {
   }
   
 R.micContinue = true;
+  R.receivedAny = false;
+  R.silentSessions = 0;
   R.recognition = createRecognition();
   R.lastResultIdx = 0;
   R.restartCount = 0;
@@ -4763,6 +4810,7 @@ function stopMicOnly() {
     R.recognition = null;
   }
   document.getElementById('readMicStatus').className = 'read-mic-status';
+  setReadHeard('');
   var startBtn = document.getElementById('readStartBtn');
   if (startBtn) {
     startBtn.textContent = '▶ Старт';
@@ -4802,7 +4850,15 @@ function handleSpeechInput(text) {
   if (spoken.length === 0) return;
 
   skipLightWords();
-  var tk = 0;
+  if (R.atomIdx >= R.atoms.length) return;
+
+  // Chrome/Android возвращает растущую «гипотезу» целиком с начала фразы —
+  // принятые ранее слова снова висят в начале. Поэтому ищем текущее слово
+  // в любом месте слышимого текста и стартуем от первого вхождения.
+  var from = findStartTokenIndex(spoken);
+  if (from < 0) return;
+
+  var tk = from;
   while (tk < spoken.length && R.atomIdx < R.atoms.length) {
     skipLightWords();
     if (R.atomIdx >= R.atoms.length) break;
@@ -4846,6 +4902,14 @@ function handleSpeechInput(text) {
           break;
         }
       }
+      // Обрезанное в начале гипотезы слово (ASR начал распознавание с середины слова):
+      // потребляем атом полностью, если следующий токен не продолжает слово.
+      if (!matchedHere && tk === from && inWord === wobj.atoms.length - 1 &&
+          tok.length >= 2 && atomText.indexOf(tok) === 0) {
+        R.atomIdx++;
+        tk++;
+        matchedHere = true;
+      }
     }
 
     if (!matchedHere) {
@@ -4870,6 +4934,30 @@ function handleSpeechInput(text) {
       finishReadingStory();
     }
   }
+}
+
+// Ищем первый токен (или склейку токенов), который соответствует атому текущего
+// слова — с этого места матчер продолжает «цеплять» уже принятые слова гипотезы.
+function findStartTokenIndex(spoken) {
+  skipLightWords();
+  if (R.atomIdx >= R.atoms.length) return -1;
+  var atomText = R.atoms[R.atomIdx].text;
+  var wi = R.atoms[R.atomIdx].word;
+  var wobj = R.words[wi];
+  var inWord0 = R.atomIdx === wobj.atomStart;
+  for (var j = 0; j < spoken.length; j++) {
+    var s = spoken[j];
+    if (inWord0 && wobj.atoms.length > 1 && (s === wobj.parsed || levDist(s, wobj.parsed) <= 1)) return j;
+    if (s === atomText || levDist(s, atomText) <= 1) return j;
+    if (atomText.indexOf(s) === 0 && s.length >= 2) return j;
+    var joined = s;
+    for (var k = j + 1; k < spoken.length; k++) {
+      joined += spoken[k];
+      if (joined === atomText || levDist(joined, atomText) <= 1) return j;
+      if (joined.length > atomText.length + 1) break;
+    }
+  }
+  return -1;
 }
 
 function msStartReadingTimer() {
