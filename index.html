@@ -229,7 +229,7 @@ body{padding:0}
 .ms-minesel button{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:#c0c0e0;font-size:14px;font-weight:700;cursor:pointer;transition:.1s;font-family:inherit;padding:0;display:flex;align-items:center;justify-content:center}
 .ms-minesel button:active{transform:scale(0.9)}
 .ms-minesel button.sel{border-color:#f5576c;background:rgba(245,87,108,0.2);color:#fff}
-.ms-cell{aspect-ratio:1;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.08);color:#fff;font-size:18px;font-weight:700;cursor:pointer;transition:.06s;display:flex;align-items:center;justify-content:center;font-family:inherit;padding:0;position:relative;overflow:hidden}
+.ms-cell{aspect-ratio:1;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.08);color:#fff;font-size:18px;font-weight:700;cursor:pointer;transition:.06s;display:flex;align-items:center;justify-content:center;font-family:inherit;padding:0;position:relative;overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:manipulation}
 .ms-cell.longpress{animation:lpRing .5s ease-out forwards}
 @keyframes lpRing{0%{box-shadow:inset 0 0 0 0 rgba(255,215,0,0.6)}100%{box-shadow:inset 0 0 0 4px rgba(255,215,0,0.8);background:rgba(255,215,0,0.15)}}
 .ms-cell:active{transform:scale(0.92)}
@@ -4271,8 +4271,7 @@ function msRender() {
         }
         cell.disabled = isRevealed || msState.gameOver;
         cell.onclick = function() { msClick(rr, cc); };
-        cell.ontouchstart = function(ev) {
-          ev.preventDefault();
+        cell.ontouchstart = function() {
           msLongPressTriggered = false;
           cell.classList.add('longpress');
           msLongPressTimer = setTimeout(function() {
@@ -4828,6 +4827,7 @@ function restartRecognition() {
 // Распознавание «зависло» на гипотезе (текст в глазике есть, курсор стоит):
 // сбрасываем эхо через короткий перезапуск сессии.
 function dropStuckHypothesis() {
+  readDropCount++;
   R.lastProgressTime = Date.now();
   if (R.restartTimeout) { clearTimeout(R.restartTimeout); R.restartTimeout = null; }
   try { if (R.recognition) R.recognition.abort(); } catch(e) {}
@@ -4907,13 +4907,22 @@ function setReadHeard(text) {
 }
 
 var readDebugBuf = [];
+var readRawBuf = [];
+var readDropCount = 0;
+function pushReadRaw(txt) {
+  if (readRawBuf.length && readRawBuf[readRawBuf.length - 1] === txt) return;
+  readRawBuf.push(txt);
+  if (readRawBuf.length > 3) readRawBuf.shift();
+}
 function writeReadDebug(line) {
   var el = document.getElementById('readDebug');
   if (!el) return;
-  readDebugBuf.push('t+' + (Date.now() % 10000) + ' ' + line);
-  if (readDebugBuf.length > 4) readDebugBuf.shift();
+  readDebugBuf.push('t+' + (Date.now() % 10000) + ' сбр' + readDropCount + ': ' + line);
+  if (readDebugBuf.length > 5) readDebugBuf.shift();
+  var all = ['RAW: ' + readRawBuf.join(' | ')];
+  for (var i = 0; i < readDebugBuf.length; i++) all.push(readDebugBuf[i]);
   el.style.display = 'block';
-  el.textContent = readDebugBuf.join('\n');
+  el.textContent = all.join('\n');
 }
 
 function hideReadHeardRow() {
@@ -5027,6 +5036,7 @@ rec.onresult = function(event) {
       var txt = (item[0] && item[0].transcript) ? item[0].transcript : '';
       if (txt.trim()) {
         lastText = txt;
+        pushReadRaw(txt.trim());
         handleSpeechInput(txt);
       }
     }
@@ -5130,6 +5140,39 @@ function skipLightWords() {
   }
 }
 
+// «Пассивная» гипотеза: все её не-filler токены — уже прочитанные слова
+// (эхо растущей гипотезы Chrome). Нужное новое слово в неё так и не вошло.
+function allTokensPassable(spoken) {
+  for (var i = 0; i < spoken.length; i++) {
+    if (SPOKEN_FILLER.test(spoken[i])) continue;
+    if (!tokenInDone(spoken[i])) return false;
+  }
+  return true;
+}
+
+// Эхо-тупик: Chrome на Android теряет проговариваемое слово (реверсивный
+// interim, сброс сессии). Переходим текущее слово с красной вспышкой —
+// иначе сказка зависает навсегда.
+function echoAdvance(dbg) {
+  var endA = R.words[R.atoms[R.atomIdx].word].atomStart + R.words[R.atoms[R.atomIdx].word].atoms.length;
+  R.atomIdx = endA;
+  skipLightWords();
+  R.lastProgressTime = Date.now();
+  var d2 = R.currentWordIdx;
+  while (d2 < R.words.length && R.atomIdx >= R.words[d2].atomStart + R.words[d2].atoms.length) d2++;
+  writeReadDebug(dbg + ' | АВТОПРОХОД w' + d2);
+  R.currentWordIdx = d2;
+  R.missUntil = Date.now() + READ_MISS_MS;
+  R.restartCount = 0;
+  if (R.mode === 'technique') R.wordsReadCount = R.currentWordIdx;
+  updateWordHighlights();
+  if (R.currentWordIdx >= R.words.length) {
+    finishReadingStory();
+  }
+  R.echoKey = '';
+  R.echoCount = 0;
+}
+
 function handleSpeechInput(text) {
   var spoken = text.split(/\s+/).map(parseWord).filter(function(w) { return w.length >= 2; });
   if (spoken.length === 0) return;
@@ -5149,8 +5192,24 @@ function handleSpeechInput(text) {
   // якорь, дающий МАКСИМАЛЬНЫЙ прогресс матчинга (равный — самый ранний).
   var best = bestAnchor(spoken);
   if (!best) {
+    if (allTokensPassable(spoken)) {
+      // Эхо-тупик: гипотеза состоит только из уже прочитанных слов, а нужное
+      // слово не приходит. Копим одинаковые эхо; при повторе с активным
+      // стримом — автопереход, чтобы не висеть вечно.
+      var ek = 'E:' + spoken.join('|');
+      if (ek === R.echoKey) R.echoCount++; else { R.echoKey = ek; R.echoCount = 1; }
+      if (R.echoCount === 1) writeReadDebug(dbg + ' | ЭХО');
+      if (R.echoCount >= 4 && R.lastProgressTime && R.lastSpeechTime &&
+          Date.now() - R.lastProgressTime >= 2000 &&
+          Date.now() - R.lastSpeechTime < 2500) {
+        echoAdvance(dbg);
+      }
+      return;
+    }
     // Гипотеза не подошла к текущему слову — ребёнок читает с ошибкой.
-    writeReadDebug(dbg + ' | НЕТ ЯКОРЯ');
+    var ldt = [];
+    for (var li = 0; li < spoken.length; li++) ldt.push(spoken[li] + '=' + levDist(spoken[li], ca.text));
+    writeReadDebug(dbg + ' | НЕТ ЯКОРЯ ' + ldt.join(' '));
     flashMiss();
     return;
   }
@@ -5171,6 +5230,8 @@ function handleSpeechInput(text) {
     }
   }
 
+  R.echoKey = '';
+  R.echoCount = 0;
   R.atomIdx = best.end;
   skipLightWords();
   R.lastProgressTime = Date.now();
