@@ -629,7 +629,7 @@ body{padding:0}
         <span class="hub-badge" id="achHubBadge"></span>
       </button>
     </div>
-    <div class="credit">by Alianar_RnD<br>v1.29.0</div>
+    <div class="credit">by Alianar_RnD<br>v1.29.1</div>
   </div>
 
   <!-- MENU: LESSONS -->
@@ -5963,6 +5963,7 @@ function completeReading() {
   var story = READ_STORIES[R.storyId];
   var storyName = story ? story.title : '';
   var elapsed = R.elapsedSeconds;
+  var isListen = (R.mode === 'listen' || R.lastMode === 'listen');
 
   var quizTotal = quizState.questions.length;
   var quizCorrect = quizState.correct;
@@ -5973,25 +5974,28 @@ function completeReading() {
     R.stars = Math.floor(elapsed / 60) + 5;
   }
 
-  var hist = lsGet('xx_hist', []);
-  var histEntry = {
-    gameType: 'read',
-    mul: storyName,
-    stars: R.stars,
-    total: R.words.length,
-    time: elapsed,
-    rmode: R.mode || R.lastMode || '',
-    date: Date.now()
-  };
-  hist.unshift(histEntry);
-  if (hist.length > 100) hist.length = 100;
-  lsSet('xx_hist', hist);
+  // Аудиосказки не оставляют следов: без истории, счётчиков, XP и наград.
+  if (!isListen) {
+    var hist = lsGet('xx_hist', []);
+    var histEntry = {
+      gameType: 'read',
+      mul: storyName,
+      stars: R.stars,
+      total: R.words.length,
+      time: elapsed,
+      rmode: R.mode || R.lastMode || '',
+      date: Date.now()
+    };
+    hist.unshift(histEntry);
+    if (hist.length > 100) hist.length = 100;
+    lsSet('xx_hist', hist);
 
-  incDailyGoal();
-  awardXp(R.stars * 10);
-  var wordsForWpm = R.wordsReadCount > 0 ? R.wordsReadCount : R.words.length;
-  var wpm = Math.round(wordsForWpm / Math.max(1, elapsed / 60));
-  if (wpm >= 60) unlockAchievement('speed_reader');
+    incDailyGoal();
+    awardXp(R.stars * 10);
+    var wordsForWpm = R.wordsReadCount > 0 ? R.wordsReadCount : R.words.length;
+    var wpm = Math.round(wordsForWpm / Math.max(1, elapsed / 60));
+    if (wpm >= 60) unlockAchievement('speed_reader');
+  }
 
   showReadResult(storyName);
 }
@@ -6028,6 +6032,7 @@ function finishReadingDone() {
 }
 
 function registerStoryRead() {
+  if (R.mode === 'listen' || R.lastMode === 'listen') return;
   var readCounts = lsGet('xx_read_counts', {});
   var rc = readCounts[R.storyId] || { n: 0, date: 0, lastTime: 0 };
   rc.n++;
