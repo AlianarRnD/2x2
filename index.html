@@ -311,6 +311,7 @@ body{padding:0}
 .read-mic-status{font-size:18px;transition:transform 0.2s,filter 0.2s;opacity:0.4;filter:grayscale(1)}
 .read-mic-status.active{opacity:1;filter:grayscale(0);animation:pulse 1.2s infinite}
 .read-heard{font-size:12px;color:rgba(255,255,255,0.45);min-height:16px;text-align:center;padding:0 8px;margin-bottom:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.read-debug{font-size:10px;line-height:1.35;color:#ffd479;text-align:left;font-family:monospace;white-space:pre-wrap;word-break:break-all;background:rgba(0,0,0,0.35);border-radius:6px;padding:4px 6px;margin:0 4px 4px}
 .read-title{color:#fff;font-size:18px;font-weight:800;text-align:center;margin:4px 0;text-transform:uppercase;letter-spacing:0.5px}
 .read-text-container{flex:1;width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:16px;overflow-y:auto;padding:16px 12px;margin-bottom:8px;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;-ms-overflow-style:none;scrollbar-width:none}
 .read-text-container::-webkit-scrollbar{display:none}
@@ -831,6 +832,7 @@ body{padding:0}
         <div id="readMicStatus" class="read-mic-status">🎙️</div>
         <div class="read-heard" id="readHeard"></div>
       </div>
+      <div class="read-debug" id="readDebug" style="display:none"></div>
     </div>
     <div class="read-title" id="readTitle">Сказка</div>
     <div class="read-text-container" id="readTextContainer">
@@ -4904,6 +4906,16 @@ function setReadHeard(text) {
   el.textContent = '\uD83D\uDC41\u200D ' + t;
 }
 
+var readDebugBuf = [];
+function writeReadDebug(line) {
+  var el = document.getElementById('readDebug');
+  if (!el) return;
+  readDebugBuf.push('t+' + (Date.now() % 10000) + ' ' + line);
+  if (readDebugBuf.length > 4) readDebugBuf.shift();
+  el.style.display = 'block';
+  el.textContent = readDebugBuf.join('\n');
+}
+
 function hideReadHeardRow() {
   var row = document.getElementById('readRow2');
   if (row) row.style.display = 'none';
@@ -5125,6 +5137,11 @@ function handleSpeechInput(text) {
   skipLightWords();
   if (R.atomIdx >= R.atoms.length) return;
 
+  var ca = R.atoms[R.atomIdx];
+  var cw = R.words[ca.word];
+  var dbg = 'w' + R.currentWordIdx + " '" + cw.text + "' a" + R.atomIdx + " '" + ca.text + "' | ";
+  dbg += 'слышу: ' + spoken.slice(-10).join('|');
+
   // Chrome/Android возвращает растущую «гипотезу» целиком с начала фразы —
   // принятые ранее слова снова висят в начале. В текстах с повторами
   // («Катится колобок…», куплеты песни, «— Колобок, колобок!») первое
@@ -5133,9 +5150,11 @@ function handleSpeechInput(text) {
   var best = bestAnchor(spoken);
   if (!best) {
     // Гипотеза не подошла к текущему слову — ребёнок читает с ошибкой.
+    writeReadDebug(dbg + ' | НЕТ ЯКОРЯ');
     flashMiss();
     return;
   }
+  dbg += ' | j' + best.startJ + ' c' + best.consumed + ' end' + best.end;
 
   // Прыжок через текущее слово разрешён ТОЛЬКО если «префикс» гипотезы —
   // уже прочитанные слова (эхо растущей гипотезы Chrome). Иначе это ошибка
@@ -5146,6 +5165,7 @@ function handleSpeechInput(text) {
       var ptok = spoken[p];
       if (SPOKEN_FILLER.test(ptok)) continue;
       if (tokenInDone(ptok)) continue;
+      writeReadDebug(dbg + ' | СТОП префикс "' + ptok + '"');
       flashMiss();
       return;
     }
@@ -5159,6 +5179,7 @@ function handleSpeechInput(text) {
   while (d < R.words.length && R.atomIdx >= R.words[d].atomStart + R.words[d].atoms.length) d++;
 
   if (d > R.currentWordIdx) {
+    writeReadDebug(dbg + ' | ХОД w' + d);
     R.currentWordIdx = d;
     R.missUntil = 0;
     R.restartCount = 0;
@@ -5167,6 +5188,8 @@ function handleSpeechInput(text) {
     if (R.currentWordIdx >= R.words.length) {
       finishReadingStory();
     }
+  } else {
+    writeReadDebug(dbg + ' | эхо без хода');
   }
 }
 
