@@ -305,10 +305,14 @@ body{padding:0}
 /* READ SCREEN & CARAOKE CSS */
 .read-screen{height:100%;width:100%;max-width:360px}
 .read-header{width:100%;margin-bottom:4px}
-.read-row1{position:relative;display:flex;justify-content:flex-end;align-items:center;width:100%;min-height:36px}
+.read-row1{position:relative;display:flex;align-items:center;width:100%;min-height:36px}
+.read-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+.read-header .game-back{position:static;top:auto;left:auto;align-self:center;flex:none}
 .read-row2{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:2px}
 .read-timer{color:#ffd700;font-size:14px;font-weight:700;white-space:nowrap}
-.read-mic-status{font-size:18px;transition:transform 0.2s,filter 0.2s;opacity:0.4;filter:grayscale(1)}
+.read-mic-status{font-size:18px;transition:transform 0.2s,filter 0.2s;opacity:0.4;filter:grayscale(1);cursor:pointer}
+.read-mic-status.active{opacity:1;filter:grayscale(0);animation:pulse 1.2s infinite}
+.read-mic-status:active{transform:scale(0.9)}
 .read-mic-status.active{opacity:1;filter:grayscale(0);animation:pulse 1.2s infinite}
 .read-heard{font-size:12px;color:rgba(255,255,255,0.45);min-height:16px;text-align:center;padding:0 8px;margin-bottom:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .read-debug{font-size:10px;line-height:1.35;color:#ffd479;text-align:left;font-family:monospace;white-space:pre-wrap;word-break:break-all;background:rgba(0,0,0,0.35);border-radius:6px;padding:4px 6px;margin:0 4px 4px}
@@ -825,11 +829,13 @@ body{padding:0}
   <div id="screen-read-game" class="screen read-screen" style="justify-content:flex-start;padding:12px 8px;gap:8px">
     <div class="read-header">
       <div class="read-row1">
-        <button class="game-back" onclick="stopReadingAndGoBack()">&#x2715;</button>
-        <div id="readTimer" class="read-timer">⏱ 00:00</div>
+        <div class="read-right">
+          <div id="readMicStatus" class="read-mic-status" onclick="toggleReadDebug()">🎙️</div>
+          <div id="readTimer" class="read-timer">⏱ 00:00</div>
+          <button class="game-back" onclick="stopReadingAndGoBack()">&#x2715;</button>
+        </div>
       </div>
       <div class="read-row2" id="readRow2">
-        <div id="readMicStatus" class="read-mic-status">🎙️</div>
         <div class="read-heard" id="readHeard"></div>
       </div>
       <div class="read-debug" id="readDebug" style="display:none"></div>
@@ -4746,8 +4752,25 @@ function skipCurrentWord() {
   if (!R.active) return;
   if (R.currentWordIdx < R.words.length - 1) {
     R.currentWordIdx++;
+    // Синхронизируем курсор-матчер с новым текущим словом (только вперёд,
+    // накопленный прогресс не откатываем) — иначе после «Пропустить» чтение
+    // продолжает матчиться со старой позиции атомов.
+    var nw = R.words[R.currentWordIdx];
+    if (R.atomIdx < nw.atomStart) R.atomIdx = nw.atomStart;
+    skipLightWords();
+    var d = R.currentWordIdx;
+    while (d < R.words.length && R.atomIdx >= R.words[d].atomStart + R.words[d].atoms.length) d++;
+    R.currentWordIdx = d;
+    R.echoKey = '';
+    R.echoCount = 0;
+    R.missUntil = 0;
+    R.restartCount = 0;
+    R.lastProgressTime = Date.now();
     if (R.mode === 'technique') R.wordsReadCount = R.currentWordIdx;
     updateWordHighlights();
+    if (R.currentWordIdx >= R.words.length) {
+      finishReadingStory();
+    }
   } else {
     // Дочитали до конца!
     finishReadingStory();
@@ -4914,15 +4937,27 @@ function pushReadRaw(txt) {
   readRawBuf.push(txt);
   if (readRawBuf.length > 3) readRawBuf.shift();
 }
-function writeReadDebug(line) {
-  var el = document.getElementById('readDebug');
-  if (!el) return;
-  readDebugBuf.push('t+' + (Date.now() % 10000) + ' сбр' + readDropCount + ': ' + line);
-  if (readDebugBuf.length > 5) readDebugBuf.shift();
+function collectReadDebug() {
   var all = ['RAW: ' + readRawBuf.join(' | ')];
   for (var i = 0; i < readDebugBuf.length; i++) all.push(readDebugBuf[i]);
-  el.style.display = 'block';
-  el.textContent = all.join('\n');
+  return all.join('\n');
+}
+function toggleReadDebug() {
+  var el = document.getElementById('readDebug');
+  if (!el) return;
+  var show = !el.__debugOn;
+  el.__debugOn = show;
+  el.style.display = show ? 'block' : 'none';
+  if (show) el.textContent = collectReadDebug();
+}
+function writeReadDebug(line) {
+  readDebugBuf.push('t+' + (Date.now() % 10000) + ' сбр' + readDropCount + ': ' + line);
+  if (readDebugBuf.length > 5) readDebugBuf.shift();
+  var el = document.getElementById('readDebug');
+  if (el && el.__debugOn) {
+    el.style.display = 'block';
+    el.textContent = collectReadDebug();
+  }
 }
 
 function hideReadHeardRow() {
@@ -5283,13 +5318,13 @@ function matchBatch(spoken, from, startAtomIdx) {
     var inWord = ai - wobj.atomStart;
     var matchedHere = false;
 
-    // A) целое слово одним токеном (важно для «Жили-были», «трё-ё-х», «ко-ко-ко»)
-    if (inWord === 0 && wobj.atoms.length > 1) {
-      if (tok === wobj.parsed || levDist(tok, wobj.parsed) <= 1) {
-        ai += wobj.atoms.length;
-        tk++;
-        matchedHere = true;
-      }
+    // A) целое слово одним токеном (важно для «Жили-были», «трё-ё-х», «ко-ко-ко»).
+    // Работает на любом атоме слова: «жили» уже съеден, а ASR прислал склейку
+    // «жилибыли» — токен равен всему слову → перепрыгиваем к концу слова.
+    if (wobj.atoms.length > 1 && (tok === wobj.parsed || levDist(tok, wobj.parsed) <= 1)) {
+      ai += wobj.atoms.length;
+      tk++;
+      matchedHere = true;
     }
 
     // B) склейка соседних токенов под один атом («по меньше» -> «поменьше»)
