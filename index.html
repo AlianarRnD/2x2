@@ -39,6 +39,70 @@ body{padding:0}
 .lvl-read{background:linear-gradient(135deg,#ff758c,#ff7eb3);box-shadow:0 6px 20px rgba(255,117,140,0.35)}
 .lvl-train{background:linear-gradient(135deg,#667eea,#764ba2);box-shadow:0 6px 20px rgba(102,126,234,0.35)}
 
+/* ==== HUB ==== */
+#screen-home{padding-top:16px}
+.gear-btn{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#c0c0e0;font-size:19px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.12s;z-index:5;font-family:inherit}
+.gear-btn:active{transform:scale(0.9) rotate(15deg);background:rgba(255,255,255,0.12)}
+.hub-greet{font-size:22px;font-weight:800;color:#fff;text-align:center;margin-top:24px;line-height:1.25;padding:0 46px}
+.lvl-bar{width:100%;max-width:280px;display:flex;flex-direction:column;gap:5px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:10px 14px;margin:2px 0}
+.lvl-top{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#c0c0e0;font-weight:600}
+.lvl-name{display:inline-flex;align-items:center;gap:5px}
+.lvl-name b{color:#ffd700;font-weight:800}
+.lvl-xp{font-variant-numeric:tabular-nums;color:#ffd700}
+.xp-track{height:9px;border-radius:6px;background:rgba(255,255,255,0.12);overflow:hidden}
+.xp-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,#ffd700,#ff8a00);transition:width .4s ease}
+.lvl-next{font-size:10px;color:#8888bb;text-align:right;margin-top:1px}
+.hub-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:2px 0 8px}
+.hub-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;width:100%;max-width:320px;margin:0 auto}
+.hub-tile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;aspect-ratio:1.15/1;border-radius:18px;border:none;color:#fff;cursor:pointer;transition:transform .12s,box-shadow .15s;box-shadow:0 6px 20px rgba(0,0,0,0.4);padding:10px;font-family:inherit;text-align:center}
+.hub-tile:active{transform:scale(0.95)}
+.hub-tile .hub-icon{font-size:34px;line-height:1}
+.hub-tile .hub-name{font-size:15px;font-weight:800}
+.hub-tile .hub-desc{font-size:10px;font-weight:500;opacity:.8;letter-spacing:0.3px}
+.hub-lessons{background:linear-gradient(135deg,#11998e,#38ef7d);box-shadow:0 6px 20px rgba(17,153,142,0.35)}
+.hub-games{background:linear-gradient(135deg,#f093fb,#4facfe);box-shadow:0 6px 20px rgba(240,147,251,0.35)}
+.hub-stats{background:linear-gradient(135deg,#f9a825,#ff8f00);box-shadow:0 6px 20px rgba(249,168,37,0.35)}
+.hub-ach{background:linear-gradient(135deg,#667eea,#764ba2);box-shadow:0 6px 20px rgba(102,126,234,0.35)}
+/* section / submenu screens */
+.sec-title{color:#fff;font-size:20px;font-weight:800;margin-top:44px}
+.sec-hint{color:#8888bb;font-size:12px;text-align:center;max-width:280px;line-height:1.5}
+.sect-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;width:100%;max-width:320px;margin:8px auto 0}
+.sect-tile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:118px;border-radius:18px;border:none;color:#fff;cursor:pointer;transition:transform .12s,box-shadow .15s;box-shadow:0 6px 20px rgba(0,0,0,0.4);padding:12px 8px;font-family:inherit;text-align:center}
+.sect-tile:active{transform:scale(0.95)}
+.sect-tile .st-icon{font-size:32px;line-height:1}
+.sect-tile .st-name{font-size:14px;font-weight:800;line-height:1.25}
+.sect-tile .st-desc{font-size:10px;font-weight:500;opacity:.8;line-height:1.35}
+.sect-grid .game-info-btn{top:6px;right:6px}
+.sect-tile.locked{filter:saturate(.2) brightness(.72)}
+.sect-tile.locked:active{transform:scale(0.96)}
+.sect-tile .lock-badge{position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.55);color:#ffd700;font-size:10px;font-weight:800;padding:3px 7px;border-radius:9px;letter-spacing:0.4px}
+/* settings */
+.set-card{width:100%;max-width:320px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.set-label{color:#aaa;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.set-label:first-child{margin-top:0}
+.set-input{width:100%;padding:10px 12px;border-radius:12px;border:2px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#fff;font-size:15px;outline:none;-webkit-user-select:text;user-select:text;font-family:inherit}
+.set-input:focus{border-color:#4facfe}
+.set-btn{padding:10px;border-radius:12px;border:none;font-size:14px;font-weight:700;color:#fff;cursor:pointer;background:linear-gradient(135deg,#11998e,#38ef7d);font-family:inherit;transition:.12s}
+.set-btn:active{transform:scale(0.96)}
+.set-note{font-size:12px;color:#8888bb;min-height:15px;line-height:1.4}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#ddd;font-size:14px}
+.music-vol-row input{flex:1;accent-color:#ffd700}
+/* toggle switch */
+.switch{position:relative;display:inline-block;width:48px;height:27px;flex-shrink:0}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.15);border-radius:27px;transition:.15s}
+.slider:before{position:absolute;content:"";height:21px;width:21px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.15s}
+.switch input:checked + .slider{background:linear-gradient(135deg,#11998e,#38ef7d)}
+.switch input:checked + .slider:before{transform:translateX(21px)}
+/* level-up popup */
+.lvl-pop{position:fixed;top:0;left:0;right:0;z-index:1001;display:flex;justify-content:center;padding-top:20px;pointer-events:none}
+.lvl-pop-in{background:rgba(20,15,50,0.96);border:2px solid #ffd700;border-radius:16px;padding:14px 22px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,0.6);animation:fadeIn .3s ease}
+/* hint toast */
+.hint-toast{position:fixed;left:50%;bottom:34px;transform:translateX(-50%);z-index:1002;background:rgba(0,0,0,0.85);color:#fff;padding:11px 18px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,0.5);opacity:0;pointer-events:none;transition:opacity .2s ease;white-space:nowrap}
+.hint-toast.show{opacity:1}
+#screen-home.active .hub-greet,#screen-home.active .lvl-bar,#screen-home.active .hub-grid{animation:fadeIn .2s ease}
+@media(min-width:600px){.sect-grid{grid-template-columns:repeat(3,1fr);max-width:540px}}
+
 /* MULT LEVEL */
 #screen-mult-level,#screen-div-level{justify-content:center;gap:14px}
 #screen-mult-level h2,#screen-div-level h2{color:#c0c0e0;font-size:22px;font-weight:700;margin-top:16px}
@@ -531,109 +595,76 @@ body{padding:0}
 
 <div id="app">
 
-  <!-- HOME -->
+  <!-- HOME / HUB -->
   <div id="screen-home" class="screen active">
-    <div class="logo">2x2</div>
-    <div class="subtitle">тяжело в учении, легко в бою</div>
-    <button class="stat-badge" onclick="showStats()">&#x1F4CA; Статистика</button>
-    <div class="stat-badge" id="streakBadge" style="display:none"></div>
-    <div class="stat-badge" id="dailyGoalBadge" style="display:none"></div>
-    <button class="stat-badge" onclick="showAchievements()">&#x1F3C6; Достижения</button>
-    <div class="gs-title">&#x1F4D6; Занятия</div>
-    <div class="levels">
-      <button class="lvl-btn lvl-eq" onclick="pickMultLevel()">
-        <span class="icon">&#x1F4D0;</span>
-        Умножения
-        <span class="desc">Таблица умножения</span>
+    <button class="gear-btn" onclick="openSettings()" title="Настройки">&#9881;</button>
+    <div class="hub-greet" id="hubGreet"></div>
+    <div class="lvl-bar" id="hubLevelBar"></div>
+    <div class="hub-row">
+      <div class="stat-badge" id="streakBadge" style="display:none"></div>
+      <div class="stat-badge" id="dailyGoalBadge" style="display:none"></div>
+    </div>
+    <div class="hub-grid">
+      <button class="hub-tile hub-lessons" onclick="openLessons()">
+        <span class="hub-icon">&#x1F4D6;</span>
+        <span class="hub-name">Занятия</span>
+        <span class="hub-desc">Учись и расти</span>
       </button>
-      <button class="lvl-btn lvl-div" onclick="pickDivLevel()">
-        <span class="icon">&#x2797;</span>
-        Деление
-        <span class="desc">Таблица деления</span>
+      <button class="hub-tile hub-games" onclick="openGames()">
+        <span class="hub-icon">&#x1F3AE;</span>
+        <span class="hub-name">Игры</span>
+        <span class="hub-desc">Проверь себя!</span>
       </button>
-      <button class="lvl-btn lvl-eq2" onclick="pickEqLevel()">
-        <span class="icon">&#x1F522;</span>
-        Уравнения
-        <span class="desc">Найди X (+, &minus;, &times;, &divide;)</span>
+      <button class="hub-tile hub-stats" onclick="showStats()">
+        <span class="hub-icon">&#x1F4CA;</span>
+        <span class="hub-name">Статистика</span>
+        <span class="hub-desc">Твой прогресс</span>
       </button>
-      <button class="lvl-btn lvl-train" onclick="startTraining()" id="trainBtn">
-        <span class="icon">&#x1F3AF;</span>
-        Тренировка
-        <span class="desc" id="trainDesc">Повтори сложные примеры</span>
-      </button>
-      <button class="lvl-btn lvl-read" onclick="playReading()">
-        <span class="icon">&#x1F4D6;</span>
-        Чтение
-        <span class="desc">Сказки для 3 класса</span>
+      <button class="hub-tile hub-ach" onclick="showAchievements()">
+        <span class="hub-icon">&#x1F3C6;</span>
+        <span class="hub-name">Достижения</span>
+        <span class="hub-desc">Собери все кубки</span>
       </button>
     </div>
-    <div class="games-section">
-      <div class="gs-title">&#x1F3AE; Игры</div>
-      <div class="levels" style="margin-top:0">
-        <button class="lvl-btn lvl-eq2" onclick="playTtt()">
-          <span class="game-info-btn" onclick="event.stopPropagation();showGameRules('ttt')">i</span>
-          <span class="icon">&#x2B55;</span>
-          Крестики-нолики
-          <span class="desc">X и O на поле 3&times;3</span>
-        </button>
-        <button class="lvl-btn lvl-div" onclick="playMinesweeper()">
-          <span class="game-info-btn" onclick="event.stopPropagation();showGameRules('ms')">i</span>
-          <span class="icon">&#x1F4A3;</span>
-          Сапёр
-          <span class="desc">Найди все мины 10&times;10</span>
-        </button>
-        <button class="lvl-btn lvl-eq" onclick="pickSprintMode()">
-          <span class="game-info-btn" onclick="event.stopPropagation();showGameRules('sprint')">i</span>
-          <span class="icon">&#x26A1;</span>
-          За минуту
-          <span class="desc">Сколько успеешь за 60 секунд</span>
-        </button>
-        <button class="lvl-btn lvl-eq" onclick="playMemory()">
-          <span class="game-info-btn" onclick="event.stopPropagation();showGameRules('memory')">i</span>
-          <span class="icon">&#x1F9E0;</span>
-          Парные карточки
-          <span class="desc">Найди пары пример→ответ</span>
-        </button>
-        <button class="lvl-btn lvl-eq2" onclick="playGuess()">
-          <span class="game-info-btn" onclick="event.stopPropagation();showGameRules('guess')">i</span>
-          <span class="icon">&#x1F914;</span>
-          Угадай число
-          <span class="desc">Число от 1 до 100</span>
-        </button>
-        <button class="lvl-btn lvl-div" onclick="playCompare()">
-          <span class="game-info-btn" onclick="event.stopPropagation();showGameRules('cmp')">i</span>
-          <span class="icon">&#x2696;&#xFE0F;</span>
-          Сравнивалка
-          <span class="desc">Что больше: 7×8 или 9×6?</span>
-        </button>
-        <button class="lvl-btn lvl-read" onclick="playOdd()">
-          <span class="game-info-btn" onclick="event.stopPropagation();showGameRules('odd')">i</span>
-          <span class="icon">&#x1F914;</span>
-          Найди лишнее
-          <span class="desc">Три равны, один — нет</span>
-        </button>
-        <button class="lvl-btn lvl-hard" onclick="playBalloons()">
-          <span class="game-info-btn" onclick="event.stopPropagation();showGameRules('balloons')">i</span>
-          <span class="icon">&#x1F388;</span>
-          Воздушные шары
-          <span class="desc">Лопни шарик с ответом!</span>
-        </button>
-        <button class="lvl-btn lvl-train" onclick="playBingo()">
-          <span class="game-info-btn" onclick="event.stopPropagation();showGameRules('bingo')">i</span>
-          <span class="icon">&#x1F3AF;</span>
-          Бинго
-          <span class="desc">Собери линию из 5 клеток</span>
-        </button>
-        <button class="lvl-btn lvl-eq2" onclick="playTable()">
-          <span class="game-info-btn" onclick="event.stopPropagation();showGameRules('table')">i</span>
-          <span class="icon">&#x1F4C4;</span>
-          Открой таблицу
-          <span class="desc">Открой все 64 клетки</span>
-        </button>
-      </div>
-    </div>
-    <div class="credit">by Alianar_RnD<br>v1.25.0</div>
+    <div class="credit">by Alianar_RnD<br>v1.26.0</div>
   </div>
+
+  <!-- MENU: LESSONS -->
+  <div id="screen-menu-lessons" class="screen">
+    <button class="nav-btn" style="position:absolute;top:10px;left:10px" onclick="goHome()">&#x2715;</button>
+    <h2 class="sec-title">&#x1F4D6; Занятия</h2>
+    <div class="sect-grid" id="lessonTiles"></div>
+    <p class="sec-hint">&#11088; Занятия дают опыт — открывай новые игры!</p>
+  </div>
+
+  <!-- MENU: GAMES -->
+  <div id="screen-menu-games" class="screen">
+    <button class="nav-btn" style="position:absolute;top:10px;left:10px" onclick="goHome()">&#x2715;</button>
+    <h2 class="sec-title">&#x1F3AE; Игры</h2>
+    <div class="sect-grid" id="gameTiles"></div>
+    <p class="sec-hint" id="gameTilesHint"></p>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="screen-settings" class="screen">
+    <button class="nav-btn" style="position:absolute;top:10px;left:10px" onclick="goHome()">&#x2715;</button>
+    <h2 class="sec-title">&#9881; Настройки</h2>
+    <div class="set-card">
+      <div class="set-label">&#x1F464; Профиль</div>
+      <input class="set-input" id="profileName" type="text" maxlength="20" placeholder="Как тебя зовут?" autocomplete="off">
+      <button class="set-btn" onclick="saveProfile('name')">Сохранить</button>
+      <p class="set-note" id="profileNote"></p>
+    </div>
+    <div class="set-card">
+      <div class="set-label">&#x1F50A; Звук эффектов</div>
+      <div class="set-row"><span>Играть звуки и вибрацию</span><label class="switch"><input type="checkbox" id="setSfx" onchange="saveProfile('sfx')"><span class="slider"></span></label></div>
+      <div class="set-label">&#x1F3B5; Фоновая музыка</div>
+      <div class="set-row"><span>Играть в фоне (audio/music.mp3)</span><label class="switch"><input type="checkbox" id="setMusic" onchange="saveProfile('music')"><span class="slider"></span></label></div>
+      <div class="set-row music-vol-row"><span>Громкость</span><input type="range" id="setMusicVol" min="0" max="100" value="85" oninput="saveProfile('musicVol')"></div>
+    </div>
+  </div>
+
+  <audio id="bgMusic" loop preload="none"></audio>
 
   <!-- MULT LEVEL -->
   <div id="screen-mult-level" class="screen">
@@ -1830,6 +1861,7 @@ function goHome() {
   resetGame();
   if (ballInterval) { clearInterval(ballInterval); ballInterval = null; }
   show('screen-home');
+  renderHub();
   renderStreak();
   renderDailyGoal();
   updateTrainDesc();
@@ -2602,6 +2634,7 @@ function endGame() {
   if (S.gameType === 'eq') unlockAchievement('eq_master');
   if (S.gameType === 'div') unlockAchievement('div_master');
   if (S.isTraining) unlockAchievement('training_done');
+  awardXp(t * 10);
   if (S.totalTime > 300) unlockAchievement('turtle');
   var hour = new Date().getHours();
   if (hour >= 22 || hour < 5) unlockAchievement('night_owl');
@@ -3458,7 +3491,7 @@ function showAchievementPopup(id) {
   popup.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;justify-content:center;padding-top:20px;pointer-events:none';
   var inner = document.createElement('div');
   inner.style.cssText = 'background:rgba(20,15,50,0.95);border:2px solid #ffd700;border-radius:16px;padding:14px 20px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,0.6);animation:fadeIn .3s ease';
-  inner.innerHTML = '<div style="font-size:11px;color:#ffd700;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">\uD83C\uDFC6 Достижение открыто!</div><div style="font-size:22px;margin:4px 0">' + ach.icon + '</div><div style="color:#fff;font-size:14px;font-weight:700">' + ach.name + '</div>';
+  inner.innerHTML = '<div style="font-size:11px;color:#ffd700;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">\uD83C\uDFC6 ' + (getProfile().name ? getProfile().name + ', ' : '') + 'Достижение открыто!</div><div style="font-size:22px;margin:4px 0">' + ach.icon + '</div><div style="color:#fff;font-size:14px;font-weight:700">' + ach.name + '</div>';
   popup.appendChild(inner);
   document.body.appendChild(popup);
   setTimeout(function() { popup.remove(); }, 3000);
@@ -3505,6 +3538,231 @@ function renderDailyGoal() {
   el.innerHTML = '\uD83D\uDCCB ' + g.done + ' сегодня';
   if (g.done >= total) el.style.color = '#43e97b';
   else el.style.color = '';
+}
+
+// --- Profile ---
+function getProfile() {
+  var p = lsGet('xx_profile', {});
+  return {
+    name: (p.name || '').toString().slice(0, 20),
+    sfx: p.sfx !== false,
+    music: !!p.music,
+    musicVol: (typeof p.musicVol === 'number') ? p.musicVol : 85
+  };
+}
+function sfxEnabled() {
+  return getProfile().sfx;
+}
+function saveProfile(key) {
+  var p = lsGet('xx_profile', {});
+  if (key === 'name') {
+    var nm = document.getElementById('profileName');
+    if (nm) p.name = (nm.value || '').trim().slice(0, 20);
+    lsSet('xx_profile', p);
+    renderProfileNote();
+    renderHub();
+  } else if (key === 'sfx') {
+    var s = document.getElementById('setSfx');
+    if (s) p.sfx = s.checked;
+    lsSet('xx_profile', p);
+    if (p.sfx) sfxCorrect();
+  } else if (key === 'music') {
+    var m = document.getElementById('setMusic');
+    if (m) p.music = m.checked;
+    lsSet('xx_profile', p);
+    setBgMusic(p.music);
+  } else if (key === 'musicVol') {
+    var v = document.getElementById('setMusicVol');
+    if (v) p.musicVol = parseInt(v.value, 10) || 85;
+    lsSet('xx_profile', p);
+    setBgMusicVolume();
+  }
+}
+function openSettings() {
+  var p = getProfile();
+  var nm = document.getElementById('profileName');
+  if (nm) nm.value = p.name;
+  var s = document.getElementById('setSfx');
+  if (s) s.checked = p.sfx;
+  var m = document.getElementById('setMusic');
+  if (m) m.checked = p.music;
+  var v = document.getElementById('setMusicVol');
+  if (v) v.value = p.musicVol;
+  renderProfileNote();
+  show('screen-settings');
+}
+function renderProfileNote() {
+  var n = document.getElementById('profileNote');
+  if (!n) return;
+  var p = getProfile();
+  n.textContent = p.name ? '\u2705 Приветствия теперь от имени: «' + p.name + '»' : '\u{1F4AC} Имя появится в приветствиях и в достижениях';
+}
+
+// --- Background music ---
+function setBgMusicVolume() {
+  var a = document.getElementById('bgMusic');
+  if (!a) return;
+  a.volume = Math.max(0, Math.min(1, (getProfile().musicVol || 85) / 100));
+}
+function setBgMusic(on) {
+  var a = document.getElementById('bgMusic');
+  if (!a) return;
+  setBgMusicVolume();
+  if (on) {
+    if (!a.getAttribute('src')) a.setAttribute('src', 'audio/music.mp3');
+    var pp = a.play();
+    if (pp && pp.catch) pp.catch(function() {});
+  } else {
+    try { a.pause(); } catch(e) {}
+  }
+}
+function unlockBgMusic() {
+  if (getProfile().music) setBgMusic(true);
+  document.removeEventListener('pointerdown', unlockBgMusic);
+  document.removeEventListener('touchstart', unlockBgMusic);
+}
+document.addEventListener('pointerdown', unlockBgMusic);
+document.addEventListener('touchstart', unlockBgMusic);
+
+// --- Levels / XP (опыт дают только занятия) ---
+function getXp() { return lsGet('xx_xp', 0) || 0; }
+function lvlNeed(lv) {
+  if (lv <= 1) return 0;
+  if (lv === 2) return 50;
+  if (lv === 3) return 120;
+  if (lv === 4) return 210;
+  if (lv === 5) return 320;
+  if (lv === 6) return 450;
+  return 450 + (lv - 6) * 150;
+}
+function xpInfo() {
+  var xp = getXp();
+  var lv = 1;
+  while (xp >= lvlNeed(lv + 1)) lv++;
+  var cur = xp - lvlNeed(lv);
+  var need = lvlNeed(lv + 1) - lvlNeed(lv);
+  return { lv: lv, xp: xp, cur: cur, need: need, pct: Math.min(100, Math.round(cur / Math.max(1, need) * 100)) };
+}
+function awardXp(n) {
+  if (!n) return;
+  var oldLv = xpInfo().lv;
+  lsSet('xx_xp', getXp() + n);
+  var nw = xpInfo();
+  if (nw.lv > oldLv) {
+    sfxFanfare();
+    showLvlPopup(nw.lv);
+  }
+  renderHub();
+}
+function showLvlPopup(lv) {
+  var p = document.createElement('div');
+  p.className = 'lvl-pop';
+  var nm = getProfile().name;
+  var greet = nm ? nm + ', ' : '';
+  p.innerHTML = '<div class="lvl-pop-in"><div style="font-size:11px;color:#ffd700;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">\u2B50\u2B50 Новый уровень! \u2B50\u2B50</div><div style="font-size:26px;margin:4px 0">\u{1F389}</div><div style="color:#fff;font-size:16px;font-weight:800">' + greet + 'Уровень ' + lv + '!</div></div>';
+  document.body.appendChild(p);
+  setTimeout(function() { p.remove(); }, 3200);
+}
+function renderHub() {
+  var g = document.getElementById('hubGreet');
+  if (g) {
+    var nm = getProfile().name;
+    g.textContent = nm ? 'Привет, ' + nm + '! \u{1F44B}' : 'Привет! \u{1F44B}';
+  }
+  var bar = document.getElementById('hubLevelBar');
+  if (bar) {
+    var i = xpInfo();
+    bar.innerHTML = '<div class="lvl-top"><span class="lvl-name">\u{1F3AF} Уровень <b>' + i.lv + '</b></span><span class="lvl-xp">⭐ ' + i.xp + ' XP</span></div>' +
+      '<div class="xp-track"><div class="xp-fill" style="width:' + i.pct + '%"></div></div>' +
+      '<div class="lvl-next">до уровня ' + (i.lv + 1) + ' — ещё ' + (i.need - i.cur) + ' XP</div>';
+  }
+}
+renderHub();
+
+// --- Lesson & game tiles ---
+var LESSONS = [
+  { icon: '\u{1F4D0}', name: 'Умножения', desc: 'Таблица умножения', grad: 'lvl-eq', fn: 'pickMultLevel()' },
+  { icon: '\u2797', name: 'Деление', desc: 'Таблица деления', grad: 'lvl-div', fn: 'pickDivLevel()' },
+  { icon: '\u{1F522}', name: 'Уравнения', desc: 'Найди X (+, \u2212, \u00D7, \u00F7)', grad: 'lvl-eq2', fn: 'pickEqLevel()' },
+  { icon: '\u{1F3AF}', name: 'Тренировка', desc: 'Повтори сложные примеры', grad: 'lvl-train', fn: 'startTraining()', train: true },
+  { icon: '\u{1F4D6}', name: 'Чтение', desc: 'Сказки для 3 класса', grad: 'lvl-read', fn: 'playReading()' }
+];
+var GAMES = [
+  { id: 'ttt', icon: '\u2B55', name: 'Крестики-нолики', desc: 'X и O на поле 3\u00D73', grad: 'lvl-eq2', fn: 'playTtt()', minLv: 1 },
+  { id: 'memory', icon: '\u{1F9E0}', name: 'Парные карточки', desc: 'Найди пары пример\u2192ответ', grad: 'lvl-eq', fn: 'playMemory()', minLv: 1 },
+  { id: 'guess', icon: '\u{1F914}', name: 'Угадай число', desc: 'Число от 1 до 100', grad: 'lvl-eq2', fn: 'playGuess()', minLv: 1 },
+  { id: 'cmp', icon: '\u2696\uFE0F', name: 'Сравнивалка', desc: 'Что больше: 7\u00D78 или 9\u00D76?', grad: 'lvl-div', fn: 'playCompare()', minLv: 2 },
+  { id: 'odd', icon: '\u{1F914}', name: 'Найди лишнее', desc: 'Три равны, один \u2014 нет', grad: 'lvl-read', fn: 'playOdd()', minLv: 2 },
+  { id: 'ms', icon: '\u{1F4A3}', name: 'Сапёр', desc: 'Найди все мины 10\u00D710', grad: 'lvl-div', fn: 'playMinesweeper()', minLv: 3 },
+  { id: 'sprint', icon: '\u26A1', name: 'За минуту', desc: 'Сколько успеешь за 60 секунд', grad: 'lvl-eq', fn: 'pickSprintMode()', minLv: 3 },
+  { id: 'bingo', icon: '\u{1F3AF}', name: 'Бинго', desc: 'Собери линию из 5 клеток', grad: 'lvl-train', fn: 'playBingo()', minLv: 4 },
+  { id: 'table', icon: '\u{1F4C4}', name: 'Открой таблицу', desc: 'Открой все 64 клетки', grad: 'lvl-eq2', fn: 'playTable()', minLv: 4 },
+  { id: 'balloons', icon: '\u{1F388}', name: 'Воздушные шары', desc: 'Лопни шарик с ответом!', grad: 'lvl-hard', fn: 'playBalloons()', minLv: 5 }
+];
+function renderLessonTiles() {
+  var wrap = document.getElementById('lessonTiles');
+  if (!wrap) return;
+  var g = '';
+  for (var i = 0; i < LESSONS.length; i++) {
+    var it = LESSONS[i];
+    g += '<button class="lvl-btn sect-tile ' + it.grad + '" ' + (it.train ? 'id="trainBtn" ' : '') + 'onclick="' + it.fn + '">' +
+      '<span class="st-icon">' + it.icon + '</span>' +
+      '<span class="st-name">' + it.name + '</span>' +
+      '<span class="st-desc">' + (it.train ? '<span id="trainDesc"></span>' : it.desc) + '</span>' +
+      '</button>';
+  }
+  wrap.innerHTML = g;
+  updateTrainDesc();
+}
+function renderGameTiles() {
+  var wrap = document.getElementById('gameTiles');
+  if (!wrap) return;
+  var lv = xpInfo().lv;
+  var lockedCount = 0;
+  var g = '';
+  for (var i = 0; i < GAMES.length; i++) {
+    var it = GAMES[i];
+    var locked = it.minLv > lv;
+    if (locked) lockedCount++;
+    g += '<button class="lvl-btn sect-tile ' + it.grad + (locked ? ' locked' : '') + '" onclick="' + (locked ? 'lockGame(' + it.minLv + ')' : it.fn) + '">' +
+      '<span class="game-info-btn" onclick="event.stopPropagation();showGameRules(&#39;' + it.id + '&#39;)">i</span>' +
+      '<span class="st-icon">' + it.icon + '</span>' +
+      '<span class="st-name">' + it.name + '</span>' +
+      '<span class="st-desc">' + it.desc + '</span>' +
+      (locked ? '<span class="lock-badge">\u{1F512} Ур. ' + it.minLv + '</span>' : '') +
+      '</button>';
+  }
+  wrap.innerHTML = g;
+  var hint = document.getElementById('gameTilesHint');
+  if (hint) {
+    hint.textContent = lockedCount > 0 ? '\u{1F512} Игры открываются новым уровнем. Опыт (\u2B50) набирается в «Занятиях»!' : '';
+  }
+}
+function openLessons() {
+  renderLessonTiles();
+  show('screen-menu-lessons');
+}
+function openGames() {
+  renderGameTiles();
+  show('screen-menu-games');
+}
+function lockGame(lv) {
+  haptic(40);
+  showHint('\u{1F512} Набери уровень ' + lv + ' в «Занятиях»!');
+}
+var _hintTimer = null;
+function showHint(msg) {
+  var h = document.getElementById('hintToast');
+  if (!h) {
+    h = document.createElement('div');
+    h.id = 'hintToast';
+    h.className = 'hint-toast';
+    document.body.appendChild(h);
+  }
+  h.textContent = msg;
+  h.classList.add('show');
+  clearTimeout(_hintTimer);
+  _hintTimer = setTimeout(function() { h.classList.remove('show'); }, 2400);
 }
 
 // --- Sprint Mode ---
@@ -5623,6 +5881,7 @@ function finishReadingStory() {
   lsSet('xx_hist', hist);
   
   incDailyGoal();
+  awardXp(R.stars * 10);
   var wordsForWpm = R.wordsReadCount > 0 ? R.wordsReadCount : R.words.length;
   var wpm = Math.round(wordsForWpm / Math.max(1, elapsed / 60));
   if (wpm >= 60) unlockAchievement('speed_reader');
@@ -5902,6 +6161,7 @@ function getAudioCtx() {
 }
 function playSound(freq, dur, type, vol) {
   try {
+    if (!sfxEnabled()) return;
     var ctx = getAudioCtx();
     var osc = ctx.createOscillator();
     var gain = ctx.createGain();
@@ -5921,7 +6181,7 @@ function sfxNewRecord() { playSound(523, 0.12, 'sine', 0.25); setTimeout(functio
 function sfxAchievement() { playSound(523, 0.1, 'sine', 0.3); setTimeout(function(){ playSound(659, 0.1, 'sine', 0.3); }, 100); setTimeout(function(){ playSound(784, 0.1, 'sine', 0.3); }, 200); setTimeout(function(){ playSound(1047, 0.25, 'sine', 0.3); }, 300); }
 function sfxFanfare() { playSound(523, 0.15, 'sine', 0.25); setTimeout(function(){ playSound(659, 0.15, 'sine', 0.25); }, 150); setTimeout(function(){ playSound(784, 0.15, 'sine', 0.25); }, 300); setTimeout(function(){ playSound(1047, 0.3, 'sine', 0.3); }, 450); }
 function sfxFlag() { playSound(440, 0.08, 'triangle', 0.15); }
-function haptic(ms) { try { navigator.vibrate && navigator.vibrate(ms); } catch(e) {} }
+function haptic(ms) { try { if (!sfxEnabled()) return; navigator.vibrate && navigator.vibrate(ms); } catch(e) {} }
 
 // ===== iOS TOUCH FIX =====
 document.addEventListener('touchstart', function(){}, {passive: true});
