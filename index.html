@@ -307,7 +307,6 @@ body{padding:0}
 .read-header{width:100%;margin-bottom:4px}
 .read-row1{position:relative;display:flex;align-items:center;width:100%;min-height:36px}
 .read-right{display:flex;align-items:center;gap:10px;margin-left:auto}
-.read-header .game-back{position:static;top:auto;left:auto;align-self:center;flex:none}
 .read-row2{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:2px}
 .read-timer{color:#ffd700;font-size:14px;font-weight:700;white-space:nowrap}
 .read-mic-status{font-size:18px;transition:transform 0.2s,filter 0.2s;opacity:0.4;filter:grayscale(1);cursor:pointer}
@@ -392,10 +391,13 @@ body{padding:0}
 .read-done-btn:active{transform:scale(0.96)}
 .read-done-btn.disabled{opacity:.55;filter:grayscale(.6);pointer-events:none}
 .read-done-btn.shake{animation:missShake .3s ease-in-out 2}
-.read-audio-row{display:flex;gap:14px;justify-content:center;align-items:center;margin-top:10px}
-.read-audio-btn{width:64px;height:64px;border-radius:32px;border:none;font-size:24px;cursor:pointer;color:#fff;transition:.12s;font-family:inherit;box-shadow:0 4px 14px rgba(56,239,125,0.35);background:linear-gradient(135deg,#43e97b,#38ef7d)}
+.read-audio-row{display:flex;gap:10px;justify-content:center;align-items:center;margin-top:10px}
+.read-audio-btn{width:58px;height:58px;border-radius:29px;border:none;font-size:22px;cursor:pointer;color:#fff;transition:.12s;font-family:inherit;box-shadow:0 4px 14px rgba(56,239,125,0.35);background:linear-gradient(135deg,#43e97b,#38ef7d)}
 .read-audio-btn.stop{background:linear-gradient(135deg,#4facfe,#6ec1ff);box-shadow:0 4px 14px rgba(79,172,254,0.35)}
+.read-audio-btn.skip{background:linear-gradient(135deg,#a855f7,#7c3aed);box-shadow:0 4px 14px rgba(168,85,247,0.35);font-size:15px;font-weight:700}
 .read-audio-btn:active{transform:scale(0.93)}
+.read-audio-seek{display:flex;align-items:center;gap:8px;margin-top:8px}
+.read-audio-seek input{flex:1;accent-color:#43e97b;min-height:28px}
 .read-audio-vol{display:flex;align-items:center;gap:8px;margin-top:12px;color:#fff;font-size:15px}
 .read-audio-vol input{flex:1;accent-color:#38ef7d}
 .read-audio-time{text-align:center;color:rgba(255,255,255,0.75);font-size:14px;margin-top:6px;font-variant-numeric:tabular-nums}
@@ -829,10 +831,10 @@ body{padding:0}
   <div id="screen-read-game" class="screen read-screen" style="justify-content:flex-start;padding:12px 8px;gap:8px">
     <div class="read-header">
       <div class="read-row1">
+        <button class="game-back" onclick="stopReadingAndGoBack()">&#x2715;</button>
         <div class="read-right">
           <div id="readMicStatus" class="read-mic-status" onclick="toggleReadDebug()">🎙️</div>
           <div id="readTimer" class="read-timer">⏱ 00:00</div>
-          <button class="game-back" onclick="stopReadingAndGoBack()">&#x2715;</button>
         </div>
       </div>
       <div class="read-row2" id="readRow2">
@@ -851,9 +853,14 @@ body{padding:0}
     <button class="read-done-btn" id="readDoneBtn" style="display:none" onclick="finishReadingDone()">&#x2705; Я закончил читать</button>
     <div id="readAudioBox" style="display:none;width:100%;max-width:300px;text-align:center">
       <audio id="readAudio" preload="metadata" ontimeupdate="updateReadAudioTime()" onplay="readAudioOnPlay()" onpause="readAudioOnPause()" onended="readAudioOnEnded()" oncanplay="readAudioOnCanplay()"></audio>
+      <div class="read-audio-seek">
+        <input type="range" id="readAudioSeek" min="0" max="1000" value="0" oninput="setReadAudioSeek(this.value)">
+      </div>
       <div class="read-audio-row">
+        <button class="read-audio-btn skip" id="readAudioBack" onclick="readAudioSeekBy(-30)">&#x23EE;30</button>
         <button class="read-audio-btn play" id="readAudioToggle" onclick="toggleReadAudio()">&#x25B6;</button>
         <button class="read-audio-btn stop" id="readAudioStopBtn" onclick="stopReadAudio()">&#x23F9;</button>
+        <button class="read-audio-btn skip" id="readAudioFwd" onclick="readAudioSeekBy(30)">30&#x23ED;</button>
       </div>
       <div class="read-audio-vol">
         <span>🔈</span>
@@ -4627,6 +4634,7 @@ function selectQuarter(q) {
 function renderEbookText() {
   var container = document.getElementById('readText');
   container.innerHTML = '';
+  document.getElementById('readTextContainer').style.display = '';
   var story = READ_STORIES[R.storyId];
   if (!story) return;
   var wrapper = document.createElement('div');
@@ -4682,6 +4690,7 @@ function illustPositions(story) {
 function renderReadingText() {
   var container = document.getElementById('readText');
   container.innerHTML = '';
+  document.getElementById('readTextContainer').style.display = '';
   
   for (var i = 0; i < R.words.length; i++) {
     (function(idx) {
@@ -5487,6 +5496,8 @@ function startListenFlow() {
   document.getElementById('readSkipBtn').style.display = 'none';
   document.getElementById('readDoneBtn').style.display = 'none';
   document.getElementById('readText').innerHTML = '';
+  document.getElementById('readTextContainer').style.display = 'none';
+  document.getElementById('readMicStatus').style.display = 'none';
   document.getElementById('readAudioBox').style.display = '';
 
   var audio = document.getElementById('readAudio');
@@ -5495,6 +5506,8 @@ function startListenFlow() {
   audio.volume = 0.85;
   var vol = document.getElementById('readAudioVol');
   if (vol) vol.value = 85;
+  var seek = document.getElementById('readAudioSeek');
+  if (seek) seek.value = 0;
   updateReadAudioTime();
   updateReadAudioToggle();
   R.listenTimer = setInterval(function() {
@@ -5502,9 +5515,6 @@ function startListenFlow() {
     if (audio.paused || audio.ended) return;
     R.elapsedSeconds++;
   }, 1000);
-  try {
-    audio.play();
-  } catch(e) {}
 }
 
 function toggleReadAudio() {
@@ -5533,6 +5543,25 @@ function setReadAudioVolume(v) {
   if (audio) audio.volume = Number(v) / 100;
 }
 
+function setReadAudioSeek(v) {
+  var audio = document.getElementById('readAudio');
+  if (!audio || !audio.src) return;
+  var dur = isFinite(audio.duration) ? audio.duration : 0;
+  if (dur > 0) {
+    audio.currentTime = (Number(v) / 1000) * dur;
+    updateReadAudioTime();
+  }
+}
+
+function readAudioSeekBy(s) {
+  var audio = document.getElementById('readAudio');
+  if (!audio || !audio.src) return;
+  var dur = isFinite(audio.duration) ? audio.duration : 0;
+  if (dur <= 0) return;
+  audio.currentTime = Math.min(Math.max(audio.currentTime + s, 0), dur);
+  updateReadAudioTime();
+}
+
 function updateReadAudioToggle() {
   var audio = document.getElementById('readAudio');
   var btn = document.getElementById('readAudioToggle');
@@ -5553,6 +5582,8 @@ function updateReadAudioTime() {
   if (!audio || !el) return;
   var dur = isFinite(audio.duration) ? audio.duration : 0;
   el.textContent = fmtAudioTime(audio.currentTime) + ' / ' + fmtAudioTime(dur);
+  var seek = document.getElementById('readAudioSeek');
+  if (seek && dur > 0) seek.value = Math.round(audio.currentTime / dur * 1000);
 }
 
 function readAudioOnCanplay() {
