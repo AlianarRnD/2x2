@@ -5153,6 +5153,7 @@ function handleSpeechInput(text) {
 
   R.atomIdx = best.end;
   skipLightWords();
+  R.lastProgressTime = Date.now();
 
   var d = R.currentWordIdx;
   while (d < R.words.length && R.atomIdx >= R.words[d].atomStart + R.words[d].atoms.length) d++;
@@ -5160,7 +5161,6 @@ function handleSpeechInput(text) {
   if (d > R.currentWordIdx) {
     R.currentWordIdx = d;
     R.missUntil = 0;
-    R.lastProgressTime = Date.now();
     R.restartCount = 0;
     if (R.mode === 'technique') R.wordsReadCount = R.currentWordIdx;
     updateWordHighlights();
@@ -5287,6 +5287,8 @@ function flashMiss() {
 }
 
 // Совпадает ли токен с каким-нибудь УЖЕ ПРОЧИТАННЫМ словом (эхо гипотезы).
+// Учитываются и частично принятые атомы текущего слова («жили» из «Жили-были»),
+// иначе растущая гипотеза блокируется префиксным guard'ом ещё до завершения слова.
 function tokenInDone(tok) {
   for (var i = 0; i < R.currentWordIdx; i++) {
     var wobj = R.words[i];
@@ -5296,6 +5298,11 @@ function tokenInDone(tok) {
       if (tok === at || levDist(tok, at) <= 1) return true;
       if (tok.length >= 2 && at.indexOf(tok) === 0) return true;
     }
+  }
+  for (var ai = 0; ai < R.atomIdx; ai++) {
+    var at2 = R.atoms[ai].text;
+    if (tok === at2 || levDist(tok, at2) <= 1) return true;
+    if (tok.length >= 2 && at2.indexOf(tok) === 0) return true;
   }
   return false;
 }
