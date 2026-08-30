@@ -629,7 +629,7 @@ body{padding:0}
         <span class="hub-badge" id="achHubBadge"></span>
       </button>
     </div>
-    <div class="credit">by Alianar_RnD<br>v1.28.1</div>
+    <div class="credit">by Alianar_RnD<br>v1.29.0</div>
   </div>
 
   <!-- MENU: LESSONS -->
@@ -823,7 +823,7 @@ body{padding:0}
   <div id="screen-read-mode" class="screen" style="justify-content:center;gap:14px">
     <button class="nav-btn" style="position:absolute;top:10px;left:10px" onclick="stopReadingAndGoBack2()">&#x2715;</button>
     <h2>&#x1F4D6; Режим чтения</h2>
-    <button class="read-mode-btn rm-karaoke" onclick="selectReadMode('karaoke')">&#x1F3A4; Караоке</button>
+    <button class="read-mode-btn rm-karaoke" onclick="selectReadMode('karaoke')">&#x1F3A4; Чтение вслух</button>
     <button class="read-mode-btn rm-ebook" onclick="selectReadMode('ebook')">&#x1F4DA; Читать как книгу</button>
     <button id="listenModeBtn" class="read-mode-btn rm-listen" onclick="selectReadMode('listen')">&#x1F50A; Аудиосказка</button>
     <button class="read-mode-btn rm-technique" onclick="selectReadMode('technique')">&#x23F1; Техника чтения</button>
@@ -4244,9 +4244,18 @@ function lab(k) {
   return prefix + '\u00B7' + lvl + '\u00B7' + sml;
 }
 
+function readModeLabel(mode) {
+  if (mode === 'karaoke') return 'Чтение вслух';
+  if (mode === 'ebook') return 'Книга';
+  if (mode === 'listen') return 'Аудиосказка';
+  if (mode === 'technique') return 'Техника';
+  return '';
+}
+
 function histLabel(e) {
   if (e.gameType === 'read') {
-    return 'Чтение \u00B7 ' + (e.mul || 'Сказка');
+    var rm = readModeLabel(e.rmode);
+    return 'Чтение' + (rm ? ' \u00B7 ' + rm : '') + ' \u00B7 ' + (e.mul || 'Сказка');
   }
   if (e.gameType === 'eq') {
     var diffs = { easy: 'Ур·Лёгкая', medium: 'Ур·Средняя', hard: 'Ур·Сложная' };
@@ -5932,17 +5941,38 @@ function readAudioOnEnded() {
   finishReadingStory();
 }
 
+// Завершение чтения: если у сказки есть викторина — сначала контрольные вопросы,
+// начисления (звёзды, история, XP) происходят только после их прохождения.
 function finishReadingStory() {
   stopReading();
-  
+  quizState = { questions: [], idx: 0, correct: 0 };
+
+  var story = READ_STORIES[R.storyId];
+  var storyName = story ? story.title : '';
+
+  if (R.mode !== 'technique' && READ_QUIZZES && READ_QUIZZES[R.storyId]) {
+    showReadQuiz();
+    return;
+  }
+  completeReading();
+}
+
+// Начисление результата чтения: звёзды по ответам викторины (или по времени,
+// если режим без контрольных вопросов).
+function completeReading() {
   var story = READ_STORIES[R.storyId];
   var storyName = story ? story.title : '';
   var elapsed = R.elapsedSeconds;
-  
-  var timeStars = Math.floor(elapsed / 60);
-  var finishBonus = 5;
-  R.stars = timeStars + finishBonus;
-  
+
+  var quizTotal = quizState.questions.length;
+  var quizCorrect = quizState.correct;
+  if (quizTotal > 0) {
+    var pct = Math.round(quizCorrect / quizTotal * 100);
+    R.stars = pct >= 100 ? 3 : pct >= 80 ? 2 : 1;
+  } else {
+    R.stars = Math.floor(elapsed / 60) + 5;
+  }
+
   var hist = lsGet('xx_hist', []);
   var histEntry = {
     gameType: 'read',
@@ -5950,25 +5980,20 @@ function finishReadingStory() {
     stars: R.stars,
     total: R.words.length,
     time: elapsed,
+    rmode: R.mode || R.lastMode || '',
     date: Date.now()
   };
   hist.unshift(histEntry);
   if (hist.length > 100) hist.length = 100;
   lsSet('xx_hist', hist);
-  
+
   incDailyGoal();
   awardXp(R.stars * 10);
   var wordsForWpm = R.wordsReadCount > 0 ? R.wordsReadCount : R.words.length;
   var wpm = Math.round(wordsForWpm / Math.max(1, elapsed / 60));
   if (wpm >= 60) unlockAchievement('speed_reader');
 
-  if (R.mode === 'technique') {
-    showReadResult(storyName);
-  } else if (READ_QUIZZES && READ_QUIZZES[R.storyId]) {
-    showReadQuiz();
-  } else {
-    showReadResult(storyName);
-  }
+  showReadResult(storyName);
 }
 
 var READ_DONE_MIN_SEC = 60;
@@ -6039,8 +6064,8 @@ function renderQuizQuestion() {
   var wrap = document.getElementById('quizWrap');
   wrap.innerHTML = '';
   if (quizState.idx >= quizState.questions.length) {
-    if (quizState.questions.length > 0 && quizState.correct === quizState.questions.length) registerStoryRead();
-    showReadResult(READ_STORIES[R.storyId].title);
+    if (quizState.questions.length > 0) registerStoryRead();
+    completeReading();
     return;
   }
   var q = quizState.questions[quizState.idx];
