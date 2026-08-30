@@ -629,7 +629,7 @@ body{padding:0}
         <span class="hub-badge" id="achHubBadge"></span>
       </button>
     </div>
-    <div class="credit">by Alianar_RnD<br>v1.27.0</div>
+    <div class="credit">by Alianar_RnD<br>v1.28.0</div>
   </div>
 
   <!-- MENU: LESSONS -->
@@ -924,7 +924,7 @@ body{padding:0}
     <div class="stab" id="recList"></div>
     <div class="stab" id="histList" style="display:none"></div>
     <div class="stab" id="analyticsList" style="display:none"></div>
-    <button class="stat-clear-btn" id="clearHistBtn" onclick="clearHistory()">&#x1F5D1; Сбросить всю статистику</button>
+    <button class="stat-clear-btn" id="clearHistBtn" onclick="clearHistory()">&#x1F5D1; Сбросить статистику и уровень</button>
   </div>
 
   <!-- ACHIEVEMENTS -->
@@ -3496,18 +3496,41 @@ function unlockAchievement(id) {
   showAchievementPopup(id);
   return true;
 }
+
+// Очередь уведомлений: попапы (достижения, уровень) показываются строго по одному.
+var _noteQueue = [];
+var _noteBusy = false;
+function enqueueNote(makeEl, dur) {
+  _noteQueue.push({ makeEl: makeEl, dur: dur || 3000 });
+  _dequeueNote();
+}
+function _dequeueNote() {
+  if (_noteBusy) return;
+  var item = _noteQueue.shift();
+  if (!item) return;
+  _noteBusy = true;
+  var el = item.makeEl();
+  setTimeout(function() {
+    if (el && el.parentNode) el.parentNode.removeChild(el);
+    _noteBusy = false;
+    _dequeueNote();
+  }, item.dur);
+}
+
 function showAchievementPopup(id) {
   var ach = ACHIEVEMENTS[id];
   if (!ach) return;
-  sfxAchievement();
-  var popup = document.createElement('div');
-  popup.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;justify-content:center;padding-top:20px;pointer-events:none';
-  var inner = document.createElement('div');
-  inner.style.cssText = 'background:rgba(20,15,50,0.95);border:2px solid #ffd700;border-radius:16px;padding:14px 20px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,0.6);animation:fadeIn .3s ease';
-  inner.innerHTML = '<div style="font-size:11px;color:#ffd700;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">\uD83C\uDFC6 ' + (getProfile().name ? getProfile().name + ', ' : '') + 'Достижение открыто!</div><div style="font-size:22px;margin:4px 0">' + ach.icon + '</div><div style="color:#fff;font-size:14px;font-weight:700">' + ach.name + '</div>';
-  popup.appendChild(inner);
-  document.body.appendChild(popup);
-  setTimeout(function() { popup.remove(); }, 3000);
+  enqueueNote(function() {
+    sfxAchievement();
+    var popup = document.createElement('div');
+    popup.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;justify-content:center;padding-top:20px;pointer-events:none';
+    var inner = document.createElement('div');
+    inner.style.cssText = 'background:rgba(20,15,50,0.95);border:2px solid #ffd700;border-radius:16px;padding:14px 20px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,0.6);animation:fadeIn .3s ease';
+    inner.innerHTML = '<div style="font-size:11px;color:#ffd700;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">\uD83C\uDFC6 ' + (getProfile().name ? getProfile().name + ', ' : '') + 'Достижение открыто!</div><div style="font-size:22px;margin:4px 0">' + ach.icon + '</div><div style="color:#fff;font-size:14px;font-weight:700">' + ach.name + '</div>';
+    popup.appendChild(inner);
+    document.body.appendChild(popup);
+    return popup;
+  }, 2500);
 }
 function renderAchievements() {
   var list = getAchievements();
@@ -3673,19 +3696,21 @@ function awardXp(n) {
   lsSet('xx_xp', getXp() + n);
   var nw = xpInfo();
   if (nw.lv > oldLv) {
-    sfxFanfare();
     showLvlPopup(nw.lv);
   }
   renderHub();
 }
 function showLvlPopup(lv) {
-  var p = document.createElement('div');
-  p.className = 'lvl-pop';
-  var nm = getProfile().name;
-  var greet = nm ? nm + ', ' : '';
-  p.innerHTML = '<div class="lvl-pop-in"><div style="font-size:11px;color:#ffd700;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">\u2B50\u2B50 Новый уровень! \u2B50\u2B50</div><div style="font-size:26px;margin:4px 0">\u{1F389}</div><div style="color:#fff;font-size:16px;font-weight:800">' + greet + 'Уровень ' + lv + '!</div></div>';
-  document.body.appendChild(p);
-  setTimeout(function() { p.remove(); }, 3200);
+  enqueueNote(function() {
+    sfxFanfare();
+    var p = document.createElement('div');
+    p.className = 'lvl-pop';
+    var nm = getProfile().name;
+    var greet = nm ? nm + ', ' : '';
+    p.innerHTML = '<div class="lvl-pop-in"><div style="font-size:11px;color:#ffd700;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">\u2B50\u2B50 Новый уровень! \u2B50\u2B50</div><div style="font-size:26px;margin:4px 0">\u{1F389}</div><div style="color:#fff;font-size:16px;font-weight:800">' + greet + 'Уровень ' + lv + '!</div></div>';
+    document.body.appendChild(p);
+    return p;
+  }, 3200);
 }
 function renderHub() {
   var g = document.getElementById('hubGreet');
@@ -3995,14 +4020,16 @@ function showStats() {
 }
 
 function clearHistory() {
-  if (!confirm('Удалить всю статистику? Это действие необратимо.')) return;
+  if (!confirm('Удалить всю статистику и сбросить уровень? Это действие необратимо.')) return;
   if (prompt('Введите пароль для сброса статистики:') === '67') {
     localStorage.removeItem('xx_hist');
     localStorage.removeItem('xx_rec');
     localStorage.removeItem('xx_read_counts');
+    localStorage.removeItem('xx_xp');
     renderRecords();
     renderHistory();
     renderAnalytics();
+    renderHub();
   }
 }
 
