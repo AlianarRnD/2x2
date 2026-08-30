@@ -63,6 +63,8 @@ body{padding:0}
 .hub-games{background:linear-gradient(135deg,#f093fb,#4facfe);box-shadow:0 6px 20px rgba(240,147,251,0.35)}
 .hub-stats{background:linear-gradient(135deg,#f9a825,#ff8f00);box-shadow:0 6px 20px rgba(249,168,37,0.35)}
 .hub-ach{background:linear-gradient(135deg,#667eea,#764ba2);box-shadow:0 6px 20px rgba(102,126,234,0.35)}
+.hub-tile .hub-badge{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.5);color:#ffd700;font-size:11px;font-weight:800;padding:3px 8px;border-radius:10px;z-index:2;font-variant-numeric:tabular-nums}
+.read-mode-btn .rm-lock{font-size:10px;font-weight:700;background:rgba(0,0,0,0.4);color:#ffd700;padding:2px 6px;border-radius:8px;margin-left:6px;vertical-align:middle}
 /* section / submenu screens */
 .sec-title{color:#fff;font-size:20px;font-weight:800;margin-top:44px}
 .sec-hint{color:#8888bb;font-size:12px;text-align:center;max-width:280px;line-height:1.5}
@@ -624,9 +626,10 @@ body{padding:0}
         <span class="hub-icon">&#x1F3C6;</span>
         <span class="hub-name">Достижения</span>
         <span class="hub-desc">Собери все кубки</span>
+        <span class="hub-badge" id="achHubBadge"></span>
       </button>
     </div>
-    <div class="credit">by Alianar_RnD<br>v1.26.0</div>
+    <div class="credit">by Alianar_RnD<br>v1.27.0</div>
   </div>
 
   <!-- MENU: LESSONS -->
@@ -659,7 +662,7 @@ body{padding:0}
       <div class="set-label">&#x1F50A; Звук эффектов</div>
       <div class="set-row"><span>Играть звуки и вибрацию</span><label class="switch"><input type="checkbox" id="setSfx" onchange="saveProfile('sfx')"><span class="slider"></span></label></div>
       <div class="set-label">&#x1F3B5; Фоновая музыка</div>
-      <div class="set-row"><span>Играть в фоне (audio/music.mp3)</span><label class="switch"><input type="checkbox" id="setMusic" onchange="saveProfile('music')"><span class="slider"></span></label></div>
+      <div class="set-row"><span>Играть на фоне</span><label class="switch"><input type="checkbox" id="setMusic" onchange="saveProfile('music')"><span class="slider"></span></label></div>
       <div class="set-row music-vol-row"><span>Громкость</span><input type="range" id="setMusicVol" min="0" max="100" value="85" oninput="saveProfile('musicVol')"></div>
     </div>
   </div>
@@ -1242,6 +1245,14 @@ const READ_TECHNIQUE = {
 const READ_AUDIO = {
   kolobok: 'audio/kolobok.mp3'
 };
+
+// Уровень, с которого доступна аудиосказка (по умолчанию 2).
+const READ_AUDIO_LV = {
+  kolobok: 3
+};
+function audioStoryLv(id) {
+  return READ_AUDIO_LV[id] || 2;
+}
 
 // Иллюстрации сказок: картинка вставляется перед Н-ным вхождением слова.
 const READ_ILLUST = {
@@ -1861,6 +1872,7 @@ function goHome() {
   resetGame();
   if (ballInterval) { clearInterval(ballInterval); ballInterval = null; }
   show('screen-home');
+  setMusicCtx('menu');
   renderHub();
   renderStreak();
   renderDailyGoal();
@@ -3480,6 +3492,7 @@ function unlockAchievement(id) {
   if (list.indexOf(id) !== -1) return false;
   list.push(id);
   lsSet('xx_achievements', list);
+  renderHub();
   showAchievementPopup(id);
   return true;
 }
@@ -3570,7 +3583,7 @@ function saveProfile(key) {
     var m = document.getElementById('setMusic');
     if (m) p.music = m.checked;
     lsSet('xx_profile', p);
-    setBgMusic(p.music);
+    applyMusic();
   } else if (key === 'musicVol') {
     var v = document.getElementById('setMusicVol');
     if (v) p.musicVol = parseInt(v.value, 10) || 85;
@@ -3598,26 +3611,37 @@ function renderProfileNote() {
   n.textContent = p.name ? '\u2705 Приветствия теперь от имени: «' + p.name + '»' : '\u{1F4AC} Имя появится в приветствиях и в достижениях';
 }
 
-// --- Background music ---
+// --- Background music (contextual) ---
+var _musicCtx = 'menu';
+function musicFileForCtx() {
+  if (_musicCtx === 'games') return 'audio/1.mp3';
+  if (_musicCtx === 'lessons') return 'audio/2.mp3';
+  return 'audio/music.mp3';
+}
 function setBgMusicVolume() {
   var a = document.getElementById('bgMusic');
   if (!a) return;
   a.volume = Math.max(0, Math.min(1, (getProfile().musicVol || 85) / 100));
 }
-function setBgMusic(on) {
+function applyMusic() {
   var a = document.getElementById('bgMusic');
   if (!a) return;
   setBgMusicVolume();
-  if (on) {
-    if (!a.getAttribute('src')) a.setAttribute('src', 'audio/music.mp3');
-    var pp = a.play();
-    if (pp && pp.catch) pp.catch(function() {});
-  } else {
+  if (!getProfile().music || _musicCtx === 'read') {
     try { a.pause(); } catch(e) {}
+    return;
   }
+  var f = musicFileForCtx();
+  if (a.getAttribute('src') !== f) a.setAttribute('src', f);
+  var pp = a.play();
+  if (pp && pp.catch) pp.catch(function() {});
+}
+function setMusicCtx(ctx) {
+  _musicCtx = ctx;
+  applyMusic();
 }
 function unlockBgMusic() {
-  if (getProfile().music) setBgMusic(true);
+  applyMusic();
   document.removeEventListener('pointerdown', unlockBgMusic);
   document.removeEventListener('touchstart', unlockBgMusic);
 }
@@ -3676,6 +3700,8 @@ function renderHub() {
       '<div class="xp-track"><div class="xp-fill" style="width:' + i.pct + '%"></div></div>' +
       '<div class="lvl-next">до уровня ' + (i.lv + 1) + ' — ещё ' + (i.need - i.cur) + ' XP</div>';
   }
+  var ab = document.getElementById('achHubBadge');
+  if (ab) ab.textContent = getAchievements().length + '/' + Object.keys(ACHIEVEMENTS).length;
 }
 renderHub();
 
@@ -3739,10 +3765,12 @@ function renderGameTiles() {
   }
 }
 function openLessons() {
+  setMusicCtx('lessons');
   renderLessonTiles();
   show('screen-menu-lessons');
 }
 function openGames() {
+  setMusicCtx('games');
   renderGameTiles();
   show('screen-menu-games');
 }
@@ -4739,16 +4767,25 @@ function pickStory(storyKey) {
   show('screen-read-mode');
 }
 
-// «Аудиосказка» активна только если для сказки есть MP3.
+// «Аудиосказка» активна только если для сказки есть MP3 и хватает уровня.
 function updateListenBtn() {
   var btn = document.getElementById('listenModeBtn');
   if (!btn) return;
   if (READ_AUDIO[R.storyId]) {
-    btn.classList.remove('disabled');
-    btn.title = '';
+    var lvl = audioStoryLv(R.storyId);
+    if (xpInfo().lv >= lvl) {
+      btn.classList.remove('disabled');
+      btn.innerHTML = '&#x1F50A; Аудиосказка';
+      btn.title = '';
+    } else {
+      btn.classList.add('disabled');
+      btn.innerHTML = '&#x1F512; Аудиосказка <span class="rm-lock">Ур. ' + lvl + '</span>';
+      btn.title = '\u041D\u0443\u0436\u0435\u043D \u0443\u0440\u043E\u0432\u0435\u043D\u044C ' + lvl + ' \u2014 \u0437\u0430\u043D\u0438\u043C\u0430\u0439\u0441\u044F \u0432 \u00AB\u0417\u0430\u043D\u044F\u0442\u0438\u044F\u0445\u00BB!';
+    }
   } else {
     btn.classList.add('disabled');
-    btn.title = 'Скоро появится';
+    btn.innerHTML = '&#x1F50A; Аудиосказка';
+    btn.title = '\u0421\u043A\u043E\u0440\u043E \u043F\u043E\u044F\u0432\u0438\u0442\u0441\u044F';
   }
 }
 
@@ -4864,12 +4901,20 @@ if (R.mode === 'listen') {
 
 function selectReadMode(mode) {
   R.mode = mode;
-  if (mode === 'listen' && !READ_AUDIO[R.storyId]) {
-    showReadHint('Скоро появится');
-    R.mode = '';
-    return;
+  if (mode === 'listen') {
+    if (!READ_AUDIO[R.storyId]) {
+      showReadHint('Скоро появится');
+      R.mode = '';
+      return;
+    }
+    if (xpInfo().lv < audioStoryLv(R.storyId)) {
+      showReadHint('\u{1F512} Нужен «Уровень ' + audioStoryLv(R.storyId) + '» — занимайся в «Занятиях»!');
+      R.mode = '';
+      return;
+    }
   }
   updateStreak();
+  setMusicCtx('read');
   startReading(R.storyId);
 }
 
